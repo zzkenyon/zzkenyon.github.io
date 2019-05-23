@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>设计模式之建造者模式 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="静态工厂和构造器有一个共同的局限性：不能很好的扩展到大量的可选参数。对于初始化参数很多的类，常规的做法是使用重载构造器，但是当参数很多的时候，客户端代码会很难写，并且较难阅读。   这时，还有另外一种替代方案，使用javaBean模式，在这种模式下先默认构造器创建对象，然后用setter方法设置需要的参数。遗憾的是，JavaBean模式自身有着很严重的缺点，因为构造过程分成了好几个调用，在构造过程">
+<meta name="keywords" content="设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式之建造者模式">
+<meta property="og:url" content="http://yoursite.com/2016/08/02/设计模式之建造者模式/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="静态工厂和构造器有一个共同的局限性：不能很好的扩展到大量的可选参数。对于初始化参数很多的类，常规的做法是使用重载构造器，但是当参数很多的时候，客户端代码会很难写，并且较难阅读。   这时，还有另外一种替代方案，使用javaBean模式，在这种模式下先默认构造器创建对象，然后用setter方法设置需要的参数。遗憾的是，JavaBean模式自身有着很严重的缺点，因为构造过程分成了好几个调用，在构造过程">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-24T08:30:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式之建造者模式">
+<meta name="twitter:description" content="静态工厂和构造器有一个共同的局限性：不能很好的扩展到大量的可选参数。对于初始化参数很多的类，常规的做法是使用重载构造器，但是当参数很多的时候，客户端代码会很难写，并且较难阅读。   这时，还有另外一种替代方案，使用javaBean模式，在这种模式下先默认构造器创建对象，然后用setter方法设置需要的参数。遗憾的是，JavaBean模式自身有着很严重的缺点，因为构造过程分成了好几个调用，在构造过程">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-设计模式之建造者模式" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/02/设计模式之建造者模式/" class="article-date">
+  <time datetime="2016-08-02T05:35:36.000Z" itemprop="datePublished">2016-08-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      设计模式之建造者模式
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>静态工厂和构造器有一个共同的局限性：不能很好的扩展到大量的可选参数。对于初始化参数很多的类，常规的做法是使用重载构造器，但是当参数很多的时候，客户端代码会很难写，并且较难阅读。  </p>
+<p>这时，还有另外一种替代方案，使用javaBean模式，在这种模式下先默认构造器创建对象，然后用setter方法设置需要的参数。遗憾的是，JavaBean模式自身有着很严重的缺点，因为构造过程分成了好几个调用，在构造过程中JavaBean可能处于不一致的状态，类无法仅仅通过检查构造器参数的有效性来保证一致性。</p>
+<p>最终还有第三种替代方案，既能确保安全性，也能保证可读性，那就是建造者模式。</p>
+<h3 id="1-建造者模式"><a href="#1-建造者模式" class="headerlink" title="1. 建造者模式"></a>1. 建造者模式</h3><p>直接看一个简单例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">public class Person &#123;</span><br><span class="line">    private final String name;</span><br><span class="line">    private final String address;</span><br><span class="line">    private final int age;</span><br><span class="line">    private final int sex;</span><br><span class="line">    private final String tel;</span><br><span class="line"></span><br><span class="line">    public static class Builder &#123;</span><br><span class="line">        //Required parameters</span><br><span class="line">        private final String name;</span><br><span class="line">        private final int age;</span><br><span class="line">        private final int sex;</span><br><span class="line">        //Optional parameters</span><br><span class="line">        private String address = &quot;浙江杭州&quot;;</span><br><span class="line">        private String tel = &quot;0571&quot;;</span><br><span class="line"></span><br><span class="line">        public Builder(String name, int age, int sex) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">            this.age = age;</span><br><span class="line">            this.sex = sex;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public Builder address(String address) &#123;</span><br><span class="line">            this.address = address;</span><br><span class="line">            return this;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public Builder tel(String tel) &#123;</span><br><span class="line">            this.tel = tel;</span><br><span class="line">            return this;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public Person build()&#123;</span><br><span class="line">            return new Person(this);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    private Person(Builder builder)&#123;</span><br><span class="line">        name = builder.name;</span><br><span class="line">        address = builder.address;</span><br><span class="line">        sex = builder.sex;</span><br><span class="line">        age = builder.age;</span><br><span class="line">        tel = builder.tel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        Person p = new Builder(&quot;zhaozhengkang&quot;,25,1).address(&quot;yuhang&quot;).tel(&quot;123456789&quot;).build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>builder的设值方法返回builder本身，以便把调用连接起来形成一个流式的API.</p>
+<h3 id="2-类层次中使用建造者模式-（effective-java-rule2-30）"><a href="#2-类层次中使用建造者模式-（effective-java-rule2-30）" class="headerlink" title="2. 类层次中使用建造者模式 （effective java rule2,30）"></a>2. 类层次中使用建造者模式 （effective java rule2,30）</h3><p>使用平行层次结构的builder时，各自嵌套在相应类中。抽象类有抽象类的builder，具体类有具体类的builder。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public abstract class Pizza &#123;</span><br><span class="line">    public enum Topping &#123;</span><br><span class="line">        HAM, MUSHROOM, ONION, PEPPER, SAUSAGE</span><br><span class="line">    &#125;</span><br><span class="line">    final Set&lt;Topping&gt; toppings;</span><br><span class="line"></span><br><span class="line">    abstract static class Builder&lt;T extends Builder&lt;T&gt;&gt;&#123;</span><br><span class="line">        EnumSet&lt;Topping&gt; toppings = EnumSet.noneOf(Topping.class);</span><br><span class="line">        public T addTopping(Topping topping)&#123;</span><br><span class="line">            toppings.add(Objects.requireNonNull(topping));</span><br><span class="line">            return self();</span><br><span class="line">        &#125;</span><br><span class="line">        abstract Pizza build();</span><br><span class="line">        protected abstract T self();</span><br><span class="line">    &#125;</span><br><span class="line">    Pizza(Builder&lt;?&gt; builder)&#123;</span><br><span class="line">        toppings = builder.toppings.clone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Builder&lt;T extends Builder<t>&gt;这一句使用了<strong>递归类型限制</strong>中的<strong>模拟自类型</strong><br>模拟自类型（自限定类型）所做的就是要求在继承关系中，强制要求将正在定义的类当做参数传递给基类，看下面代码：</t></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class NyPizza extends Pizza &#123;</span><br><span class="line">    public  enum  Size&#123;SMALL, MEDIUM, LARGER&#125;</span><br><span class="line">    private final Size size;</span><br><span class="line">    public static class NyPizzaBuilder extends Pizza.Builder&lt;NyPizzaBuilder&gt;&#123;</span><br><span class="line">        private final Size size;</span><br><span class="line">        public NyPizzaBuilder(Size size)&#123;</span><br><span class="line">            this.size = Objects.requireNonNull(size);</span><br><span class="line">        &#125;</span><br><span class="line">        @Override</span><br><span class="line">        public NyPizza build() &#123;</span><br><span class="line">            return new NyPizza(this);</span><br><span class="line">        &#125;</span><br><span class="line">        @Override</span><br><span class="line">        protected NyPizzaBuilder self() &#123;</span><br><span class="line">            return this;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    private NyPizza(NyPizzaBuilder builder) &#123;</span><br><span class="line">        super(builder);</span><br><span class="line">        size = builder.size;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        NyPizza p = new NyPizzaBuilder(Size.SMALL).addTopping(Topping.SAUSAGE).addTopping(Topping.ONION).build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继承时，必须将正在定义的类NyPizzaBuilder作为类型参数传给基类Pizza.Builder<nypizzabuilder>，否则无法编译。<br>自限定类型属于泛型知识，将另开一篇进行研究。</nypizzabuilder></p>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p>《Effcitive Java》</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/08/02/设计模式之建造者模式/" data-id="cjw02os64000jl2i71xd3ztvc" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/08/04/设计模式之单例模式/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          设计模式之单例模式
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/08/01/设计模式之工厂模式/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">设计模式之工厂模式</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/java编程/">java编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux命令/">linux命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发编程/">并发编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码分析/">源码分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/转载/">转载</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/java编程/" style="font-size: 10px;">java编程</a> <a href="/tags/linux命令/" style="font-size: 13.33px;">linux命令</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/并发编程/" style="font-size: 20px;">并发编程</a> <a href="/tags/数据库/" style="font-size: 13.33px;">数据库</a> <a href="/tags/源码分析/" style="font-size: 13.33px;">源码分析</a> <a href="/tags/设计模式/" style="font-size: 16.67px;">设计模式</a> <a href="/tags/转载/" style="font-size: 10px;">转载</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/21/源码分析-会用HashMap/">源码分析-会用HashMap</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/27/并发编程-并发工具类/">并发编程-并发工具类</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

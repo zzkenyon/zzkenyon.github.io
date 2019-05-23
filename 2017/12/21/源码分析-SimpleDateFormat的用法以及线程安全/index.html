@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>源码分析-SimpleDateFormat的用法以及线程安全 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="开发中我们经常会用到时间相关类，我们有很多办法在Java代码中获取时间。但是不同的方法获取到的时间的格式都不尽相同，这时候就需要一种格式化工具，把时间显示成我们需要的格式。最常用的方法就是使用SimpleDateFormat类。这是一个看上去功能比较简单的类，但是，一旦使用不当也有可能导致很大的问题。 在阿里巴巴Java开发手册中，有如下明确规定：本文就围绕SimpleDateFormat的用法、">
+<meta name="keywords" content="源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码分析-SimpleDateFormat的用法以及线程安全">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="开发中我们经常会用到时间相关类，我们有很多办法在Java代码中获取时间。但是不同的方法获取到的时间的格式都不尽相同，这时候就需要一种格式化工具，把时间显示成我们需要的格式。最常用的方法就是使用SimpleDateFormat类。这是一个看上去功能比较简单的类，但是，一旦使用不当也有可能导致很大的问题。 在阿里巴巴Java开发手册中，有如下明确规定：本文就围绕SimpleDateFormat的用法、">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://wx2.sinaimg.cn/mw690/87c9e458gy1g2df391sgsj20u002qmy9.jpg">
+<meta property="og:image" content="http://wx4.sinaimg.cn/mw690/87c9e458gy1g2dfj3v4y8j20u00le7ci.jpg">
+<meta property="og:image" content="http://wx4.sinaimg.cn/mw690/87c9e458gy1g2dfklzoizj20tq0bgwko.jpg">
+<meta property="og:updated_time" content="2019-05-23T03:00:04.545Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码分析-SimpleDateFormat的用法以及线程安全">
+<meta name="twitter:description" content="开发中我们经常会用到时间相关类，我们有很多办法在Java代码中获取时间。但是不同的方法获取到的时间的格式都不尽相同，这时候就需要一种格式化工具，把时间显示成我们需要的格式。最常用的方法就是使用SimpleDateFormat类。这是一个看上去功能比较简单的类，但是，一旦使用不当也有可能导致很大的问题。 在阿里巴巴Java开发手册中，有如下明确规定：本文就围绕SimpleDateFormat的用法、">
+<meta name="twitter:image" content="http://wx2.sinaimg.cn/mw690/87c9e458gy1g2df391sgsj20u002qmy9.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-源码分析-SimpleDateFormat的用法以及线程安全" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/" class="article-date">
+  <time datetime="2017-12-21T01:02:32.000Z" itemprop="datePublished">2017-12-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      源码分析-SimpleDateFormat的用法以及线程安全
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>开发中我们经常会用到时间相关类，我们有很多办法在Java代码中获取时间。但是不同的方法获取到的时间的格式都不尽相同，这时候就需要一种格式化工具，把时间显示成我们需要的格式。最常用的方法就是使用SimpleDateFormat类。这是一个看上去功能比较简单的类，但是，一旦使用不当也有可能导致很大的问题。</p>
+<p>在阿里巴巴Java开发手册中，有如下明确规定：<br><img src="http://wx2.sinaimg.cn/mw690/87c9e458gy1g2df391sgsj20u002qmy9.jpg" alt="image"><br>本文就围绕SimpleDateFormat的用法、原理等来深入分析下如何以正确使用它。</p>
+<h3 id="1-SimpleDateFormat用法"><a href="#1-SimpleDateFormat用法" class="headerlink" title="1. SimpleDateFormat用法"></a>1. SimpleDateFormat用法</h3><h4 id="1-1-基本用法"><a href="#1-1-基本用法" class="headerlink" title="1.1 基本用法"></a>1.1 基本用法</h4><p>SimpleDateFormat是java提供的能对时间格式化及解析的工具类。  </p>
+<ul>
+<li><p>格式化：将规范日期格式化成日期文本（时间字符串）  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">String dateStr = sdf.format(new Date());</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解析： 将文本日期解析成规范化的时间格式  </p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Date d = sdf.parse(dataStr);</span><br></pre></td></tr></table></figure>
+<p>用户可以自定义文本日期的格式，通过字母来描述时间元素，并组装成想要的日期和时间格式。常用的时间元素和字母的对应表如下：<br><img src="http://wx4.sinaimg.cn/mw690/87c9e458gy1g2dfj3v4y8j20u00le7ci.jpg" alt="模板定义"><br>模式字母通常是重复的，其数量确定其精确表示。如下表是常用的输出格式的表示方法。<br><img src="http://wx4.sinaimg.cn/mw690/87c9e458gy1g2dfklzoizj20tq0bgwko.jpg" alt="image">  </p>
+<h4 id="1-2-时区"><a href="#1-2-时区" class="headerlink" title="1.2 时区"></a>1.2 时区</h4><p>如何在Java代码中获取不同时区的时间呢？SimpleDateFormat可以实现这个功能。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args)&#123;</span><br><span class="line">        SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">        System.out.println(sdf.format(Calendar.getInstance().getTime()));</span><br><span class="line">        sdf.setTimeZone(TimeZone.getTimeZone(&quot;America/Los_Angeles&quot;));</span><br><span class="line">        System.out.println(sdf.format(Calendar.getInstance().getTime()));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上代码，输出的结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2019-04-24 09:26:38</span><br><span class="line">2019-04-23 18:26:38</span><br></pre></td></tr></table></figure>
+<p>中国的时间第一行，而美国洛杉矶时间比中国北京时间慢了17个小时（这还和冬夏令时有关系）。<br>当然，这不是显示其他时区的唯一方法</p>
+<h3 id="2-SimpleDateFormat线程安全性"><a href="#2-SimpleDateFormat线程安全性" class="headerlink" title="2. SimpleDateFormat线程安全性"></a>2. SimpleDateFormat线程安全性</h3><p>由于SimpleDateFormat比较常用，而且在一般情况下，一个应用中的时间显示模式都是一样的，所以很多人愿意使用如下方式定义SimpleDateFormat：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class Main &#123;</span><br><span class="line">   private static SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">        sdf.setTimeZone(TimeZone.getTimeZone(&quot;America/New_York&quot;));</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这种定义方式，存在很大的线程安全隐患。  </p>
+<h4 id="2-1-问题重现"><a href="#2-1-问题重现" class="headerlink" title="2.1 问题重现"></a>2.1 问题重现</h4><p>以下代码使用线程池来执行时间输出。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">public class Main &#123;</span><br><span class="line"></span><br><span class="line">   /**</span><br><span class="line">    * 定义一个全局的SimpleDateFormat</span><br><span class="line">    */</span><br><span class="line">   private static SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line"></span><br><span class="line">   /**</span><br><span class="line">    * 使用ThreadFactoryBuilder定义一个线程池</span><br><span class="line">    */</span><br><span class="line">   private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()</span><br><span class="line">       .setNameFormat(&quot;demo-pool-%d&quot;).build();</span><br><span class="line"></span><br><span class="line">   private static ExecutorService pool = new ThreadPoolExecutor(5, 200,</span><br><span class="line">       0L, TimeUnit.MILLISECONDS,</span><br><span class="line">       new LinkedBlockingQueue&lt;Runnable&gt;(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());</span><br><span class="line"></span><br><span class="line">   /**</span><br><span class="line">    * 定义一个CountDownLatch，保证所有子线程执行完之后主线程再执行</span><br><span class="line">    */</span><br><span class="line">   private static CountDownLatch countDownLatch = new CountDownLatch(100);</span><br><span class="line"></span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       //定义一个线程安全的HashSet</span><br><span class="line">       Set&lt;String&gt; dates = Collections.synchronizedSet(new HashSet&lt;String&gt;());</span><br><span class="line">       for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">           //获取当前时间</span><br><span class="line">           Calendar calendar = Calendar.getInstance();</span><br><span class="line">           int finalI = i;</span><br><span class="line">           pool.execute(() -&gt; &#123;</span><br><span class="line">                   //时间增加</span><br><span class="line">                   calendar.add(Calendar.DATE, finalI);</span><br><span class="line">                   //通过simpleDateFormat把时间转换成字符串</span><br><span class="line">                   String dateString = sdf.format(calendar.getTime());</span><br><span class="line">                   //把字符串放入Set中</span><br><span class="line">                   dates.add(dateString);</span><br><span class="line">                   //countDown</span><br><span class="line">                   countDownLatch.countDown();</span><br><span class="line">           &#125;);</span><br><span class="line">       &#125;</span><br><span class="line">       //阻塞，直到countDown数量为0</span><br><span class="line">       countDownLatch.await();</span><br><span class="line">       //输出去重后的时间个数</span><br><span class="line">       System.out.println(dates.size());</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上代码，其实比较容易理解。就是循环一百次，每次循环的时候都在当前时间基础上增加一个天数（这个天数随着循环次数而变化），然后把所有日期放入一个线程安全的、带有去重功能的Set中，然后输出Set中元素个数。 </p>
+<p>正常情况下，以上代码输出结果应该是100。但是实际执行结果是一个小于100的数字。</p>
+<p>原因就是因为SimpleDateFormat作为一个非线程安全的类，被当做了共享变量在多个线程中进行使用，这就出现了线程安全问题。</p>
+<h4 id="2-2-线程不安全原因"><a href="#2-2-线程不安全原因" class="headerlink" title="2.2 线程不安全原因"></a>2.2 线程不安全原因</h4><p>其实，JDK文档中已经明确表明了SimpleDateFormat不应该用在多线程场景中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Date formats are not synchronized.</span><br><span class="line">It is recommended to create separate format instances for each thread.</span><br><span class="line">If multiple threads access a format concurrently, it must be synchronized externally.</span><br></pre></td></tr></table></figure></p>
+<p>那么为什么会出现这种问题，SimpleDateFormat底层到底是怎么实现的？<br>跟踪一下SimpleDateFormat类中format方法的实现其实就能发现端倪。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">    public StringBuffer format(Date date, StringBuffer toAppendTo,</span><br><span class="line">                               FieldPosition pos)</span><br><span class="line">    &#123;</span><br><span class="line">        pos.beginIndex = pos.endIndex = 0;</span><br><span class="line">        return format(date, toAppendTo, pos.getFieldDelegate());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Called from Format after creating a FieldDelegate</span><br><span class="line">    private StringBuffer format(Date date, StringBuffer toAppendTo,</span><br><span class="line">                                FieldDelegate delegate) &#123;</span><br><span class="line">        // Convert input date to time field list</span><br><span class="line">        calendar.setTime(date);</span><br><span class="line"></span><br><span class="line">        boolean useDateFormatSymbols = useDateFormatSymbols();</span><br><span class="line"></span><br><span class="line">        for (int i = 0; i &lt; compiledPattern.length; ) &#123;</span><br><span class="line">            int tag = compiledPattern[i] &gt;&gt;&gt; 8;</span><br><span class="line">            int count = compiledPattern[i++] &amp; 0xff;</span><br><span class="line">            if (count == 255) &#123;</span><br><span class="line">                count = compiledPattern[i++] &lt;&lt; 16;</span><br><span class="line">                count |= compiledPattern[i++];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            switch (tag) &#123;</span><br><span class="line">            case TAG_QUOTE_ASCII_CHAR:</span><br><span class="line">                toAppendTo.append((char)count);</span><br><span class="line">                break;</span><br><span class="line"></span><br><span class="line">            case TAG_QUOTE_CHARS:</span><br><span class="line">                toAppendTo.append(compiledPattern, i, count);</span><br><span class="line">                i += count;</span><br><span class="line">                break;</span><br><span class="line"></span><br><span class="line">            default:</span><br><span class="line">                subFormat(tag, count, delegate, toAppendTo, useDateFormatSymbols);</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return toAppendTo;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>SimpleDateFormat中的format方法在执行过程中，会使用一个成员变量calendar来保存时间。这其实就是问题的关键。</p>
+<p>由于我们在声明SimpleDateFormat的时候，使用的是static定义的。那么这个SimpleDateFormat就是一个共享变量，随之，SimpleDateFormat中的calendar也就可以被多个线程访问到。</p>
+<p>假设线程1刚刚执行完calendar.setTime把时间设置成2018-11-11，还没等执行完，线程2又执行了calendar.setTime把时间改成了2018-12-12。这时候线程1继续往下执行，拿到的calendar.getTime得到的时间就是线程2改过之后的。</p>
+<p>除了format方法以外，SimpleDateFormat的parse方法也有同样的问题。</p>
+<h3 id="3-如何解决"><a href="#3-如何解决" class="headerlink" title="3. 如何解决"></a>3. 如何解决</h3><p>解决方法有很多，先介绍三个比较常用的方法。</p>
+<h4 id="3-1-使用局部变量"><a href="#3-1-使用局部变量" class="headerlink" title="3.1 使用局部变量"></a>3.1 使用局部变量</h4><p>SimpleDateFormat变成了局部变量，就不会被多个线程同时访问到了，就避免了线程安全问题。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">   //获取当前时间</span><br><span class="line">   Calendar calendar = Calendar.getInstance();</span><br><span class="line">   int finalI = i;</span><br><span class="line">   pool.execute(() -&gt; &#123;</span><br><span class="line">       // SimpleDateFormat声明成局部变量</span><br><span class="line">   SimpleDateFormat simpleDateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">       //时间增加</span><br><span class="line">       calendar.add(Calendar.DATE, finalI);</span><br><span class="line">       //通过simpleDateFormat把时间转换成字符串</span><br><span class="line">       String dateString = simpleDateFormat.format(calendar.getTime());</span><br><span class="line">       //把字符串放入Set中</span><br><span class="line">       dates.add(dateString);</span><br><span class="line">       //countDown</span><br><span class="line">       countDownLatch.countDown();</span><br><span class="line">   &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="3-2-加同步锁"><a href="#3-2-加同步锁" class="headerlink" title="3.2 加同步锁"></a>3.2 加同步锁</h4><p>除了改成局部变量以外，还有一种方法大家可能比较熟悉的，就是对于共享变量进行加锁。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">   //获取当前时间</span><br><span class="line">   Calendar calendar = Calendar.getInstance();</span><br><span class="line">   int finalI = i;</span><br><span class="line">   pool.execute(() -&gt; &#123;</span><br><span class="line">       //时间增加</span><br><span class="line">        calendar.add(Calendar.DATE, finalI);</span><br><span class="line">       //通过simpleDateFormat把时间转换成字符串</span><br><span class="line">       //加锁</span><br><span class="line">        synchronized (simpleDateFormat) &#123;</span><br><span class="line">            String dateString = simpleDateFormat.format(calendar.getTime());</span><br><span class="line">        &#125;</span><br><span class="line">       //把字符串放入Set中</span><br><span class="line">        dates.add(dateString);</span><br><span class="line">       //countDown</span><br><span class="line">        countDownLatch.countDown();</span><br><span class="line">    </span><br><span class="line">   &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过加锁，使多个线程排队顺序执行。避免了并发导致的线程安全问题。</p>
+<h4 id="3-3-使用ThreadLocal"><a href="#3-3-使用ThreadLocal" class="headerlink" title="3.3 使用ThreadLocal"></a>3.3 使用ThreadLocal</h4><p>第三种方式，就是使用 ThreadLocal。 ThreadLocal 可以确保每个线程都可以得到单独的一个 SimpleDateFormat 的对象，那么自然也就不存在竞争问题了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">* 使用ThreadLocal定义一个全局的SimpleDateFormat</span><br><span class="line">*/</span><br><span class="line">private static ThreadLocal&lt;SimpleDateFormat&gt; simpleDateFormatThreadLocal = new ThreadLocal&lt;SimpleDateFormat&gt;() &#123;</span><br><span class="line">   @Override</span><br><span class="line">   protected SimpleDateFormat initialValue() &#123;</span><br><span class="line">       return new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;;</span><br><span class="line">//用法</span><br><span class="line">String dateString = simpleDateFormatThreadLocal.get().format(calendar.getTime());</span><br></pre></td></tr></table></figure></p>
+<p>当然，以上代码也有改进空间，就是，其实SimpleDateFormat的创建过程可以改为延迟加载。这里就不详细介绍了。</p>
+<h3 id="4-使用DateTimeFormatter"><a href="#4-使用DateTimeFormatter" class="headerlink" title="4. 使用DateTimeFormatter"></a>4. 使用DateTimeFormatter</h3><p>如果是Java8应用，可以使用DateTimeFormatter代替SimpleDateFormat，这是一个线程安全的格式化工具类。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//解析日期</span><br><span class="line">String dateStr= &quot;2016年10月25日&quot;;</span><br><span class="line">DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyy年MM月dd日&quot;);</span><br><span class="line">LocalDate date= LocalDate.parse(dateStr, formatter);</span><br><span class="line"></span><br><span class="line">//日期转换为字符串</span><br><span class="line">LocalDateTime now = LocalDateTime.now();</span><br><span class="line">DateTimeFormatter format = DateTimeFormatter.ofPattern(&quot;yyyy年MM月dd日 hh:mm a&quot;);</span><br><span class="line">String nowStr = now .format(format);</span><br><span class="line">System.out.println(nowStr);</span><br></pre></td></tr></table></figure></p>
+<h3 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h3><p>本文介绍了SimpleDateFormat的用法，SimpleDateFormat主要可以在String和Date之间做转换，还可以将时间转换成不同时区输出。同时提到在并发场景中SimpleDateFormat是不能保证线程安全的，需要开发者自己来保证其安全性。</p>
+<p>主要的几个手段有改为局部变量、使用synchronized加锁、使用Threadlocal为每一个线程单独创建一个和使用Java8中的DateTimeFormatter类代替等。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/" data-id="cjw02os6l0016l2i78rrto48i" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码分析/">源码分析</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/20/并发编程-线程中断/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          并发编程-线程中断
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/05/14/设计模式之策略模式/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">设计模式之策略模式</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/java编程/">java编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux命令/">linux命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发编程/">并发编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码分析/">源码分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/转载/">转载</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/java编程/" style="font-size: 10px;">java编程</a> <a href="/tags/linux命令/" style="font-size: 13.33px;">linux命令</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/并发编程/" style="font-size: 20px;">并发编程</a> <a href="/tags/数据库/" style="font-size: 13.33px;">数据库</a> <a href="/tags/源码分析/" style="font-size: 13.33px;">源码分析</a> <a href="/tags/设计模式/" style="font-size: 16.67px;">设计模式</a> <a href="/tags/转载/" style="font-size: 10px;">转载</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/21/源码分析-会用HashMap/">源码分析-会用HashMap</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/27/并发编程-并发工具类/">并发编程-并发工具类</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

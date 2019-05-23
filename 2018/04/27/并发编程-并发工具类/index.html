@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>并发编程-并发工具类 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在JDK的并发包中提供了几个非常有用的并发工具类。CountDownLatch、CyclicBarrier和Semaphore提供了并发流程控制手段，Exchanger提供了两个线程之间交换数据的手段，本文将配合应用场景介绍该如何使用这几个工具类。 1. CountDownLatchCountDownLatch是JDK 5+里面闭锁的一个实现，他允许一个或多个线程等待其他线程完成各自的工作后再执行">
+<meta name="keywords" content="并发编程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发编程-并发工具类">
+<meta property="og:url" content="http://yoursite.com/2018/04/27/并发编程-并发工具类/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在JDK的并发包中提供了几个非常有用的并发工具类。CountDownLatch、CyclicBarrier和Semaphore提供了并发流程控制手段，Exchanger提供了两个线程之间交换数据的手段，本文将配合应用场景介绍该如何使用这几个工具类。 1. CountDownLatchCountDownLatch是JDK 5+里面闭锁的一个实现，他允许一个或多个线程等待其他线程完成各自的工作后再执行">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-05-21T06:49:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并发编程-并发工具类">
+<meta name="twitter:description" content="在JDK的并发包中提供了几个非常有用的并发工具类。CountDownLatch、CyclicBarrier和Semaphore提供了并发流程控制手段，Exchanger提供了两个线程之间交换数据的手段，本文将配合应用场景介绍该如何使用这几个工具类。 1. CountDownLatchCountDownLatch是JDK 5+里面闭锁的一个实现，他允许一个或多个线程等待其他线程完成各自的工作后再执行">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-并发编程-并发工具类" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/04/27/并发编程-并发工具类/" class="article-date">
+  <time datetime="2018-04-27T12:36:12.000Z" itemprop="datePublished">2018-04-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      并发编程-并发工具类
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在JDK的并发包中提供了几个非常有用的并发工具类。CountDownLatch、CyclicBarrier和Semaphore提供了并发流程控制手段，Exchanger提供了两个线程之间交换数据的手段，本文将配合应用场景介绍该如何使用这几个工具类。</p>
+<h3 id="1-CountDownLatch"><a href="#1-CountDownLatch" class="headerlink" title="1. CountDownLatch"></a>1. CountDownLatch</h3><p>CountDownLatch是JDK 5+里面闭锁的一个实现，他允许一个或多个线程等待其他线程完成各自的工作后再执行。</p>
+<p>闭锁（Latch）：一种同步方法，可以延迟线程的进度直到线程到达某个终点状态。</p>
+<p>与CountDownLatch第一次交互是主线程等待其它的线程，主线程必须在启动其它线程后立即调用await方法，这样主线程的操作就会在这个方法上阻塞，直到其他线程完成各自的任务。</p>
+<p>其他的N个线程必须引用闭锁对象，因为他们需要通知CountDownLatch对象，他们已经完成了各自的任务，这种机制就是通过调用countDown()方法来完成的。每调用一次这个方法，在构造函数中初始化的count值就减1，所以当N个线程都调用了这个方法count的值等于0，然后主线程就能通过await方法，恢复自己的任务。</p>
+<p>与Join的区别：调用join方法需要等待thread执行完毕才能继续向下执行,而CountDownLatch只需要检查计数器的值为零就可以继续向下执行，相比之下，CountDownLatch更加灵活一些，可以实现一些更加复杂的业务场景。</p>
+<h4 id="1-1-使用场景"><a href="#1-1-使用场景" class="headerlink" title="1.1 使用场景"></a>1.1 使用场景</h4><ol>
+<li>开启多个线程分块下载一个大文件，每个线程只下载固定的一截，最后由另外一个线程来拼接所有的分段。</li>
+<li>应用程序的主线程希望在负责启动框架服务的线程已经启动所有的框架服务之后再执行。</li>
+<li>确保一个计算不会执行，直到所需要的资源被初始化。</li>
+</ol>
+<h4 id="1-2-主要方法"><a href="#1-2-主要方法" class="headerlink" title="1.2 主要方法"></a>1.2 主要方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//初始化计数的次数，不能重置</span><br><span class="line">public CountDownLatch(int count); </span><br><span class="line">//调用此方法则计数减1</span><br><span class="line">public void countDown();   </span><br><span class="line">//得到当前的计数</span><br><span class="line">Public Long getCount();           </span><br><span class="line">//调用此方法会一直阻塞当前线程，直到计时器的值为0，除非线程被中断。</span><br><span class="line">public void await() throws InterruptedException   </span><br><span class="line">//调用此方法会一直阻塞当前线程，直到计时器的值为0，除非线程被中断或者计数器超时，返回false代表计数器超时。</span><br><span class="line">Public boolean await(long timeout, TimeUnit unit)</span><br></pre></td></tr></table></figure>
+<h4 id="1-3-使用案例"><a href="#1-3-使用案例" class="headerlink" title="1.3 使用案例"></a>1.3 使用案例</h4><ol>
+<li>latch.countDown(); 建议放到finally语句里。</li>
+<li>对这个计数器的操作都是原子操作，同时只能有一个线程去操作这个计数器。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public class CountDownLatchTest &#123;</span><br><span class="line">    private final CountDownLatch latch = new CountDownLatch(3);</span><br><span class="line">    private final ReentrantLock lock = new ReentrantLock();</span><br><span class="line">    private int count;</span><br><span class="line"></span><br><span class="line">    public int getCount()&#123;</span><br><span class="line">        return this.count;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public class RunnableTask implements Runnable&#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                lock.lock();</span><br><span class="line">                count += 100;</span><br><span class="line">            &#125;finally &#123;</span><br><span class="line">                latch.countDown();</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public static void main(String[] args) throws InterruptedException&#123;</span><br><span class="line">        CountDownLatchTest demo = new CountDownLatchTest();</span><br><span class="line">        int i = 3;</span><br><span class="line">        while(i-- &gt; 0)&#123;</span><br><span class="line">            new Thread(demo.new RunnableTask()).start();</span><br><span class="line">        &#125;</span><br><span class="line">        demo.latch.await();</span><br><span class="line">        System.out.println(demo.getCount());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>三个线程分别对count加100，等三个线程执行完后，主线程输出count的值。输出300</p>
+<h3 id="2-CyclicBarrier"><a href="#2-CyclicBarrier" class="headerlink" title="2. CyclicBarrier"></a>2. CyclicBarrier</h3><p>字面意思是可以循环使用的屏障。他要做的事情是让一组线程到达一个同步点时被阻塞，直到最后一个线程到达同步点，才会打开屏障，所有线程继续运行。</p>
+<p>默认的构造方法 CyclicBarrier(int parties) ，参数代表屏障拦截的线程数量，每个线程调用await方法告诉CyclicBarrier已经到达屏障，然后被阻塞。</p>
+<h4 id="1-1-使用场景-1"><a href="#1-1-使用场景-1" class="headerlink" title="1.1 使用场景"></a>1.1 使用场景</h4><p>可用于多线程计算数据，最后合并计算结果</p>
+<h4 id="1-2-主要方法-1"><a href="#1-2-主要方法-1" class="headerlink" title="1.2 主要方法"></a>1.2 主要方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">//初始化</span><br><span class="line">public CyclicBarrier(int parties)</span><br><span class="line">//barrierAction表示被拦住的线程需要执行的任务</span><br><span class="line">public CyclicBarrier(int parties, Runnable barrierAction)</span><br><span class="line">//被拦住的线程调用次函数进入阻塞状态</span><br><span class="line">public int await()</span><br><span class="line">//被拦住的线程调用次函数进入阻塞状态，超时唤醒</span><br><span class="line">public int await(long timeout, TimeUnit unit)</span><br><span class="line">public void reset() </span><br><span class="line">//返回需要被拦住的线程数量</span><br><span class="line">public int getParties() </span><br><span class="line">//查询此屏障是否处于断开状态</span><br><span class="line">public boolean isBroken()</span><br><span class="line">//返回已被拦住的线程数量</span><br><span class="line">public int getNumberWaiting()</span><br></pre></td></tr></table></figure>
+<h4 id="1-3-使用案例-1"><a href="#1-3-使用案例-1" class="headerlink" title="1.3 使用案例"></a>1.3 使用案例</h4><p>初始化线程数为2，加上主线程调用await()3次，所以得出结论主线程调用不计入await次数之内。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">public class CyclicBarrierTest &#123;</span><br><span class="line">    private static CyclicBarrier cb = new CyclicBarrier(2);</span><br><span class="line">    private static ReentrantLock lock = new ReentrantLock();</span><br><span class="line">    private static int count;</span><br><span class="line">    public static class RunnableTask implements Runnable&#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                lock.lock();</span><br><span class="line">                count += 100;</span><br><span class="line">                cb.await();</span><br><span class="line">            &#125;catch (Throwable e)&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            finally &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public static void main(String[] args) throws Exception&#123;</span><br><span class="line">        for(int i = 0; i &lt; 2; i++) &#123;</span><br><span class="line">            new Thread(new RunnableTask()).start();</span><br><span class="line">        &#125;</span><br><span class="line">        cb.await();</span><br><span class="line">        System.out.println(count);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出200</p>
+<h4 id="1-4-与CountDownLatch的区别"><a href="#1-4-与CountDownLatch的区别" class="headerlink" title="1.4 与CountDownLatch的区别"></a>1.4 与CountDownLatch的区别</h4><ul>
+<li>CountDownLatch的计数器只能使用一次，而CyclicBarrier的计数器可以使用reset()方法重置，可以使用多次，所以CyclicBarrier能够处理更为复杂的场景；</li>
+<li>CyclicBarrier还提供了一些其他有用的方法，比如getNumberWaiting()方法可以获得CyclicBarrier阻塞的线程数量，isBroken()方法用来了解阻塞的线程是否被中断；</li>
+<li>CountDownLatch允许一个或多个线程等待一组事件的产生，而CyclicBarrier用于等待其他线程运行到栅栏位置。</li>
+</ul>
+<h3 id="3-Semaphore"><a href="#3-Semaphore" class="headerlink" title="3. Semaphore"></a>3. Semaphore</h3><p>Semaphore是用来控制同事访问特定资源的线程数量，它通过协调各个线程以保证合理的使用公共资源。</p>
+<h4 id="3-1-使用场景"><a href="#3-1-使用场景" class="headerlink" title="3.1 使用场景"></a>3.1 使用场景</h4><p>可用于做流量控制，特别是公用资源有限的场景，比如数据库连接。</p>
+<h3 id="4-Exchanger"><a href="#4-Exchanger" class="headerlink" title="4. Exchanger"></a>4. Exchanger</h3><p>Exchanger类可用于两个线程之间交换信息。可简单地将Exchanger对象理解为一个包含两个格子的容器，通过exchanger方法可以向两个格子中填充信息。当两个格子中的均被填充时，该对象会自动将两个格子的信息交换，然后返回给线程，从而实现两个线程的信息交换。</p>
+<p>Exchanger类仅可用作两个线程的信息交换，当超过两个线程调用同一个exchanger对象时，得到的结果是不确定的，exchanger对象仅关心其包含的两个“格子”是否已被填充数据，当两个格子都填充数据完成时，该对象就认为线程之间已经配对成功，然后开始执行数据交换操作。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class ExchangerTest &#123;</span><br><span class="line">    private static Exchanger&lt;String&gt; exgr = new Exchanger&lt;&gt;();</span><br><span class="line">    private static ExecutorService threadpool = Executors.newFixedThreadPool(3);</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        threadpool.execute(() -&gt; &#123;</span><br><span class="line">            String a = &quot;银行流水A&quot;;</span><br><span class="line">            try &#123;</span><br><span class="line">                exgr.exchange(a);</span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        threadpool.execute(() -&gt; &#123;</span><br><span class="line">            String b = &quot;银行流水B&quot;;</span><br><span class="line">            try &#123;</span><br><span class="line">                String a = exgr.exchange(b);</span><br><span class="line">                System.out.println(a);</span><br><span class="line">            &#125; catch (InterruptedException e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        threadpool.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/04/27/并发编程-并发工具类/" data-id="cjw02os5u0009l2i7lmk8cmth" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/并发编程/">并发编程</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/03/并发编程-ThreadLocal原理/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          并发编程-ThreadLocal原理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/04/25/并发编程-共享式AQS源码详解/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">并发编程-共享式AQS源码详解</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/java编程/">java编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux命令/">linux命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发编程/">并发编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码分析/">源码分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/转载/">转载</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/java编程/" style="font-size: 10px;">java编程</a> <a href="/tags/linux命令/" style="font-size: 13.33px;">linux命令</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/并发编程/" style="font-size: 20px;">并发编程</a> <a href="/tags/数据库/" style="font-size: 13.33px;">数据库</a> <a href="/tags/源码分析/" style="font-size: 13.33px;">源码分析</a> <a href="/tags/设计模式/" style="font-size: 16.67px;">设计模式</a> <a href="/tags/转载/" style="font-size: 10px;">转载</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/21/源码分析-会用HashMap/">源码分析-会用HashMap</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/27/并发编程-并发工具类/">并发编程-并发工具类</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -5,15 +5,20 @@
   
 
   
-  <title>Archives | Hexo</title>
+  <title>linux命令-nohup | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+  <meta name="description" content="nohup 是 no hang up 的缩写，就是不挂断的意思。   nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以   使用nohup命令,该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。 在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。nohup 命令运行由 Command参数和任何相关的Arg参数指定的命令，忽略所">
+<meta name="keywords" content="linux命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux命令-nohup">
+<meta property="og:url" content="http://yoursite.com/2017/04/23/linux命令-nohup/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="nohup 是 no hang up 的缩写，就是不挂断的意思。   nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以   使用nohup命令,该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。 在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。nohup 命令运行由 Command参数和任何相关的Arg参数指定的命令，忽略所">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-05-23T03:03:26.891Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
+<meta name="twitter:title" content="linux命令-nohup">
+<meta name="twitter:description" content="nohup 是 no hang up 的缩写，就是不挂断的意思。   nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以   使用nohup命令,该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。 在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。nohup 命令运行由 Command参数和任何相关的Arg参数指定的命令，忽略所">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -60,226 +65,73 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/07/21/源码分析-会用HashMap/" class="archive-article-date">
-  <time datetime="2018-07-21T12:41:36.000Z" itemprop="datePublished">Jul 21</time>
+        <section id="main"><article id="post-linux命令-nohup" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/23/linux命令-nohup/" class="article-date">
+  <time datetime="2017-04-23T07:39:40.000Z" itemprop="datePublished">2017-04-23</time>
 </a>
-      
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/07/21/源码分析-会用HashMap/">源码分析-会用HashMap</a>
+    <h1 class="article-title" itemprop="name">
+      linux命令-nohup
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>nohup 是 no hang up 的缩写，就是不挂断的意思。  </p>
+<p>nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以   使用nohup命令,该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。</p>
+<p>在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。nohup 命令运行由 Command参数和任何相关的Arg参数指定的命令，忽略所有挂断（SIGHUP）信号。在注销后使用 nohup 命令运行后台中的程序。要运行后台中的 nohup 命令，添加 &amp; （表示“and”的符号）到命令的尾部。  </p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><h5 id="1-nohup-command-gt-myout-file-2-gt-amp-1-amp"><a href="#1-nohup-command-gt-myout-file-2-gt-amp-1-amp" class="headerlink" title="1. nohup command &gt; myout.file 2&gt;&amp;1 &amp;"></a>1. nohup command &gt; myout.file 2&gt;&amp;1 &amp;</h5><p>在上面的例子中，0 – stdin (standard input)，1 – stdout (standard output)，2 – stderr (standard error) ；<br>2&gt;&amp;1是将标准错误（2）重定向到标准输出（&amp;1），标准输出（&amp;1）再被重定向输入到myout.file文件中。</p>
+<h5 id="2-0-22-usr-bin-python-home-pu-download-pdf-download-dfcf-pdf-to-oss-py-gt-home-pu-download-pdf-download-dfcf-pdf-to-oss-log-2-gt-amp-1"><a href="#2-0-22-usr-bin-python-home-pu-download-pdf-download-dfcf-pdf-to-oss-py-gt-home-pu-download-pdf-download-dfcf-pdf-to-oss-log-2-gt-amp-1" class="headerlink" title="2. 0 22   * /usr/bin/python /home/pu/download_pdf/download_dfcf_pdf_to_oss.py &gt; /home/pu/download_pdf/download_dfcf_pdf_to_oss.log 2&gt;&amp;1"></a>2. 0 22 <em> </em> * /usr/bin/python /home/pu/download_pdf/download_dfcf_pdf_to_oss.py &gt; /home/pu/download_pdf/download_dfcf_pdf_to_oss.log 2&gt;&amp;1</h5><p>这是放在crontab中的定时任务，晚上22点时候怕这个任务，启动这个python的脚本，并把日志写在download_dfcf_pdf_to_oss.log文件中</p>
+<h3 id="nohup和-amp-的区别"><a href="#nohup和-amp-的区别" class="headerlink" title="nohup和&amp;的区别"></a>nohup和&amp;的区别</h3><p>&amp; ： 指在后台运行<br>nohup ： 不挂断的运行，注意并没有后台运行的功能，就是指用nohup运行命令可以使命令永久的执行下去，和用户终端没有关系，例如我们断开SSH连接都不会影响他的运行</p>
+<h3 id="例如："><a href="#例如：" class="headerlink" title="例如："></a>例如：</h3><ol>
+<li><strong>sh test.sh &amp;</strong><br>将sh test.sh任务放到后台 ，关闭xshell，对应的任务也跟着停止。</li>
+<li><strong>nohup sh test.sh</strong><br>将sh test.sh任务放到后台，关闭标准输入，终端不再能够接收任何输入（标准输入），重定向标准输出和标准错误到当前目录下的nohup.out文件，即使关闭xshell退出当前session依然继续运行。</li>
+<li><strong>nohup sh test.sh  &amp;</strong><br>将sh test.sh任务放到后台，但是依然可以使用标准输入，终端能够接收任何输入，重定向标准输出和标准错误到当前目录下的nohup.out文件，即使关闭xshell退出当前session依然继续运行。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/23/linux命令-nohup/" data-id="cjw02os5o0003l2i78e3am0nu" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux命令/">linux命令</a></li></ul>
+
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/23/linux命令-tail/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          linux命令-tail
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/03/21/数据库-postgreSQL-让主键自增/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">postgreSQL 让主键自增</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/05/15/并发编程-线程池源码详解/" class="archive-article-date">
-  <time datetime="2018-05-15T03:28:21.000Z" itemprop="datePublished">May 15</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/05/03/并发编程-ThreadLocal原理/" class="archive-article-date">
-  <time datetime="2018-05-03T12:58:11.000Z" itemprop="datePublished">May 3</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/04/27/并发编程-并发工具类/" class="archive-article-date">
-  <time datetime="2018-04-27T12:36:12.000Z" itemprop="datePublished">Apr 27</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/27/并发编程-并发工具类/">并发编程-并发工具类</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/04/25/并发编程-共享式AQS源码详解/" class="archive-article-date">
-  <time datetime="2018-04-25T12:36:12.000Z" itemprop="datePublished">Apr 25</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/04/23/nginx入门/" class="archive-article-date">
-  <time datetime="2018-04-23T07:17:36.000Z" itemprop="datePublished">Apr 23</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/23/nginx入门/">nginx入门</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/04/19/并发编程-独占式AQS源码详解/" class="archive-article-date">
-  <time datetime="2018-04-19T12:36:12.000Z" itemprop="datePublished">Apr 19</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/04/02/spring-HV参数校验/" class="archive-article-date">
-  <time datetime="2018-04-02T07:39:40.000Z" itemprop="datePublished">Apr 2</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/02/spring-HV参数校验/">spring-HV参数校验</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2018/03/20/并发编程-线程中断/" class="archive-article-date">
-  <time datetime="2018-03-20T12:36:12.000Z" itemprop="datePublished">Mar 20</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/" class="archive-article-date">
-  <time datetime="2017-12-21T01:02:32.000Z" itemprop="datePublished">Dec 21</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-
-  <nav id="page-nav">
-    
-    <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
-  </nav>
 
 </section>
         
