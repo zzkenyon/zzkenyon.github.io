@@ -3,11 +3,11 @@
   <title>黑风雅过吟</title>
   
   <subtitle>不积跬步无以至千里</subtitle>
-  <link href="/zzkenyon.github.io/atom.xml" rel="self"/>
+  <link href="/atom.xml" rel="self"/>
   
-  <link href="https://zzkenyon.github.io/zzkenyon.github.io/"/>
+  <link href="https://github.com/zzkenyon/zzkenyon.github.io/"/>
   <updated>2019-05-23T02:57:29.493Z</updated>
-  <id>https://zzkenyon.github.io/zzkenyon.github.io/</id>
+  <id>https://github.com/zzkenyon/zzkenyon.github.io/</id>
   
   <author>
     <name>Zhao Zhengkang</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>源码分析-会用HashMap</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/07/21/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BC%9A%E7%94%A8HashMap/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/07/21/源码分析-会用HashMap/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/07/21/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BC%9A%E7%94%A8HashMap/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/07/21/源码分析-会用HashMap/</id>
     <published>2018-07-21T12:41:36.000Z</published>
     <updated>2019-05-23T02:57:29.493Z</updated>
     
@@ -35,14 +35,14 @@
     </summary>
     
     
-      <category term="源码分析" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
+      <category term="源码分析" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
   <entry>
     <title>并发编程-线程池源码详解</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/05/15/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/05/15/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/</id>
     <published>2018-05-15T03:28:21.000Z</published>
     <updated>2019-05-23T08:09:31.265Z</updated>
     
@@ -58,14 +58,14 @@
     </summary>
     
     
-      <category term="并发编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+      <category term="并发编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>并发编程-ThreadLocal原理</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/05/03/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-ThreadLocal%E5%8E%9F%E7%90%86/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/05/03/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-ThreadLocal%E5%8E%9F%E7%90%86/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/</id>
     <published>2018-05-03T12:58:11.000Z</published>
     <updated>2019-05-17T04:53:22.000Z</updated>
     
@@ -81,14 +81,14 @@
     </summary>
     
     
-      <category term="并发编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+      <category term="并发编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>并发编程-并发工具类</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/04/27/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/04/27/并发编程-并发工具类/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/04/27/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/04/27/并发编程-并发工具类/</id>
     <published>2018-04-27T12:36:12.000Z</published>
     <updated>2019-05-21T06:49:36.000Z</updated>
     
@@ -105,14 +105,14 @@
     </summary>
     
     
-      <category term="并发编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+      <category term="并发编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>并发编程-共享式AQS源码详解</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/04/25/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%85%B1%E4%BA%AB%E5%BC%8FAQS%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/04/25/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%85%B1%E4%BA%AB%E5%BC%8FAQS%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/</id>
     <published>2018-04-25T12:36:12.000Z</published>
     <updated>2019-05-21T06:49:12.000Z</updated>
     
@@ -129,14 +129,14 @@
     </summary>
     
     
-      <category term="并发编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+      <category term="并发编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>nginx入门</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/04/23/nginx%E5%85%A5%E9%97%A8/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/04/23/nginx入门/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/04/23/nginx%E5%85%A5%E9%97%A8/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/04/23/nginx入门/</id>
     <published>2018-04-23T07:17:36.000Z</published>
     <updated>2019-04-26T07:17:24.000Z</updated>
     
@@ -153,14 +153,14 @@
     </summary>
     
     
-      <category term="nginx" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/nginx/"/>
+      <category term="nginx" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/nginx/"/>
     
   </entry>
   
   <entry>
     <title>并发编程-独占式AQS源码详解</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/04/19/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%8B%AC%E5%8D%A0%E5%BC%8FAQS%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/04/19/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%8B%AC%E5%8D%A0%E5%BC%8FAQS%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/</id>
     <published>2018-04-19T12:36:12.000Z</published>
     <updated>2019-05-23T08:09:23.112Z</updated>
     
@@ -176,14 +176,14 @@
     </summary>
     
     
-      <category term="并发编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+      <category term="并发编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>spring-HV参数校验</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/04/02/spring-HV%E5%8F%82%E6%95%B0%E6%A0%A1%E9%AA%8C/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/04/02/spring-HV参数校验/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/04/02/spring-HV%E5%8F%82%E6%95%B0%E6%A0%A1%E9%AA%8C/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/04/02/spring-HV参数校验/</id>
     <published>2018-04-02T07:39:40.000Z</published>
     <updated>2019-05-23T02:59:16.742Z</updated>
     
@@ -199,14 +199,14 @@
     </summary>
     
     
-      <category term="spring" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/spring/"/>
+      <category term="spring" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/spring/"/>
     
   </entry>
   
   <entry>
     <title>并发编程-线程中断</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2018/03/20/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2018/03/20/并发编程-线程中断/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2018/03/20/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2018/03/20/并发编程-线程中断/</id>
     <published>2018-03-20T12:36:12.000Z</published>
     <updated>2019-05-17T04:52:58.000Z</updated>
     
@@ -223,14 +223,14 @@
     </summary>
     
     
-      <category term="并发编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+      <category term="并发编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>源码分析-SimpleDateFormat的用法以及线程安全</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2017/12/21/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-SimpleDateFormat%E7%9A%84%E7%94%A8%E6%B3%95%E4%BB%A5%E5%8F%8A%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2017/12/21/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-SimpleDateFormat%E7%9A%84%E7%94%A8%E6%B3%95%E4%BB%A5%E5%8F%8A%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2017/12/21/源码分析-SimpleDateFormat的用法以及线程安全/</id>
     <published>2017-12-21T01:02:32.000Z</published>
     <updated>2019-05-23T03:00:04.545Z</updated>
     
@@ -246,14 +246,14 @@
     </summary>
     
     
-      <category term="源码分析" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
+      <category term="源码分析" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
   <entry>
     <title>设计模式之策略模式</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2017/05/14/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2017/05/14/设计模式之策略模式/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2017/05/14/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2017/05/14/设计模式之策略模式/</id>
     <published>2017-05-14T03:17:23.000Z</published>
     <updated>2019-05-14T05:41:52.000Z</updated>
     
@@ -271,14 +271,14 @@
     </summary>
     
     
-      <category term="设计模式" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>linux命令-tail</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2017/04/23/linux%E5%91%BD%E4%BB%A4-tail/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2017/04/23/linux命令-tail/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2017/04/23/linux%E5%91%BD%E4%BB%A4-tail/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2017/04/23/linux命令-tail/</id>
     <published>2017-04-23T07:52:38.000Z</published>
     <updated>2019-05-23T03:03:01.787Z</updated>
     
@@ -295,14 +295,14 @@
     </summary>
     
     
-      <category term="linux命令" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/linux%E5%91%BD%E4%BB%A4/"/>
+      <category term="linux命令" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/linux%E5%91%BD%E4%BB%A4/"/>
     
   </entry>
   
   <entry>
     <title>linux命令-nohup</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2017/04/23/linux%E5%91%BD%E4%BB%A4-nohup/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2017/04/23/linux命令-nohup/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2017/04/23/linux%E5%91%BD%E4%BB%A4-nohup/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2017/04/23/linux命令-nohup/</id>
     <published>2017-04-23T07:39:40.000Z</published>
     <updated>2019-05-23T03:03:26.891Z</updated>
     
@@ -320,14 +320,14 @@
     </summary>
     
     
-      <category term="linux命令" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/linux%E5%91%BD%E4%BB%A4/"/>
+      <category term="linux命令" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/linux%E5%91%BD%E4%BB%A4/"/>
     
   </entry>
   
   <entry>
     <title>postgreSQL 让主键自增</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2017/03/21/%E6%95%B0%E6%8D%AE%E5%BA%93-postgreSQL-%E8%AE%A9%E4%B8%BB%E9%94%AE%E8%87%AA%E5%A2%9E/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2017/03/21/%E6%95%B0%E6%8D%AE%E5%BA%93-postgreSQL-%E8%AE%A9%E4%B8%BB%E9%94%AE%E8%87%AA%E5%A2%9E/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/</id>
     <published>2017-03-21T01:48:56.000Z</published>
     <updated>2019-04-25T08:55:20.000Z</updated>
     
@@ -343,14 +343,14 @@
     </summary>
     
     
-      <category term="数据库" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+      <category term="数据库" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
   <entry>
     <title>java编程-移位操作符</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2016/12/23/Java%E7%BC%96%E7%A8%8B-%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2016/12/23/Java%E7%BC%96%E7%A8%8B-%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/</id>
     <published>2016-12-23T13:00:45.000Z</published>
     <updated>2019-05-23T02:57:03.740Z</updated>
     
@@ -367,14 +367,14 @@
     </summary>
     
     
-      <category term="java编程" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/java%E7%BC%96%E7%A8%8B/"/>
+      <category term="java编程" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/java%E7%BC%96%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>设计模式之代理模式</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2016/08/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2016/08/19/设计模式之代理模式/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2016/08/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2016/08/19/设计模式之代理模式/</id>
     <published>2016-08-19T13:23:12.000Z</published>
     <updated>2019-05-17T04:52:20.000Z</updated>
     
@@ -391,14 +391,14 @@
     </summary>
     
     
-      <category term="设计模式" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>设计模式之单例模式</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2016/08/04/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2016/08/04/设计模式之单例模式/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2016/08/04/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2016/08/04/设计模式之单例模式/</id>
     <published>2016-08-04T07:15:31.000Z</published>
     <updated>2019-04-25T07:16:26.000Z</updated>
     
@@ -414,14 +414,14 @@
     </summary>
     
     
-      <category term="设计模式" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>设计模式之建造者模式</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2016/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2016/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/</id>
     <published>2016-08-02T05:35:36.000Z</published>
     <updated>2019-04-24T08:30:10.000Z</updated>
     
@@ -438,14 +438,14 @@
     </summary>
     
     
-      <category term="设计模式" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>设计模式之工厂模式</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2016/08/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2016/08/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/</id>
     <published>2016-08-01T05:35:36.000Z</published>
     <updated>2019-04-24T08:34:02.000Z</updated>
     
@@ -463,14 +463,14 @@
     </summary>
     
     
-      <category term="设计模式" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>转载Log4j 配置文件解析</title>
-    <link href="https://zzkenyon.github.io/zzkenyon.github.io/2016/07/23/%E8%BD%AC%E8%BD%BD-Log4j-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"/>
-    <id>https://zzkenyon.github.io/zzkenyon.github.io/2016/07/23/转载-Log4j-配置文件解析/</id>
+    <link href="https://github.com/zzkenyon/zzkenyon.github.io/2016/07/23/%E8%BD%AC%E8%BD%BD-Log4j-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"/>
+    <id>https://github.com/zzkenyon/zzkenyon.github.io/2016/07/23/转载-Log4j-配置文件解析/</id>
     <published>2016-07-23T07:39:40.000Z</published>
     <updated>2019-05-23T03:01:35.581Z</updated>
     
@@ -489,7 +489,7 @@
     </summary>
     
     
-      <category term="转载" scheme="https://zzkenyon.github.io/zzkenyon.github.io/tags/%E8%BD%AC%E8%BD%BD/"/>
+      <category term="转载" scheme="https://github.com/zzkenyon/zzkenyon.github.io/tags/%E8%BD%AC%E8%BD%BD/"/>
     
   </entry>
   
