@@ -39,7 +39,41 @@
 <p>这样的方式提交一个任务到线程池中，所以线程池ThreadPoolExecutor的核心逻辑就是execute()函数了，这个方法是在Excutor接口中声明。</p>
 <p>在分析核心逻辑之前，先了解一下线程池重定义的状态，这些状态都和线程的执行密切相关</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">代码摘自：java.util.concurrent.ThreadPoolExecutor</span><br><span class="line">private static final int COUNT_BITS = Integer.SIZE - 3;</span><br><span class="line"></span><br><span class="line">private static final int CAPCITY = (1 &lt;&lt; COUNT_BITS) - 1;</span><br><span class="line"></span><br><span class="line">private static final int RUNNING    = -1 &lt;&lt; COUNT_BITS;</span><br><span class="line">private static final int SHUTDOWN   =  0 &lt;&lt; COUNT_BITS;</span><br><span class="line">private static final int STOP       =  1 &lt;&lt; COUNT_BITS;</span><br><span class="line">private static final int TIDYING    =  2 &lt;&lt; COUNT_BITS;</span><br><span class="line">private static final int TERMINATED =  3 &lt;&lt; COUNT_BITS;</span><br><span class="line"></span><br><span class="line">private static int runStateOf(int c)&#123;return c &amp; ~CAPCITY;&#125;</span><br><span class="line">private static int workerCountOf(int c)&#123;return c &amp; CAPCITY;&#125;</span><br><span class="line">private static int ctlOf(int rs, int wc)&#123;return rs | wc;&#125;</span><br></pre></td></tr></table></figure>
-<p>分析上面的代码得到下表：<br>常量名| 二进制<br>—|—<br>CAPCITY | 0001 1111 1111 1111 1111 1111 1111 1111<br>RUNNING | 1110 0000 0000 0000 0000 0000 0000 0000<br>SHUTDOWN | 0000 0000 0000 0000 0000 0000 0000 0000<br>STOP | 0010 0000 0000 0000 0000 0000 0000 0000<br>TIDYING | 0100 0000 0000 0000 0000 0000 0000 0000<br>TERMINATED | 0110 0000 0000 0000 0000 0000 0000 0000</p>
+<p>分析上面的代码得到下表：</p>
+<table>
+<thead>
+<tr>
+<th>常量名</th>
+<th>二进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CAPCITY</td>
+<td>0001 1111 1111 1111 1111 1111 1111 1111</td>
+</tr>
+<tr>
+<td>RUNNING</td>
+<td>1110 0000 0000 0000 0000 0000 0000 0000</td>
+</tr>
+<tr>
+<td>SHUTDOWN</td>
+<td>0000 0000 0000 0000 0000 0000 0000 0000</td>
+</tr>
+<tr>
+<td>STOP</td>
+<td>0010 0000 0000 0000 0000 0000 0000 0000</td>
+</tr>
+<tr>
+<td>TIDYING</td>
+<td>0100 0000 0000 0000 0000 0000 0000 0000</td>
+</tr>
+<tr>
+<td>TERMINATED</td>
+<td>0110 0000 0000 0000 0000 0000 0000 0000</td>
+</tr>
+</tbody>
+</table>
 <p>由上表可以看出，原子对象ctl的前三位表示状态，后29位记录池中worker的个数，CAPCITY就像是一个掩码，通过掩码可以快速的从ctl中获得当前线程池的运行状态和池中的worker个数。  </p>
 <p>JDK1.8的并发包中不再通过设置阻塞队列的长度来限制任务的提交。阻塞队列的长度初始化之后就不能改变，因此如果担心阻塞队列太大导致内存占用太多，可以从两方面入手：1、初始化的时候选择合适的阻塞队列大小；2、调高corePoolSize或maxmumPoolSize加快任务的处理速度。参数的动态调整见下文。</p>
 <p>线程池状态简述：</p>
