@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://yoursite.com/child/zzkenyon.github.io/2018/03/20/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/</loc>
+    <lastmod>2019-06-09</lastmod>
+  </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2018/05/15/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/</loc>
-    <lastmod>2019-05-28</lastmod>
+    <lastmod>2019-06-09</lastmod>
   </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2018/05/26/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-CopyOnWrite%E5%AE%B9%E5%99%A8/</loc>
     <lastmod>2019-05-28</lastmod>
@@ -50,9 +53,6 @@
     <lastmod>2019-05-21</lastmod>
   </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2018/05/03/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-ThreadLocal%E5%8E%9F%E7%90%86/</loc>
-    <lastmod>2019-05-17</lastmod>
-  </url>  <url>
-    <loc>http://yoursite.com/child/zzkenyon.github.io/2018/03/20/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/</loc>
     <lastmod>2019-05-17</lastmod>
   </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2016/08/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</loc>
