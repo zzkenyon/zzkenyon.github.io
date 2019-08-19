@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/child/2019/08/01/redis-%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96%E9%85%8D%E7%BD%AE/</loc>
+    
+    <lastmod>2019-08-19T13:41:41.779Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/child/2016/07/22/%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6-Java%E4%B8%AD%E7%9A%84%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6/</loc>
     
     <lastmod>2019-08-04T14:58:38.685Z</lastmod>
@@ -58,6 +65,13 @@
   </url>
   
   <url>
+    <loc>http://yoursite.com/child/2018/05/17/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/</loc>
+    
+    <lastmod>2019-06-25T14:13:43.932Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/child/2018/03/21/Mybatis-%E6%89%B9%E9%87%8F%E6%93%8D%E4%BD%9C%E6%95%B0%E6%8D%AE%E5%BA%93/</loc>
     
     <lastmod>2019-06-25T14:08:38.120Z</lastmod>
@@ -110,13 +124,6 @@
     <loc>http://yoursite.com/child/2018/05/26/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-CopyOnWrite%E5%AE%B9%E5%99%A8/</loc>
     
     <lastmod>2019-05-28T14:59:58.865Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/child/2018/05/17/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/</loc>
-    
-    <lastmod>2019-05-28T14:59:12.732Z</lastmod>
     
   </url>
   
