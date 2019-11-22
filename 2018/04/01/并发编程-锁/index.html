@@ -83,8 +83,6 @@
 <p>has_bias_pattern() 返回 true 时代表 markword 的可偏向标志 bit 位为 1 ，且对象头末尾标志为 01。</p>
 <p>biased_locker() == NULL 返回 true 时代表对象 Mark Word 中 bit field 域存储的 Thread Id 为空。</p>
 </li>
-</ol>
-<ol start="2">
 <li><p>如果为<strong>可偏向状态</strong>，尝试用 CAS 操作， 将自己的线程 ID 写入MarkWord</p>
 </li>
 <li><p>如果 CAS 操作失败， 则说明， 有另外一个线程 Thread B 抢先获取了偏向锁。 这种状态说明该对象的竞争比较激烈， 此时需要撤销 Thread B 获得的偏向锁，将 Thread B 持有的锁升级为轻量级锁。 该操作需要等待全局安全点 JVM safepoint ( 此时间点， 没有线程在执行字节码) 。</p>
@@ -125,11 +123,11 @@
 <ol>
 <li>在代码进入同步块之前，如果同步对象锁状态为无锁状态（偏向锁标志为“0”，锁标志位为“01”），JVM会在当前线程的栈桢中创建用于存储<strong>锁记录</strong>的空间，并将对象头中的MarkWord复制到锁记录中，官方称为Displaced Mark Word。</li>
 </ol>
-<p><img src="https://img-blog.csdnimg.cn/20190412112416596.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlbmd4aWFvMTk5Mw==,size_16,color_FFFFFF,t_70" alt></p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E8%BD%BB%E9%87%8F%E9%94%81%E5%8E%9F%E7%90%861.png" alt></p>
 <ol start="2">
 <li>然后线程尝试使用CAS将对象头中的Mark Word替换为指向该线程锁记录的指针。</li>
 </ol>
-<p><img src="https://img-blog.csdnimg.cn/20190412112824405.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlbmd4aWFvMTk5Mw==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E8%BD%BB%E9%87%8F%E9%94%81%E5%8E%9F%E7%90%862.png" alt="在这里插入图片描述"></p>
 <ol start="3">
 <li><p>如果成功，那么这个线程就拥有了该对象的锁，并且对象Mark Word的锁标志位设置为“00”</p>
 </li>
