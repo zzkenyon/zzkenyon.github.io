@@ -1,0 +1,119 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>mysql-innodb的事务管理与锁 | 黑风雅过吟</title><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/css/style.css?v=2.0.3"><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/css/highlight.css?v=2.0.3"><link rel="Shortcut Icon" href="/zzkenyon.github.io/favicon.ico"><link rel="bookmark" href="/zzkenyon.github.io/favicon.ico"><link rel="apple-touch-icon" href="/zzkenyon.github.io/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/zzkenyon.github.io/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/zzkenyon.github.io/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">mysql-innodb的事务管理与锁</h1><a id="logo" href="/zzkenyon.github.io/.">黑风雅过吟</a><p class="description">不积跬步无以至千里</p></div><div id="nav-menu"><a href="/zzkenyon.github.io/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/zzkenyon.github.io/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/zzkenyon.github.io/about/"><i class="fa fa-user"> 关于</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">mysql-innodb的事务管理与锁</h1><div class="post-meta"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/#comments" class="comment-count"></a><p><span class="date">Nov 23, 2019</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>典型的事务场景：下单、转账</p>
+<p><strong>事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成</strong></p>
+<p>MYSQL中支持事务的数据引擎：innodb  ndb</p>
+<h5 id="1、数据库事务的四大特性是什么？"><a href="#1、数据库事务的四大特性是什么？" class="headerlink" title="1、数据库事务的四大特性是什么？"></a>1、数据库事务的四大特性是什么？</h5><p>原子性  Atomicity   由undo log保证</p>
+<p>一致性  Consistent   数据完整性</p>
+<p>隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的</p>
+<p>持久性   Durable  redo log</p>
+<p><strong>原子性、隔离性和持久性最终都是为了实现一致性。</strong></p>
+<h5 id="2、什么时候会出现事务、结束事务？"><a href="#2、什么时候会出现事务、结束事务？" class="headerlink" title="2、什么时候会出现事务、结束事务？"></a>2、什么时候会出现事务、结束事务？</h5><p>当我们执行单条语句的时候，会默认开启事务</p>
+<p>mysql 参数 autocommit 默认为 on 开启状态，执行单条查询语句不需要显示的声明事务、提交事务</p>
+<p>show global VARIABLE like ‘autocommit’  显示该参数的全局值</p>
+<p>show session VARIABLE like ‘autocommit’ 显示当前会话该参数的值</p>
+<p>set session autocommit=off; 关闭autocommit后，需要手动提交</p>
+<p><strong>手动开启事务，两种方式</strong>  </p>
+<p>start TRANSACATION;    </p>
+<p> begin; </p>
+<p>事务的结束：</p>
+<p>提交结束 commit;</p>
+<p>回滚结束 rollback；</p>
+<p>连接断开 会话结束 -&gt; 事务结束</p>
+<h5 id="3、事务并发带来的问题有哪些？"><a href="#3、事务并发带来的问题有哪些？" class="headerlink" title="3、事务并发带来的问题有哪些？"></a>3、事务并发带来的问题有哪些？</h5><p>脏读（读未提交）：事务A执行一条查询，事务B修改了这部分数据但没提交，导致A读取到事务B没有提交的数据，事务B可能回滚导致事务A读取到的数据是脏数据。</p>
+<p>不可重复读：事务A执行一条查询后，事务B对这部分数据执行了update/delete并提交了，导致事务A再次查询时与上一次的查询结果不一致，称为不可重复度。</p>
+<p>幻读：事务A执行一条范围查询后，事务B在此范围insert了若干条数据，导致事务A再次执行该查询是记录数增多，产生幻读。</p>
+<p>以上三个问题称为数据库的读一致性问题，必须由数据库自己提供一定的事务隔离机制来解决</p>
+<h5 id="4、SQL92-标准"><a href="#4、SQL92-标准" class="headerlink" title="4、SQL92 标准"></a>4、SQL92 标准</h5><p>许多数据库专家联合制定了一个标准，建议数据库厂商都按照这个标准提供一定的事务隔离级别，来解决事务并发问题。</p>
+<p>看一下SQL92标准的官网：<a href="http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt" target="_blank" rel="noopener">http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt</a></p>
+<p>在官网搜索_iso，会看到一张表格：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Level</th>
+<th>P1</th>
+<th>P2</th>
+<th>P3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">READ UNCOMMITTED</td>
+<td>Possible</td>
+<td>Possible</td>
+<td>Possible</td>
+</tr>
+<tr>
+<td style="text-align:left">READ COMMITTED</td>
+<td>Not Possible</td>
+<td>Possible</td>
+<td>Possible</td>
+</tr>
+<tr>
+<td style="text-align:left">REPEATABLE READ</td>
+<td>Not Possible</td>
+<td>Not Possible</td>
+<td>Possible</td>
+</tr>
+<tr>
+<td style="text-align:left">SERIALIZABLE</td>
+<td>Not Possible</td>
+<td>Not Possible</td>
+<td>Not Possible</td>
+</tr>
+</tbody>
+</table>
+<p>这里定义了四个隔离级别，右边的P1P2P3就是代表事务并发的三个问题，脏读，不可重复度，幻读。Possible表示在这个隔离级别下该问题有可能发生，Not Possible表示解决了该问题。</p>
+<ul>
+<li>Read Uncommited 未提交读</li>
+</ul>
+<p>顾名思义，事务可以读取到其他事物未提交的数据，使用这种隔离级别其实并未解决以上的任何问题</p>
+<ul>
+<li>Read Commited  已提交读</li>
+</ul>
+<p>只能读到其他事物已经提交了的数据，解决了脏读问题</p>
+<ul>
+<li>Repeatable Read  可重复读</li>
+</ul>
+<p>事务重复读取，保证重复读取数据一致，解决了不可重复度的问题</p>
+<ul>
+<li>Serializable 串行化</li>
+</ul>
+<p>事务串行化运行，没有并发自然没有不一性问题产生，但是严重影响效率，不推荐使用</p>
+<p>不同的厂商或者数据库引擎在实现以上标准时会有一些差异。Oracle只实现了两种RC和Serializable，Innodb对以上的四种隔离级别都进行了实现，值得一提的是，innodb 对Repeatable Read 这一级别的实现同时也解决了幻读的问题，因此这一级别是innodb的默认事务隔离级别。</p>
+<h5 id="5、innodb是如何实现的呢"><a href="#5、innodb是如何实现的呢" class="headerlink" title="5、innodb是如何实现的呢?"></a>5、innodb是如何实现的呢?</h5><p>如果要解决读一致性的问题 ，保证一个事务前后两次读取数据一致，实现事务隔离级别，应该怎么做 </p>
+<p>方案一 ： LBCC 基于锁的并发控制</p>
+<p>方案二： MVCC 基于多版本的并发控制  生成一个数据请求时间点的一致性数据，并用这个快照来提供一定级别的一致性读取。</p>
+<p>首先介绍MVCC的实现原理</p>
+<p>从三个隐藏字段开始</p>
+<p>InnoDB为每行记录都实现了三个隐藏字段</p>
+<p>DB_ROW_ID   6字节：行标识</p>
+<p>DB_TRX_ID  6字节：插入或更新行的最后一个事务ID，自动递增（理解为创建版本号）</p>
+<p>DB_ROLL_PTR：  7字节：回滚指针（理解为删除版本号）</p>
+<p>mvcc核心思想，一个事务根据自己的事务id进行判断，</p>
+<p>只能查询到创建版本号比我的事务ID小的  和  删除版本号比我事务ID大的记录  </p>
+<p>innodb的锁：</p>
+<p>锁的模式：</p>
+<p>行锁—共享锁 和 排它锁</p>
+<p>表所 — 意向排他锁 和 意向共享锁</p>
+<p>为什么需要 表级别的意向锁</p>
+<p>意向锁可以理解为表的锁标志</p>
+<p>一个事务尝试给一张表加上表锁，前提是没有其他任何事务已经锁定了这张表的任意一行，那么需要检索所有的行确定没有锁。意向锁是又来避免这种检索的</p>
+<p>锁的作用：</p>
+<p>锁的算法：在什么时候锁定什么范围</p>
+<p>记录锁</p>
+<p>间隙锁</p>
+<p>邻键锁</p>
+<p>插入意向锁 </p>
+<p>自增锁</p>
+<p>解决资源竞争的问题</p>
+<p>锁到底锁住了什么？</p>
+<p>锁住的是索引</p>
+<p>问题1 一张表没有索引或者没用到索引为什么会锁表？</p>
+<p>一张表不可能没有索引，没有显示声明索引的表，隐藏的row_id字段会作为聚集索引。。。如果查询语句没有用到索引，那只能走全表扫描，就会锁住全表</p>
+<p>问题2 为什么锁住辅助索引，会导致主键索引也被锁住？</p>
+<p>回表</p>
+<p>记录锁 —- 唯一索引 等值查询 精确匹配时</p>
+<p>间隙锁—- 锁定记录不存在的范围区间，主要用来控制插入，不同间隙的锁互相不影响</p>
+<p>邻键锁 —- 锁定查询的范围，包含记录和区间，执行了范围查询时会用到邻键锁，是行锁的默认锁定方式，以上两种是邻键锁的特殊情况</p>
+<p>innodb在RR实现里就解决幻读问题 就是依靠邻 键锁</p>
+<p>共享锁和排他锁   行所</p>
+</div><div class="post-copyright"><blockquote><p>原文作者: Zhao Zhengkang</p><p>原文链接: <a href="http://yoursite.com/child/2019/11/23/mysql-innodb的事务管理与锁/">http://yoursite.com/child/2019/11/23/mysql-innodb的事务管理与锁/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/zzkenyon.github.io/tags/数据库/">数据库</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/" class="pre">web-（转）彻底理解cookie，session，token</a><a href="/zzkenyon.github.io/2019/11/22/分布式-vagrant&amp;virtualBox使用说明/" class="next">分布式-vagrant&amp;virtualBox使用说明</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、数据库事务的四大特性是什么？"><span class="toc-text">1、数据库事务的四大特性是什么？</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、什么时候会出现事务、结束事务？"><span class="toc-text">2、什么时候会出现事务、结束事务？</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、事务并发带来的问题有哪些？"><span class="toc-text">3、事务并发带来的问题有哪些？</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4、SQL92-标准"><span class="toc-text">4、SQL92 标准</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5、innodb是如何实现的呢"><span class="toc-text">5、innodb是如何实现的呢?</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/12/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/12/19/nio-说说零拷贝/">nio-说说零拷贝</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/30/zookeeper-配置和基本操纵/">zookeeper-配置和基本操纵</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/24/zookeeper-是什么以及能干什么/">zookeeper-是什么以及能干什么</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/">web-（转）彻底理解cookie，session，token</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/zzkenyon.github.io/tags/java/" style="font-size: 15px;">java</a> <a href="/zzkenyon.github.io/tags/MQ/" style="font-size: 15px;">MQ</a> <a href="/zzkenyon.github.io/tags/框架/" style="font-size: 15px;">框架</a> <a href="/zzkenyon.github.io/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/zzkenyon.github.io/tags/其他/" style="font-size: 15px;">其他</a> <a href="/zzkenyon.github.io/tags/linux命令/" style="font-size: 15px;">linux命令</a> <a href="/zzkenyon.github.io/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/zzkenyon.github.io/tags/redis/" style="font-size: 15px;">redis</a> <a href="/zzkenyon.github.io/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/zzkenyon.github.io/tags/并发编程/" style="font-size: 15px;">并发编程</a> <a href="/zzkenyon.github.io/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/zzkenyon.github.io/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/zzkenyon.github.io/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/zzkenyon.github.io/tags/nio/" style="font-size: 15px;">nio</a> <a href="/zzkenyon.github.io/tags/jvm/" style="font-size: 15px;">jvm</a> <a href="/zzkenyon.github.io/tags/SpringCloud/" style="font-size: 15px;">SpringCloud</a> <a href="/zzkenyon.github.io/tags/web/" style="font-size: 15px;">web</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/07/">七月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/05/">五月 2016</a></li></ul></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/zzkenyon.github.io/baidusitemap.xml">网站地图</a> |  <a href="/zzkenyon.github.io/atom.xml">订阅本站</a> |  <a href="/zzkenyon.github.io/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/zzkenyon.github.io/." rel="nofollow">Zhao Zhengkang.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/zzkenyon.github.io/js/search.json.js?v=2.0.3"></script><script type="text/javascript" src="/zzkenyon.github.io/js/toctotop.js?v=2.0.3" async></script><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/share/css/share.css"><script type="text/javascript" src="/zzkenyon.github.io/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/zzkenyon.github.io/share/js/qrcode.js" charset="utf-8"></script></body></html>
