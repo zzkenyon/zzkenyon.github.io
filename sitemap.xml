@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/child/2019/07/31/mysql-centos%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEMySql8.0/</loc>
+    
+    <lastmod>2020-03-31T15:13:23.364Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/child/2016/05/10/mysql-5-7-windows%E4%B8%8B%E5%AE%89%E8%A3%85/</loc>
+    
+    <lastmod>2020-03-31T15:12:37.050Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/child/2020/01/02/mysql-redo%20log%E5%86%99%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/</loc>
+    
+    <lastmod>2020-03-31T15:12:07.506Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/child/2020/01/02/mysql-innoDB%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/</loc>
     
     <lastmod>2020-03-31T15:05:22.133Z</lastmod>
@@ -317,23 +338,9 @@
   </url>
   
   <url>
-    <loc>http://yoursite.com/child/2019/07/31/mysql-centos%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEMySql8.0/</loc>
-    
-    <lastmod>2019-07-31T01:43:48.415Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://yoursite.com/child/2017/03/21/%E6%95%B0%E6%8D%AE%E5%BA%93-postgreSQL-%E8%AE%A9%E4%B8%BB%E9%94%AE%E8%87%AA%E5%A2%9E/</loc>
     
     <lastmod>2019-07-31T01:42:34.068Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/child/2016/05/10/mysql-Mysql-5-7-windows%E4%B8%8B%E5%AE%89%E8%A3%85/</loc>
-    
-    <lastmod>2019-07-31T01:41:23.019Z</lastmod>
     
   </url>
   
