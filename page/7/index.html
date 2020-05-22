@@ -1,1 +1,1475 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>黑风雅过吟 | 不积跬步无以至千里</title><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/css/style.css?v=2.0.3"><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/css/highlight.css?v=2.0.3"><link rel="Shortcut Icon" href="/zzkenyon.github.io/favicon.ico"><link rel="bookmark" href="/zzkenyon.github.io/favicon.ico"><link rel="apple-touch-icon" href="/zzkenyon.github.io/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/zzkenyon.github.io/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/zzkenyon.github.io/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">黑风雅过吟</h1><a id="logo" href="/zzkenyon.github.io/.">黑风雅过吟</a><p class="description">不积跬步无以至千里</p></div><div id="nav-menu"><a href="/zzkenyon.github.io/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/zzkenyon.github.io/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/zzkenyon.github.io/about/"><i class="fa fa-user"> 关于</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></h2><div class="post-meta"><p><span class="date">2018-03-15</span></p></div><div class="post-content"><h4 id="1-线程状态转换"><a href="#1-线程状态转换" class="headerlink" title="1. 线程状态转换"></a>1. 线程状态转换</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/java%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%E5%8F%98%E8%BF%81.jpg" alt="线程状态转换"><br>重点注意：</p></div><p class="readmore"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler&lt;T&gt;的使用</a></h2><div class="post-meta"><p><span class="date">2018-03-15</span></p></div><div class="post-content"><p>orm框架需要解决的问题之一就是数据库中的数据类型与java数据类型相互转换，以Mysql为例：</p></div><p class="readmore"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></h2><div class="post-meta"><p><span class="date">2018-03-12</span></p></div><div class="post-content"><p>使用<code>MyBatisGenerator</code>可以根据数据库中的table自动生成entity、dao以及mapper映射器文件，简单配置就能实现</p></div><p class="readmore"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></h2><div class="post-meta"><p><span class="date">2018-02-28</span></p></div><div class="post-content"><h4 id="1-命名"><a href="#1-命名" class="headerlink" title="1. 命名"></a>1. 命名</h4><p>SpringBoot提供的starter以spring-boot-starter-xxx的方式命名的。</p></div><p class="readmore"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">（转）NAT原理概述</a></h2><div class="post-meta"><p><span class="date">2018-02-12</span></p></div><div class="post-content"><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h3><h4 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h4><h5 id="1-1-1-名词解释"><a href="#1-1-1-名词解释" class="headerlink" title="1.1.1 名词解释"></a>1.1.1 名词解释</h5><p><strong>公有IP地址：</strong>也叫全局地址，是指合法的IP地址，它是由NIC（网络信息中心）或者ISP(网络服务提供商)分配的地址，对外代表一个或多个内部局部地址，是全球统一的可寻 址的地址。</p></div><p class="readmore"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></h2><div class="post-meta"><p><span class="date">2018-01-21</span></p></div><div class="post-content"><p>正则表达式在几乎所有语言中都可以使用，无论是前端的JavaScript、还是后端的Java、c#。他们都提供相应的接口/函数支持正则表达式。</p></div><p class="readmore"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></h2><div class="post-meta"><p><span class="date">2017-12-21</span></p></div><div class="post-content"><p>开发中我们经常会用到时间相关类，我们有很多办法在Java代码中获取时间。但是不同的方法获取到的时间的格式都不尽相同，这时候就需要一种格式化工具，把时间显示成我们需要的格式。最常用的方法就是使用SimpleDateFormat类。这是一个看上去功能比较简单的类，但是，一旦使用不当也有可能导致很大的问题。</p></div><p class="readmore"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></h2><div class="post-meta"><p><span class="date">2017-06-02</span></p></div><div class="post-content"><p>在开发过程中，如果要测试某个service类的接口，按照以下流程操作：</p></div><p class="readmore"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></h2><div class="post-meta"><p><span class="date">2017-05-14</span></p></div><div class="post-content"><p>文章以jdk并发包中的一个策略模式实现作为开篇。</p></div><p class="readmore"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></h2><div class="post-meta"><p><span class="date">2017-05-12</span></p></div><div class="post-content"><h3 id="SpringBootApplication"><a href="#SpringBootApplication" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h3><p>我们经常直接将@SpringBootApplication打在了主类上，其实更加清晰的写法应该是将主类和SpringBoot配置类分开，如下所示：</p></div><p class="readmore"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">阅读更多</a></p></div><nav class="page-navigator"><a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/6/">上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><a class="page-number" href="/zzkenyon.github.io/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/zzkenyon.github.io/page/8/">8</a><a class="page-number" href="/zzkenyon.github.io/page/9/">9</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/8/">下一页</a></nav></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/04/07/分布式-日志上传es/">ELK日志系统</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/">（转）彻底理解cookie，session，token</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/zzkenyon.github.io/tags/java/" style="font-size: 15px;">java</a> <a href="/zzkenyon.github.io/tags/MQ/" style="font-size: 15px;">MQ</a> <a href="/zzkenyon.github.io/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/zzkenyon.github.io/tags/其他/" style="font-size: 15px;">其他</a> <a href="/zzkenyon.github.io/tags/linux命令/" style="font-size: 15px;">linux命令</a> <a href="/zzkenyon.github.io/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/zzkenyon.github.io/tags/redis/" style="font-size: 15px;">redis</a> <a href="/zzkenyon.github.io/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/zzkenyon.github.io/tags/并发编程/" style="font-size: 15px;">并发编程</a> <a href="/zzkenyon.github.io/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/zzkenyon.github.io/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/zzkenyon.github.io/tags/nio/" style="font-size: 15px;">nio</a> <a href="/zzkenyon.github.io/tags/jvm/" style="font-size: 15px;">jvm</a> <a href="/zzkenyon.github.io/tags/SpringCloud/" style="font-size: 15px;">SpringCloud</a> <a href="/zzkenyon.github.io/tags/web/" style="font-size: 15px;">web</a> <a href="/zzkenyon.github.io/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/zzkenyon.github.io/tags/日志/" style="font-size: 15px;">日志</a> <a href="/zzkenyon.github.io/tags/Mybatis/" style="font-size: 15px;">Mybatis</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/07/">七月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/01/">一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/05/">五月 2016</a></li></ul></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/zzkenyon.github.io/baidusitemap.xml">网站地图</a> |  <a href="/zzkenyon.github.io/atom.xml">订阅本站</a> |  <a href="/zzkenyon.github.io/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/zzkenyon.github.io/." rel="nofollow">Zhao Zhengkang.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/zzkenyon.github.io/js/search.json.js?v=2.0.3"></script><script type="text/javascript" src="/zzkenyon.github.io/js/totop.js?v=2.0.3" async></script></body></html>
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="黑风雅过吟">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="黑风雅过吟">
+<meta property="og:url" content="http://yoursite.com/child/page/7/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="黑风雅过吟">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                85
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                22
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">分布式-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">分布式-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/分布式-分布式事务/">分布式-分布式事务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-日志上传es/">分布式-ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/其他-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/">彻底理解cookie/session/token（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main">
+        <article id="post-Mybatis-批量操作数据库" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">
+            <time datetime="2018-03-21T02:01:21.000Z" itemprop="datePublished">2018-03-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/Mybatis-批量操作数据库.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/Mybatis-批量操作数据库.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/Mybatis-批量操作数据库.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+            
+        
+        
+            <h3 id="批量插入"><a href="#批量插入" class="headerlink" title="批量插入"></a>批量插入</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Insert</span>(<span class="string">"&lt;script&gt;"</span> +</span><br><span class="line">            <span class="string">"INSERT INTO patent_post_info(patent_id,post_time,post_information) values "</span>+</span><br><span class="line">            <span class="string">"&lt;foreach collection =\"postInfos\" item=\"postInfo\" index= \"index\" separator =\",\"&gt;"</span> +</span><br><span class="line">            <span class="string">"("</span>+</span><br><span class="line">            <span class="string">"#&#123;patentId&#125;, "</span> +</span><br><span class="line">            <span class="string">"CAST (#&#123;postInfo.postTime&#125; AS timestamp),"</span>+</span><br><span class="line">            <span class="string">"#&#123;postInfo.postInformation&#125;"</span>+</span><br><span class="line">            <span class="string">")"</span> +</span><br><span class="line">            <span class="string">"&lt;/foreach &gt;"</span>+</span><br><span class="line">            <span class="string">"&lt;/script&gt;"</span></span><br><span class="line">    )</span><br><span class="line">    <span class="function">Integer <span class="title">insertPatentPostInfo</span><span class="params">(@Param(<span class="string">"patentId"</span>)</span>Integer id, @<span class="title">Param</span><span class="params">(<span class="string">"postInfos"</span>)</span>List&lt;PatentPostInfo&gt; postInfos)</span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> SQLException</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="批量更新"><a href="#批量更新" class="headerlink" title="批量更新"></a>批量更新</h3><p>以下示例展示了更新两个字段，每一个字段使用一个<foerach>片段<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Update</span>(<span class="string">"&lt;script&gt;"</span>+</span><br><span class="line">           <span class="string">"UPDATE order_items "</span> +</span><br><span class="line">           <span class="string">"SET "</span> +</span><br><span class="line">           <span class="string">"goods_total_price="</span> +</span><br><span class="line">           <span class="string">"&lt;foreach collection=\"orderItems\" item=\"orderItem\"index=\"index\" separator=\" \" open=\"CASE id\" close=\"END\"&gt;"</span> +</span><br><span class="line">           <span class="string">"WHEN #&#123;orderItem.id&#125; THEN #&#123;orderItem.goodsTotalPrice&#125;"</span> +</span><br><span class="line">           <span class="string">"&lt;/foreach&gt;"</span> +</span><br><span class="line">           <span class="string">",goods_name="</span>+</span><br><span class="line">           <span class="string">"&lt;foreach collection=\"list\" item=\"orderItem\" index=\"index\" separator=\" \" open=\"CASE id\" close=\"END\"&gt;"</span> +</span><br><span class="line">           <span class="string">"WHEN #&#123;orderItem.id&#125; THEN #&#123;orderItem.goodsName&#125;"</span> +</span><br><span class="line">           <span class="string">"&lt;/foreach&gt;"</span> +</span><br><span class="line">           <span class="string">"WHERE id IN "</span> +</span><br><span class="line">           <span class="string">"&lt;foreach collection=\"list\" item=\"orderItem\" index=\"index\" separator=\",\" open=\"(\" close=\")\"&gt;"</span> +</span><br><span class="line">           <span class="string">"#&#123;orderItem.id&#125;"</span>+</span><br><span class="line">           <span class="string">"&lt;/foreach&gt;"</span> +</span><br><span class="line">           <span class="string">"&lt;/script&gt;"</span>)</span><br><span class="line">   <span class="function">Integer <span class="title">bathUpdateOrderItem</span><span class="params">(@Param(<span class="string">"orderItems"</span>)</span>List&lt;OrderItemCustom&gt; orderItems) <span class="keyword">throws</span> SQLException</span>;</span><br></pre></td></tr></table></figure></foerach></p>
+<h3 id="批量删除"><a href="#批量删除" class="headerlink" title="批量删除"></a>批量删除</h3><p>使用数组接受参数<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Delete</span>(<span class="string">"&lt;script&gt;"</span> +</span><br><span class="line">            <span class="string">"DELETE FROM order_items WHERE id IN"</span> +</span><br><span class="line">            <span class="string">"&lt;foreach collection=\"ids\" item=\"itemId\" index=\"index\" separator=\",\" open=\"(\" close=\")\"&gt;"</span>+</span><br><span class="line">                <span class="string">"#&#123;itemId&#125;"</span> +</span><br><span class="line">            <span class="string">"&lt;/foreach&gt;"</span>+</span><br><span class="line">            <span class="string">"&lt;/script&gt;"</span></span><br><span class="line">    )</span><br><span class="line">    <span class="function">Integer <span class="title">bathdeleteOrderItem</span><span class="params">(@Param(<span class="string">"ids"</span>)</span> Integer[] itemIds)<span class="keyword">throws</span> SQLException</span>;</span><br></pre></td></tr></table></figure></p>
+<p>controller中使用 @RequestParam 注解修饰数组，请求时将参数拼接到url后面（类似Get请求）</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-SpringBoot-跟踪启动过程" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/Spring/">Spring</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">
+            <time datetime="2018-03-20T16:00:00.000Z" itemprop="datePublished">2018-03-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/SpringBoot-跟踪启动过程.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/SpringBoot-跟踪启动过程.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/SpringBoot-跟踪启动过程.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>本文基于spring-boot版本2.1.4.RELEASE<br>首先使用spring-boot-starter-web构建一个web项目，编写代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(Application.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RootController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">welcome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello world!"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>入口程序执行的方法SpringApplication.run(Application.class, args)是SpringApplication类的静态run方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">代码摘自：org.springframework.boot.SpringApplication</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(Object source, String... args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> run(<span class="keyword">new</span> Object[] &#123; source &#125;, args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(Object[] sources, String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> SpringApplication(sources).run(args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>第一个静态run函数实际上是将单个的source构造成数组，然后调用了第二个静态run函数。第二个函数创建了SpringApplication对象，并调用该对象的非静态run函数（有三个run函数）</p>
+<p>因此，我们也可以将前面程序主类的启动过程修改为：</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-并发编程-线程中断" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">
+            <time datetime="2018-03-20T12:36:12.000Z" itemprop="datePublished">2018-03-20</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/并发编程-线程中断.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/并发编程-线程中断.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/并发编程-线程中断.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>中断标志就是线程对象的一个成员变量，它表示一个运行中的线程是否被被其他线程进行了中断操作。中断好比其他线程对该线程打了个招呼，其他线程通过调用该线程对象的interrupt()方法对其进行中断操作。</p>
+<p>线程通过检查自身是否被中断来进行响应，线程通过对象方法 isInterrupted()来进行判断是否被中断。</p>
+<p>在线程中调用静态方法 Thread.interrupted() 对当前线程的中断标识进行复位。</p>
+<p><strong>中断与响应中断是异步的。</strong></p>
+<p>本篇将从以下两个方面来介绍Java中对线程中断机制的具体实现：</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-并发编程-基础" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">
+            <time datetime="2018-03-15T12:36:12.000Z" itemprop="datePublished">2018-03-15</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/并发编程-基础.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/并发编程-基础.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/并发编程-基础.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h4 id="1-线程状态转换"><a href="#1-线程状态转换" class="headerlink" title="1. 线程状态转换"></a>1. 线程状态转换</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/java%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%E5%8F%98%E8%BF%81.jpg" alt="线程状态转换"><br>重点注意：</p>
+<p>1、Waiting和 Blocked</p>
+<p>从linux内核来看，线程Waiting和 Blocked都是等待状态，没区别，区别只在于java的管理需要。通常我们在系统级别说线程的blocked，是说线程操作io，被暂停了，这种线程由linux内核来唤醒（io设备报告数据来了，内核把block的线程放进可运行的进程队列，依次得到处理器时间），而wait是说，等待一个内核mutex对象，另个线程signal这个mutex后，这个线程才可以运行。区别在于由谁唤醒，是操作系统，还是另一个线程，这里倒和java很相似。</p>
+<p>java线程的 WAITING 和 BLOCKED 状态对于操作系统来说其实是一回事，都是暂停线程，<strong>都需要进行上下文切换</strong>。他们的区别在于唤醒方式不同，Waiting 是用户唤醒，而 Blocked 是系统唤醒。</p>
+<p>2、sleep(long) 不释放锁，wait()会释放锁，都进入WAITING状态，wait()返回后，重新竞争锁，进入BLOCKED状态。</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-Mybatis-TypeHandlerT的使用" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">
+            <time datetime="2018-03-14T16:00:00.000Z" itemprop="datePublished">2018-03-15</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/Mybatis-TypeHandlerT的使用.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/Mybatis-TypeHandlerT的使用.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/Mybatis-TypeHandlerT的使用.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler&lt;T&gt;的使用</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>orm框架需要解决的问题之一就是数据库中的数据类型与java数据类型相互转换，以Mysql为例：</p>
+<p>JdbcType.Varchar类型与String类型需要相互转换，mybatis内置了StringTypeHandler来处理这种转换</p>
+<p>JdbcType.double类型与Double或double类型转换，内置有DoubleTypeHandler</p>
+<p>。。。</p>
+<p>在实际开发中，会遇到一些特殊类型的转换，例如：</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-Mybatis-MyBatisGenerator的使用" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">
+            <time datetime="2018-03-11T16:00:00.000Z" itemprop="datePublished">2018-03-12</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/Mybatis-MyBatisGenerator的使用.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/Mybatis-MyBatisGenerator的使用.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/Mybatis-MyBatisGenerator的使用.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>使用<code>MyBatisGenerator</code>可以根据数据库中的table自动生成entity、dao以及mapper映射器文件，简单配置就能实现</p>
+<p>首先引入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.generator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-generator-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>引入插件：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.generator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-generator-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configurationFile</span>&gt;</span>src/main/resources/generator-config.xml<span class="tag">&lt;/<span class="name">configurationFile</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">verbose</span>&gt;</span>true<span class="tag">&lt;/<span class="name">verbose</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">overwrite</span>&gt;</span>true<span class="tag">&lt;/<span class="name">overwrite</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-SpringBoot-自定义starter" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/Spring/">Spring</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">
+            <time datetime="2018-02-27T16:00:00.000Z" itemprop="datePublished">2018-02-28</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/SpringBoot-自定义starter.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/SpringBoot-自定义starter.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/SpringBoot-自定义starter.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h4 id="1-命名"><a href="#1-命名" class="headerlink" title="1. 命名"></a>1. 命名</h4><p>SpringBoot提供的starter以spring-boot-starter-xxx的方式命名的。</p>
+<p>官方建议自定义的starter使用xxx-spring-boot-starter命名规则。以区分SpringBoot生态提供的starter。</p>
+<h4 id="2-开发"><a href="#2-开发" class="headerlink" title="2. 开发"></a>2. 开发</h4><ul>
+<li><p>编写properties 属性类（@ConfigurationProperties）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"demo"</span>)</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoProperties</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String what;</span><br><span class="line">    <span class="keyword">private</span> String who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>
+                
+            
+        
+        
+            </p></li></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-其他-NAT原理概述" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/其他/">其他</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">
+            <time datetime="2018-02-11T16:00:00.000Z" itemprop="datePublished">2018-02-12</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/其他-NAT原理概述.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/其他-NAT原理概述.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/其他-NAT原理概述.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述（转）</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h3><h4 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h4><h5 id="1-1-1-名词解释"><a href="#1-1-1-名词解释" class="headerlink" title="1.1.1 名词解释"></a>1.1.1 名词解释</h5><p><strong>公有IP地址：</strong>也叫全局地址，是指合法的IP地址，它是由NIC（网络信息中心）或者ISP(网络服务提供商)分配的地址，对外代表一个或多个内部局部地址，是全球统一的可寻 址的地址。</p>
+<p><strong>私有IP地址：</strong>也叫内部地址，属于非注册地址，专门为组织机构内部使用。因特网分配编号委员会（IANA）保留了3块IP地址做为私有IP地址：</p>
+<p>10.0.0.0 ——— 10.255.255.255</p>
+<p>172.16.0.0——— 172.16.255.255</p>
+<p>192.168.0.0———192.168.255.255</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-其他-正则表达式" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/其他/">其他</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">
+            <time datetime="2018-01-20T16:00:00.000Z" itemprop="datePublished">2018-01-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/其他-正则表达式.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/其他-正则表达式.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/其他-正则表达式.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>正则表达式在几乎所有语言中都可以使用，无论是前端的JavaScript、还是后端的Java、c#。他们都提供相应的接口/函数支持正则表达式。</p>
+<p>但很神奇的是：<strong><em>无论你大学选择哪一门计算机语言，都没有关于正则表达式的课程给你修，在你学会正则之前，你只能看着那些正则大师们，写了一串外星文似的字符串，替代了你用一大篇幅的if else代码来做一些数据校验</em></strong>。</p>
+<p>既然喜欢，那就动手学呗，可当你百度出一一堆相关资料时，你发现无一不例外的枯燥至极，难以学习。</p>
+<p>本文旨在用最通俗的语言讲述最枯燥的基本知识！</p>
+<h2 id="正则基础知识点："><a href="#正则基础知识点：" class="headerlink" title="正则基础知识点："></a><strong>正则基础知识点：</strong></h2><h3 id="1-元字符"><a href="#1-元字符" class="headerlink" title="1.元字符"></a><strong>1.元字符</strong></h3><p>万物皆有缘，正则也是如此，元字符是构造正则表达式的一种基本元素。<br>我们先来记几个常用的元字符：</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-jdk-SimpleDateFormat的用法以及线程安全" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/jdk/">jdk</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">
+            <time datetime="2017-12-21T01:02:32.000Z" itemprop="datePublished">2017-12-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/jdk-SimpleDateFormat的用法以及线程安全.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/jdk-SimpleDateFormat的用法以及线程安全.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/jdk-SimpleDateFormat的用法以及线程安全.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>开发中我们经常会用到时间相关类，我们有很多办法在Java代码中获取时间。但是不同的方法获取到的时间的格式都不尽相同，这时候就需要一种格式化工具，把时间显示成我们需要的格式。最常用的方法就是使用SimpleDateFormat类。这是一个看上去功能比较简单的类，但是，一旦使用不当也有可能导致很大的问题。</p>
+<p>在阿里巴巴Java开发手册中，有如下明确规定：<br><img src="http://wx2.sinaimg.cn/mw690/87c9e458gy1g2df391sgsj20u002qmy9.jpg" alt="image"><br>本文就围绕SimpleDateFormat的用法、原理等来深入分析下如何以正确使用它。</p>
+<h3 id="1-SimpleDateFormat用法"><a href="#1-SimpleDateFormat用法" class="headerlink" title="1. SimpleDateFormat用法"></a>1. SimpleDateFormat用法</h3><h4 id="1-1-基本用法"><a href="#1-1-基本用法" class="headerlink" title="1.1 基本用法"></a>1.1 基本用法</h4><p>SimpleDateFormat是java提供的能对时间格式化及解析的工具类。  </p>
+<ul>
+<li><p>格式化：将规范日期格式化成日期文本（时间字符串）  </p>
+<p>
+                
+            
+        
+        
+            </p></li></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <nav id="page-nav">
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/6/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><a class="page-number" href="/zzkenyon.github.io/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/zzkenyon.github.io/page/8/">8</a><a class="page-number" href="/zzkenyon.github.io/page/9/">9</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/8/">下一页 &raquo;</a>
+        </nav>
+    
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

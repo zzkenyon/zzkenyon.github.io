@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>RPC-手写RPC调用过程 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="RPC">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="rpc 全称remote procedure call 远程过程调用，是一种分布式服务调用协议。 需求：分布式环境下，服务A想要调用服务B的某方法，就像调用自己本地的方法一样 分析：  首先，服务A需要知道服务B提供了哪些方法，并且知道这些方法的调用方式（参数列表，返回类型） 其次，服务A需要将调用的方法和参数发送给服务B，B接收到之后本地调用获得结果，再将结果发送给服务A  设计：  要提供一套">
+<meta name="keywords" content="RPC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RPC-手写RPC调用过程">
+<meta property="og:url" content="http://yoursite.com/child/2020/04/19/分布式-手写RPC调用/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="rpc 全称remote procedure call 远程过程调用，是一种分布式服务调用协议。 需求：分布式环境下，服务A想要调用服务B的某方法，就像调用自己本地的方法一样 分析：  首先，服务A需要知道服务B提供了哪些方法，并且知道这些方法的调用方式（参数列表，返回类型） 其次，服务A需要将调用的方法和参数发送给服务B，B接收到之后本地调用获得结果，再将结果发送给服务A  设计：  要提供一套">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/rpc%E5%9F%BA%E7%A1%80%E8%B0%83%E7%94%A8.png">
+<meta property="og:updated_time" content="2020-05-22T11:45:12.708Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RPC-手写RPC调用过程">
+<meta name="twitter:description" content="rpc 全称remote procedure call 远程过程调用，是一种分布式服务调用协议。 需求：分布式环境下，服务A想要调用服务B的某方法，就像调用自己本地的方法一样 分析：  首先，服务A需要知道服务B提供了哪些方法，并且知道这些方法的调用方式（参数列表，返回类型） 其次，服务A需要将调用的方法和参数发送给服务B，B接收到之后本地调用获得结果，再将结果发送给服务A  设计：  要提供一套">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/rpc%E5%9F%BA%E7%A1%80%E8%B0%83%E7%94%A8.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                85
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                22
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">分布式-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">分布式-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/分布式-分布式事务/">分布式-分布式事务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-日志上传es/">分布式-ELK统一日志管理</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/其他-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/">彻底理解cookie/session/token（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-分布式-手写RPC调用" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/分布式架构技术/">分布式架构技术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/RPC/">RPC</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">
+            <time datetime="2020-04-18T16:00:00.000Z" itemprop="datePublished">2020-04-19</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/分布式-手写RPC调用.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/分布式-手写RPC调用.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href="https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/分布式-手写RPC调用.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            RPC-手写RPC调用过程
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>rpc 全称remote procedure call 远程过程调用，是一种分布式服务调用协议。</p>
+<p>需求：分布式环境下，服务A想要调用服务B的某方法，就像调用自己本地的方法一样</p>
+<p>分析：</p>
+<ul>
+<li>首先，服务A需要知道服务B提供了哪些方法，并且知道这些方法的调用方式（参数列表，返回类型）</li>
+<li>其次，服务A需要将调用的方法和参数发送给服务B，B接收到之后本地调用获得结果，再将结果发送给服务A</li>
+</ul>
+<p>设计：</p>
+<ul>
+<li>要提供一套统一的接口让调用方服务A知道有哪些方法可供调用，服务B作为接口的实现方。</li>
+<li>服务A要提供接口的代理类工厂，本地调用接口方法时，代理类能将调用请求发送出去。</li>
+<li>数据传输方面，暂不考虑性能，使用BIO以及JDK序列化方式</li>
+</ul>
+<p>开始编码：</p>
+<p>提供一套接口：创建maven项目rpc-api，项目中添加接口文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IHelloService</span> </span>&#123;</span><br><span class="line">    <span class="function">String <span class="title">sayHello</span><span class="params">(String var1)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接口中还需要指定一个简要的rpc协议，调用方和服务方都要遵循此协议</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcRequest</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String className;</span><br><span class="line">    <span class="keyword">private</span> String methodName;</span><br><span class="line">    <span class="keyword">private</span> Object[] args;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将rpc-api install到本地仓库。</p>
+<p>调用方服务A：创建maven项目rpc-client，pom中添加依赖rpc-api</p>
+<p>先来写main方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span> </span>&#123;</span><br><span class="line">        RpcProxyFactory rpcProxyFactory = <span class="keyword">new</span> RpcProxyFactory();</span><br><span class="line">        IHelloService helloService = </span><br><span class="line">          rpcProxyFactory.newProxyInstance(IHelloService.class,<span class="string">"localhost"</span>,<span class="number">8080</span>);</span><br><span class="line">        Object o = helloService.sayHello(<span class="string">"zzk"</span>);</span><br><span class="line">        System.out.println((String) o);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>流程很清晰：</p>
+<ol>
+<li>创建代理工厂<code>RpcProxyFactory</code></li>
+<li>使用代理工厂类生成指定接口的代理对象</li>
+<li>调用接口方法获取结果</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcProxyFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">newProxyInstance</span><span class="params">(<span class="keyword">final</span> Class&lt;T&gt; interfaceClass, <span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (T)Proxy.newProxyInstance(interfaceClass.getClassLoader(),<span class="keyword">new</span> Class&lt;?&gt;[] &#123;interfaceClass&#125;,</span><br><span class="line">                <span class="keyword">new</span> RemoteInvocationHandler(host,port));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代理方式我选用的是jdk的动态代理，创建代理对象需要传进三个参数</p>
+<ul>
+<li>类加载器</li>
+<li>需要代理的接口</li>
+<li>触发管理类</li>
+</ul>
+<p>前两个参数都是现成的，编写触发管理类代码，实现<code>InvocationHandler</code>接口，通过代理对象调用接口方法都会进到invoke方法中来。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RemoteInvocationHandler</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> port;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RemoteInvocationHandler</span><span class="params">(String host, <span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.host = host;</span><br><span class="line">        <span class="keyword">this</span>.port = port;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        RpcRequest rpcRequest = <span class="keyword">new</span> RpcRequest();</span><br><span class="line">        rpcRequest.setClassName(method.getDeclaringClass().getName());</span><br><span class="line">        rpcRequest.setMethodName(method.getName());</span><br><span class="line">        rpcRequest.setArgs(args);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RpcNetTransport(host,port).send(rpcRequest);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>invoke 方法负责将请求参数序列化，并发送出去，这里使用一个类专门负责发送：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcNetTransport</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> port;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RpcNetTransport</span><span class="params">(String host, <span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.host = host;</span><br><span class="line">        <span class="keyword">this</span>.port = port;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">send</span><span class="params">(RpcRequest rpcRequest)</span></span>&#123;</span><br><span class="line">        <span class="keyword">try</span>(Socket socket = <span class="keyword">new</span> Socket(host,port);</span><br><span class="line">            ObjectOutputStream out = <span class="keyword">new</span> ObjectOutputStream(socket.getOutputStream());</span><br><span class="line">            ObjectInputStream in = <span class="keyword">new</span> ObjectInputStream(socket.getInputStream())) &#123;</span><br><span class="line">            out.writeObject(rpcRequest);</span><br><span class="line">            <span class="keyword">return</span> in.readObject();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此调用发代码完成</p>
+<p>再来看服务方B的代码编写：创建maven项目，引入依赖rpc-api、spring-context来管理对象</p>
+<p>首先服务方应该实现接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloServiceImpl</span> <span class="keyword">implements</span> <span class="title">IHelloService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sayHello</span><span class="params">(String content)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"request sayHello from : "</span> + content);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Response: hello, "</span> + content;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>服务器需要接收请求，代码思想：启动监听指定端口，这里使用了spring的<code>InitializingBean</code>接口，创建RpcServer时，当port设置成功之后会执行<code>afterPropertiesSet()</code>方法启动监听。</p>
+<p>此外，我们将对象交给spring管理后，当请求进来我们需要找到正确service去执行，我的做法是让<code>RpcServer</code>实现<code>ApplicationContextAware</code>接口，这样RpcServer可以在<code>setApplicationContext</code>方法中，将所有的service对象取出来缓存，请求进来直接在缓存中找</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcServer</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span>,<span class="title">ApplicationContextAware</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ExecutorService pool = Executors.newCachedThreadPool();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> port;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; serviceObjs = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RpcServer</span><span class="params">(<span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.port = port;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// socket 通信 发布服务</span></span><br><span class="line">        <span class="keyword">try</span> (ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(port))&#123;</span><br><span class="line">          	</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">                Socket socket = serverSocket.accept();</span><br><span class="line">                pool.execute(<span class="keyword">new</span> ProcessorHandler(socket,serviceObjs));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setApplicationContext</span><span class="params">(ApplicationContext applicationContext)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        <span class="comment">// 获取容器中的服务bean 封装成map</span></span><br><span class="line">        Map&lt;String,Object&gt; beans = </span><br><span class="line">          applicationContext.getBeansWithAnnotation(RpcService.class);</span><br><span class="line">        <span class="keyword">for</span>(Object service : beans.values())&#123;</span><br><span class="line">            Class&lt;?&gt; clazz = service.getClass();</span><br><span class="line">            String serviceKey = rpcService.value().getName();</span><br><span class="line">            serviceObjs.put(serviceKey,service);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当获取请求之后，丢给线程池进行执行，那我继续编写线程池执行任务代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProcessorHandler</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Socket socket;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; serviceObj;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ProcessorHandler</span><span class="params">(Socket socket,Map&lt;String,Object&gt; serviceObj)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.socket = socket;</span><br><span class="line">        <span class="keyword">this</span>.serviceObj = serviceObj;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> (ObjectInputStream in = <span class="keyword">new</span> ObjectInputStream(socket.getInputStream());</span><br><span class="line">             ObjectOutputStream out = <span class="keyword">new</span> ObjectOutputStream(socket.getOutputStream()))&#123;</span><br><span class="line"></span><br><span class="line">            RpcRequest rpcRequest = (RpcRequest) in.readObject();</span><br><span class="line">            Object result = invoke(rpcRequest);</span><br><span class="line">            out.writeObject(result);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Object <span class="title">invoke</span><span class="params">(RpcRequest rpcRequest)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException </span>&#123;</span><br><span class="line">        Object[] args = rpcRequest.getArgs();</span><br><span class="line">        Class&lt;?&gt;[] types = <span class="keyword">new</span> Class[args.length];</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; args.length; i++)&#123;</span><br><span class="line">            types[i]= args[i].getClass();</span><br><span class="line">        &#125;</span><br><span class="line">        Class clazz = Class.forName(rpcRequest.getClassName());</span><br><span class="line">        Method method = clazz.getMethod(rpcRequest.getMethodName(),types);</span><br><span class="line">        String serviceKey = rpcRequest.getClassName() + rpcRequest.getVersion();</span><br><span class="line">        <span class="keyword">return</span> method.invoke(serviceObj.get(serviceKey),args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>既然是线程池执行的任务，肯定是Runnable对象，run方法的逻辑很清晰：从socket中获取请求对象，丢给invoke返回结果，在通过socket发送出去。</p>
+<p>重点在invoke方法：通过反射的方式对方法进行调用</p>
+<p>还有spring的最后一步，配置和启动:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ComponentScan</span>(basePackages = <span class="string">"com.pd"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringConfig</span></span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RpcServer <span class="title">rpcServer</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RpcServer(<span class="number">8080</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span> </span>&#123;</span><br><span class="line">        AnnotationConfigApplicationContext context =</span><br><span class="line">                <span class="keyword">new</span> AnnotationConfigApplicationContext(SpringConfig.class);</span><br><span class="line">        context.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行：</p>
+<p>先启动rpc-server  再启动rpc-client</p>
+<p>结果：<code>Response: hello, zzk</code></p>
+<p>总结流程图示：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/rpc%E5%9F%BA%E7%A1%80%E8%B0%83%E7%94%A8.png" alt="rpc-基础流程"></p>
+<p><a href="https://github.com/zzkenyon/rpc-learn.git" target="_blank" rel="noopener">参考代码</a></p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    MyBatis-给源码加中文注释(转)
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">CSRF攻击与防御（转）</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
