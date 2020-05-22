@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>jvm-垃圾回收 | 黑风雅过吟</title><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/css/style.css?v=2.0.3"><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/css/highlight.css?v=2.0.3"><link rel="Shortcut Icon" href="/zzkenyon.github.io/favicon.ico"><link rel="bookmark" href="/zzkenyon.github.io/favicon.ico"><link rel="apple-touch-icon" href="/zzkenyon.github.io/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/zzkenyon.github.io/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/zzkenyon.github.io/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">jvm-垃圾回收</h1><a id="logo" href="/zzkenyon.github.io/.">黑风雅过吟</a><p class="description">不积跬步无以至千里</p></div><div id="nav-menu"><a href="/zzkenyon.github.io/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/zzkenyon.github.io/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/zzkenyon.github.io/about/"><i class="fa fa-user"> 关于</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">jvm-垃圾回收</h1><div class="post-meta"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/#comments" class="comment-count"></a><p><span class="date">Nov 05, 2018</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>垃圾对象检测：</p>
+<ul>
+<li>引用计数发</li>
+<li>可达性分析</li>
+</ul>
+<p>GC root由哪些对象组成</p>
+<ol>
+<li>本地方法栈中引用的对象</li>
+<li>虚拟机栈中引用的对象</li>
+<li>方法区中类变量引用的对象</li>
+<li>方法区中的常量引用的对象</li>
+</ol>
+<h3 id="1-垃圾收集算法和收集器"><a href="#1-垃圾收集算法和收集器" class="headerlink" title="1. 垃圾收集算法和收集器"></a>1. 垃圾收集算法和收集器</h3><p>垃圾收集算法有哪些：</p>
+<ol>
+<li>标记-清除   产生内存碎片、效率不高</li>
+<li>标记-整理   效率低</li>
+<li>复制   空间利用率低  </li>
+</ol>
+<p>新生代（Young区）对象朝生夕死，GC时存活概率小，所以适合复制算法</p>
+<p>老年代（old区）对象，则适合使用标记清除或者标记整理</p>
+<p>垃圾收集器有哪些</p>
+<p>评价一个垃圾收集器优劣的指标是 吞吐量 和 停顿时间</p>
+<p>一、新生代收集器</p>
+<ol>
+<li>Serial 收集器</li>
+</ol>
+<p>历史悠久的收集器，单线程运行，运行时会阻塞其他线程，使用复制算法，因此适用于新生代垃圾回收</p>
+<ol start="2">
+<li>ParNew 收集器</li>
+</ol>
+<p>Serial收集器的并行版，同样采用复制算法，适用于新生代，单CPU性能比Serial差</p>
+<p>运行在server模式下的虚拟中首选的新生代收集器</p>
+<ol start="3">
+<li>Parallel Scavenge 收集器</li>
+</ol>
+<p>注重吞吐量，</p>
+<p>吞吐量 = 程序运行时间/(程序运行时间+垃圾回收时间)‘</p>
+<p>二、老年代收集器</p>
+<ol>
+<li>Serial old</li>
+</ol>
+<p>复制算法的实现，单线程运行</p>
+<ol start="2">
+<li>Paraller Old</li>
+</ol>
+<p>最关注的点事吞吐量</p>
+<ol start="3">
+<li>CMS 并发收集器</li>
+</ol>
+<p>Concurrent Mark Sweep—并发标记清理</p>
+<p>并发：用户线程和垃圾回收线程一起执行</p>
+<p>并行：多条垃圾回收线程同时执行</p>
+<p>CMS 最关注的点是GC停顿时间，所以优点是低停顿时间（因为并发收集）</p>
+<p>缺点就是会产生大量的内存碎片（因为采用标记-清理算法），且并发阶段会吞吐量降低</p>
+<p>流程：初始标记-&gt;并发标记-&gt;重新标记-&gt; 并发清理</p>
+<blockquote>
+<p>初始标记，stw，标记的事GCroot</p>
+<p>并发标记，与用户线程一起执行，执行可达性分析，标记不可达对象</p>
+<p>重新标记，stw，标记并发标记阶段产生的新垃圾</p>
+<p>并发清理，用户线程一起执行，回收标记的对象</p>
+</blockquote>
+<p>使用  -XX:+UseConcMarkSweepGC 开启CMS</p>
+<p>搭配使用：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/jvm/gc/GC%E7%BB%84%E5%90%88.png" alt></p>
+<p>三、G1  Garbage-First</p>
+<p>整体上属于标记-整理算法的实现，不会产生内存碎片</p>
+<p>比CMS先进的地方在于用户可以设置停顿时间的大小，G1会按照用户的设置的事件指定回收计划</p>
+<p>G1可同时用于新生代和老年代的垃圾回收，核心在于对堆内存的重新划分，不同的内存区域对于G1来说只是逻辑上的区分，在物理层面，G1将内存划分成一个个的region统一进行管理。</p>
+<p>G1收集器会先收集存活对象少的区域，也就是垃圾对象多的区域，这样可以有大量的空间可以释放出来，这就 </p>
+<p>是Garbage First的由来 </p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/jvm/gc/1584582498419.png" alt="1584582498419"></p>
+<p>执行流程为：初始标记–&gt; 并发标记 –&gt; 最终标记 –&gt; 筛选回收 </p>
+<blockquote>
+<p>初始标记：stw，标记GC ROOT</p>
+<p>并发标记：与用户线程并发执行，执行可达性分析</p>
+<p>最终标记：stw，标记并发标记阶段用户线程产生的新垃圾</p>
+<p>筛选回收：stw，对各个Region的回收价值和回收成本进行排序，根据用户设定的停顿时间指定回收计划</p>
+</blockquote>
+<p>总结：</p>
+<p>Serial 和Serial Old 为串行收集器，适用于<strong><em>内存较小的嵌入式设备</em></strong></p>
+<p>Parallel 和 Parallel Old 为并行收集器，吞吐量优先的收集器组合，适用于<strong><em>科学计算、后台处理</em></strong>等应用场景</p>
+<p>CMS 和 G1 为并发收集器，停顿时间优先，CMS适用于老年代收集（标记-清除），G1适用于整个堆内存垃圾回收（标记-整理），适用与<strong><em>对响应时间要求较高的场景</em></strong>，比如Web</p>
+<p>使用不同的收集器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">（1）串行 </span><br><span class="line">-XX：+UseSerialGC </span><br><span class="line">-XX：+UseSerialOldGC </span><br><span class="line">（2）并行(吞吐量优先)： </span><br><span class="line">-XX：+UseParallelGC </span><br><span class="line">-XX：+UseParallelOldGC </span><br><span class="line">（3）并发收集器(响应时间优先) </span><br><span class="line">-XX：+UseConcMarkSweepGC </span><br><span class="line">-XX：+UseG1GC</span><br></pre></td></tr></table></figure>
+<h3 id="2、GC分类"><a href="#2、GC分类" class="headerlink" title="2、GC分类"></a>2、GC分类</h3><p>Minor GC触发条件：当Eden区满时，触发Minor GC。</p>
+<p>Full GC触发条件：<br>（1）调用System.gc时，系统建议执行Full GC，但是不必然执行<br>（2）老年代空间不足<br>（3）方法区空间不足<br>（4）通过Minor GC后进入老年代的平均大小大于老年代的可用内存<br>（5）由Eden区、From Space区向To Space区复制时，对象大小大于To Space可用内存，则把该对象转存到老年代，且老年代的可用内存小于该对象大小。</p>
+<h3 id="3、调优"><a href="#3、调优" class="headerlink" title="3、调优"></a>3、调优</h3><p>JVM调优参数简介</p>
+<p>jvm调优一般适用非标准化参数，即-XX参数。除此之外还有标准化参数-、-X参数，此处不表</p>
+<ul>
+<li>boolean 类型参数：用+/-表示是否开启，例如-XX:+UseG1GC，开启G1收集器 </li>
+<li>值类型参数：例如-XX:MaxGCPauseMillis=500，表示GC最大允许停顿时间500ms</li>
+</ul>
+<p>其他参数</p>
+<p>-Xms100M   等价于 -XX:InitialHeapSize = 100M</p>
+<p>-Xmx200M  等价于 -XX:MaxHeapSize = 200M</p>
+<p>-Xss20K  等价于 -XX:ThreadStackSize = 20k</p>
+<p>展示常用的jvm参数：</p>
+<p>-XX:+PrintFlagsFinal 启动时打印所有JVM参数</p>
+<p>参数怎么修改</p>
+<ul>
+<li>ide中进行配置</li>
+<li>java -XX:+UseG1GC </li>
+<li>tomcat –bin–xxxxx.sh/catalina.sh — jvm参数</li>
+<li>实时修改 jinfo，只能修改一部分</li>
+</ul>
+<p>启动时打印的参数 = 表示默认参数 :=表示用户修改的参数</p>
+<p>常用参数</p>
+<ul>
+<li><p>内存分配相关</p>
+<ul>
+<li>-Xms100M   初始堆大小</li>
+<li>-Xmx200M   堆最大size</li>
+<li>-Xss20K   方法栈大小 经验值3000~5000字节</li>
+<li>-XX:NewSize=20M   设置Young区大小</li>
+<li>-XX:MaxNewSize=50M   年轻代最大size</li>
+<li>-XX:OldSize=50M    设置Old区大小</li>
+<li>-XX:MetaspaceSize=100M   设置元空间大小</li>
+<li>-XX:MaxMetaspaceSize=200M    元空间最大size</li>
+<li>-XX:NewRatio=4  老生代占堆比值  4 表示—新生代：老年代 = 1：4</li>
+<li>-XX:SurviviorRatio=8   Eden区占Young区的比例  8表示Eden:s0:s1=8:1:1</li>
+</ul>
+</li>
+<li><p>GC相关</p>
+<ul>
+<li>-XX:+UseSerialGC   </li>
+<li>-XX:+UseSerialOldGC</li>
+<li>-XX:+UseParallelGC</li>
+<li>-XX:+UseParallelOldGC</li>
+<li>-XX:+UseConcMarkSweepGC</li>
+<li>-XX:+UseG1GC</li>
+<li>-XX:MaxGCPauseMillis=200ms   设置允许的最大GC停顿时间</li>
+<li>-XX:G1HeapWastePercent   设置允许G1收集器浪费的堆空间占比</li>
+<li>XX:ConcGCThreads=n   设置并行的GC线程数量</li>
+<li>-XX:InitiatingHeapOccupancyPercent    启动并发GC周期时，dui</li>
+<li><p>-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps  Xloggc:$CATALINA_HOME/logs/gc.log    设置GC日志打印选项</p>
+</li>
+<li><p>-XX:MaxTenuringThreshold =6    对象提升到老年代的年龄阈值</p>
+</li>
+<li>-XX:G1OldCSetRegionThresholdPercent=1  </li>
+<li>-XX:G1MixedGCCountTarget=8   </li>
+<li>-XX:G1MixedGCLiveThresholdPercent=65 </li>
+</ul>
+</li>
+<li><p>其他参数</p>
+<ul>
+<li>-XX:CICompilerCount=3 </li>
+<li>-XX:+HeapDumpOnOutOfMemoryError  oom的时候dump内存快照</li>
+<li>-XX:HeapDumpPath=heap.hprof  内存快照输出路径</li>
+</ul>
+</li>
+</ul>
+<p>常用命令：</p>
+<ul>
+<li><p>jps 查看当前jvm中的所有java进程号</p>
+</li>
+<li><p>jinfo 查看和调整指定进程的jvm参数</p>
+<ul>
+<li>查看指定名称参数的指令：jinfo -flag <name> <pid></pid></name></li>
+<li>查看所有指令：jinfo -flags <pid></pid></li>
+<li>修改参数：<ul>
+<li>jinfo -flag &lt;+/-&gt; <name> <pid></pid></name></li>
+<li>jinfo -flag <name>=<value> <pid></pid></value></name></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>jstat  class/gc</p>
+</li>
+<li><p>jstack 查看某进程的线程，可用于排查死锁</p>
+</li>
+<li><p>jmap: 生成堆内存快照</p>
+<p>jmap -heap PID   干嘛要看堆内寸信息呢</p>
+<p>生产环境OOM—-&gt;在发生oom的时候能把内存的信息导出来进行分析</p>
+<p>手动 dump文件：  jmap -dump:format=b,file=heap.hprof PID</p>
+<p>配置自动dump  -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumoPath=dump.hprof</p>
+</li>
+</ul>
+<p>常用工具</p>
+<ul>
+<li><p>jdk自带</p>
+<ul>
+<li>jconsole</li>
+<li>jvisualvm</li>
+</ul>
+</li>
+<li><p>连接远端的java</p>
+<ul>
+<li>使用jmx连接</li>
+</ul>
+</li>
+<li>第三方 <ul>
+<li>arthas</li>
+<li>mat</li>
+</ul>
+</li>
+</ul>
+<p>GC调优：</p>
+<p>GC 发生的timing</p>
+<ul>
+<li>eden区满</li>
+<li>old区满</li>
+<li>方法区满</li>
+<li>System.gc()</li>
+</ul>
+<p>获取GC日志</p>
+<p>配置参数</p>
+<p>-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:gc.log </p>
+<p>若想要获取tomcat的Gc日志，编辑<code>catalina.bat</code>,在第一行加上参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set JAVA_OPTS=%JAVA_OPTS% -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:gc.log</span><br></pre></td></tr></table></figure>
+<p>启动tomcat后能在当前目录拿到gc.log文件</p>
+<p> GC日志文件分析工具</p>
+<ul>
+<li>gceasy</li>
+<li>GCViewer</li>
+</ul>
+<p>G1调优指南（官方）</p>
+<ol>
+<li><p>不要手动设置新生代和老年代的大小，只要设置整个堆的大小</p>
+<p>G1收集器在运行过程中，会自己调整新生代和老年代的大小 </p>
+<p>其实是通过adapt代的大小来调整对象晋升的速度和年龄，从而达到为收集器设置的暂停时间目标 </p>
+<p>如果手动设置了大小就意味着放弃了G1的自动调优</p>
+</li>
+<li><p>不断调优暂停时间目标</p>
+<p>一般情况下这个值设置到100ms或者200ms都是可以的(不同情况下会不一样)，但如果设置成50ms就 </p>
+<p>不太合理。暂停时间设置的太短，就会导致出现G1跟不上垃圾产生的速度。最终退化成Full GC。所以 </p>
+<p>对这个参数的调优是一个持续的过程，逐步调整到最佳状态。暂停时间只是一个目标，并不能总是得到 </p>
+<p>满足。</p>
+</li>
+<li><p>使用-XX:ConcGCThreads=n来增加标记线程的数量</p>
+<p>IHOP如果阀值设置过高，可能会遇到转移失败的风险，比如对象进行转移时空间不足。如果阀值设置过 </p>
+<p>低，就会使标记周期运行过于频繁，并且有可能混合收集期回收不到空间。 </p>
+<p>IHOP值如果设置合理，但是在并发周期时间过长时，可以尝试增加并发线程数，调高 ConcGCThreads。</p>
+</li>
+<li><p>MixedGC调优</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-XX:InitiatingHeapOccupancyPercent   </span><br><span class="line">-XX:G1MixedGCLiveThresholdPercent   </span><br><span class="line">-XX:G1MixedGCCountTarger </span><br><span class="line">-XX:G1OldCSetRegionThresholdPercent</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>适当增加堆内存大小</p>
+</li>
+</ol>
+<p>常见问题：</p>
+<p>1、内存泄漏与内存溢出的区别</p>
+<p>内存泄漏是指不再使用的对象无法得到及时的回收，持续占用内存空间，从而造成内存空间的浪费。内存泄漏很容易导致内存溢出，但内存溢出不一定是内存泄漏导致的。</p>
+<p>2、young gc会有<em>stw</em>吗？</p>
+<p>不管什么 GC，都会发送 stop-the-world，区别是发生的时间长短。而这个时间跟垃圾收集器又有关系，Serial、PartNew、Parallel Scavenge 收集器无论是串行还是并行，都会挂起用户线程，而 CMS和 G1 在并发标记时，是不会挂起用户线程的，但其它时候一样会挂起用户线程，stop the world 的时间相对来说就小很多了。</p>
+<p>3、major gc和full gc的区别</p>
+<p>Major Gc 在很多参考资料中是等价于 Full GC 的，我们也可以发现很多性能监测工具中只有 Minor GC和 Full GC。一般情况下，一次 Full GC 将会对年轻代、老年代、元空间以及堆外内存进行垃圾回收。触发 Full GC 的原因有很多：当年轻代晋升到老年代的对象大小，并比目前老年代剩余的空间大小还要大时，会触发 Full GC；当老年代的空间使用率超过某阈值时，会触发 Full GC；当元空间不足时（JDK1.7永久代不足），也会触发 Full GC；当调用 System.gc() 也会安排一次 Full GC。 </p>
+<p>4、G1与CMS的区别是什么</p>
+<p>CMS 主要集中在老年代的回收，而 G1 集中在分代回收，包括了年轻代的 Young GC 以及老年代的 MixGC；G1 使用了 Region 方式对堆内存进行了划分，且基于标记整理算法实现，整体减少了垃圾碎片的产生；在初始化标记阶段，搜索可达对象使用到的 Card Table，其实现方式不一样。</p>
+<p>5、什么是直接内存</p>
+<p>Java的NIO库允许Java程序使用直接内存。直接内存是在java堆外的、直接向系统申请的内存空间。通常访问直接内存的速度会优于Java堆。因此出于性能的考虑，读写频繁的场合可能会考虑使用直接内存。由于直接内存在java堆外，因此它的大小不会直接受限于Xmx指定的最大堆大小，但是系统内存是有限的，Java堆和直接内存的总和依然受限于操作系统能给出的最大内存。</p>
+<p>6、垃圾判断的方式</p>
+<p>引用计数法：指的是如果某个地方引用了这个对象就+1，如果失效了就-1，当为0就会回收但是JVM没有用这种方式，因为无法判定相互循环引用（A引用B,B引用A）的情况引用链法： 通过一种GC ROOT的对象（方法区中静态变量引用的对象等-static变量）来判断，如果有一条链能够到达GC ROOT就说明，不能到达GC ROOT就说明可以回收</p>
+<p>7、不可达的对象一定要被回收吗？</p>
+<p>即使在可达性分析法中不可达的对象，也并非是“非死不可”的，这时候它们暂时处于“缓刑阶段”，要真正宣告一个对象死亡，至少要经历两次标记过程；可达性分析法中不可达的对象被第一次标记并且进行一次筛选，筛选的条件是此对象是否有必要执行 fifinalize 方法。当对象没有覆盖 fifinalize 方法，或fifinalize 方法已经被虚拟机调用过时，虚拟机将这两种情况视为没有必要执行。被判定为需要执行的对象将会被放在一个队列中进行第二次标记，除非这个对象与引用链上的任何一个对象建立关联，否则就会被真的回收。</p>
+<p>8、方法区中的无用类回收</p>
+<p>方法区主要回收的是无用的类，那么如何判断一个类是无用的类的呢？判定一个常量是否是“废弃常量”比较简单，而要判定一个类是否是“无用的类”的条件则相对苛刻许多。类需要同时满足下面 3 个条件才能算是无用的类：</p>
+<ul>
+<li><p>该类所有的实例都已经被回收，也就是 Java 堆中不存在该类的任何实例。</p>
+</li>
+<li><p>加载该类的 ClassLoader 已经被回收。</p>
+</li>
+<li><p>该类对应的 java.lang.Class 对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。</p>
+</li>
+</ul>
+<p>虚拟机可以对满足上述 3 个条件的无用类进行回收，这里说的仅仅是“可以”，而并不是和对象一样不使用了就会必然被回收。</p>
+<p>9、为什么要区分新生代和老年代</p>
+<p>当前虚拟机的垃圾收集都采用分代收集算法，这种算法没有什么新的思想，只是根据对象存活周期的不同将内存分为几块。一般将 java 堆分为新生代和老年代，这样我们就可以根据各个年代的特点选择合适的垃圾收集算法。</p>
+<p>比如在新生代中，每次收集都会有大量对象死去，所以可以选择复制算法，只需要付出少量对象的复制成本就可以完成每次垃圾收集。而老年代的对象存活几率是比较高的，而且没有额外的空间对它进行分配担保，所以我们必须选择“标记-清除”或“标记-整理”算法进行垃圾收集。</p>
+</div><div class="post-copyright"><blockquote><p>原文作者: Zhao Zhengkang</p><p>原文链接: <a href="http://yoursite.com/child/2018/11/05/jvm-垃圾回收/">http://yoursite.com/child/2018/11/05/jvm-垃圾回收/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/zzkenyon.github.io/tags/jvm/">jvm</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/" class="pre">jvm-元空间</a><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/" class="next">jvm-运行时数据区和内存模型</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-垃圾收集算法和收集器"><span class="toc-text">1. 垃圾收集算法和收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、GC分类"><span class="toc-text">2、GC分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、调优"><span class="toc-text">3、调优</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/04/07/分布式-日志上传es/">ELK日志系统</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/">（转）彻底理解cookie，session，token</a></li><li class="post-list-item"><a class="post-list-link" href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/zzkenyon.github.io/tags/java/" style="font-size: 15px;">java</a> <a href="/zzkenyon.github.io/tags/MQ/" style="font-size: 15px;">MQ</a> <a href="/zzkenyon.github.io/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/zzkenyon.github.io/tags/其他/" style="font-size: 15px;">其他</a> <a href="/zzkenyon.github.io/tags/linux命令/" style="font-size: 15px;">linux命令</a> <a href="/zzkenyon.github.io/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/zzkenyon.github.io/tags/redis/" style="font-size: 15px;">redis</a> <a href="/zzkenyon.github.io/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/zzkenyon.github.io/tags/并发编程/" style="font-size: 15px;">并发编程</a> <a href="/zzkenyon.github.io/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/zzkenyon.github.io/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/zzkenyon.github.io/tags/nio/" style="font-size: 15px;">nio</a> <a href="/zzkenyon.github.io/tags/jvm/" style="font-size: 15px;">jvm</a> <a href="/zzkenyon.github.io/tags/SpringCloud/" style="font-size: 15px;">SpringCloud</a> <a href="/zzkenyon.github.io/tags/web/" style="font-size: 15px;">web</a> <a href="/zzkenyon.github.io/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/zzkenyon.github.io/tags/日志/" style="font-size: 15px;">日志</a> <a href="/zzkenyon.github.io/tags/Mybatis/" style="font-size: 15px;">Mybatis</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/07/">七月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2019/01/">一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/zzkenyon.github.io/archives/2016/05/">五月 2016</a></li></ul></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/zzkenyon.github.io/baidusitemap.xml">网站地图</a> |  <a href="/zzkenyon.github.io/atom.xml">订阅本站</a> |  <a href="/zzkenyon.github.io/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/zzkenyon.github.io/." rel="nofollow">Zhao Zhengkang.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/zzkenyon.github.io/js/search.json.js?v=2.0.3"></script><script type="text/javascript" src="/zzkenyon.github.io/js/toctotop.js?v=2.0.3" async></script><link rel="stylesheet" type="text/css" href="/zzkenyon.github.io/share/css/share.css"><script type="text/javascript" src="/zzkenyon.github.io/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/zzkenyon.github.io/share/js/qrcode.js" charset="utf-8"></script></body></html>
