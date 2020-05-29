@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>kafka-架构介绍 | 黑风雅过吟</title>
+    <title>kafka-架构及运行流程 | 黑风雅过吟</title>
     
     
         <meta name="keywords" content="kafka">
@@ -12,7 +12,7 @@
     <meta name="description" content="1. 消息队列通信的模式通过上面的例子我们引出了消息中间件，并且介绍了消息队列出现后的好处，这里就需要介绍消息队列通信的两种模式了： 1.1 点对点模式如图所示    点对点模式通常是基于拉取或者轮询的消息传送模型，这个模型的特点是发送到队列的消息被一个且只有一个消费者进行处理。生产者将消息放入消息队列后，由消费者主动的去拉取消息进行消费。点对点模型的的优点是消费者拉取消息的频率可以由自己控制。但">
 <meta name="keywords" content="kafka">
 <meta property="og:type" content="article">
-<meta property="og:title" content="kafka-架构介绍">
+<meta property="og:title" content="kafka-架构及运行流程">
 <meta property="og:url" content="http://yoursite.com/child/2019/06/21/MQ-kafka-架构介绍/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="1. 消息队列通信的模式通过上面的例子我们引出了消息中间件，并且介绍了消息队列出现后的好处，这里就需要介绍消息队列通信的两种模式了： 1.1 点对点模式如图所示    点对点模式通常是基于拉取或者轮询的消息传送模型，这个模型的特点是发送到队列的消息被一个且只有一个消费者进行处理。生产者将消息放入消息队列后，由消费者主动的去拉取消息进行消费。点对点模型的的优点是消费者拉取消息的频率可以由自己控制。但">
@@ -25,9 +25,9 @@
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka-partition%E7%BB%93%E6%9E%84.jpg">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka-%E6%B6%88%E8%B4%B9%E6%95%B0%E6%8D%AE.jpg">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka-%E5%AE%9A%E4%BD%8Dmessage.jpg">
-<meta property="og:updated_time" content="2020-05-22T12:16:57.352Z">
+<meta property="og:updated_time" content="2020-05-29T03:22:38.022Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="kafka-架构介绍">
+<meta name="twitter:title" content="kafka-架构及运行流程">
 <meta name="twitter:description" content="1. 消息队列通信的模式通过上面的例子我们引出了消息中间件，并且介绍了消息队列出现后的好处，这里就需要介绍消息队列通信的两种模式了： 1.1 点对点模式如图所示    点对点模式通常是基于拉取或者轮询的消息传送模型，这个模型的特点是发送到队列的消息被一个且只有一个消费者进行处理。生产者将消息放入消息队列后，由消费者主动的去拉取消息进行消费。点对点模型的的优点是消费者拉取消息的频率可以由自己控制。但">
 <meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/mq%E9%80%9A%E4%BF%A1-%E7%82%B9%E5%AF%B9%E7%82%B9%E6%A8%A1%E5%BC%8F.jpg">
     
@@ -177,11 +177,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                88
+                94
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                23
+                24
                 <span>标签</span>
             </div>
         </div>
@@ -270,9 +270,18 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
-                            Spring
+                            SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -317,7 +326,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -446,7 +455,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            kafka-架构介绍
+            kafka-架构及运行流程
         </h1>
     
 
@@ -492,6 +501,7 @@
 <li>方便扩展。因为一个topic可以有多个partition，所以我们可以通过扩展机器去轻松的应对日益增长的数据量。</li>
 <li>提高并发。以partition为读写单位，可以多个消费者同时消费数据，提高了消息的处理效率。  </li>
 </ol>
+<p><strong><em>注意：每个partition只能被一个consumer消费</em></strong></p>
 <p>熟悉负载均衡的朋友应该知道，当我们向某个服务器发送请求的时候，服务端可能会对请求做一个负载，将流量分发到不同的服务器，那在kafka中，如果某个topic有多个partition，producer又怎么知道该将数据发往哪个partition呢？kafka中有几个原则：</p>
 <ol>
 <li>partition在写入的时候可以指定需要写入的partition，如果有指定，则写入对应的partition。</li>
@@ -502,7 +512,7 @@
 <p>0代表producer往集群发送数据不需要等到集群的返回，不确保消息发送成功。安全性最低但是效率最高。</p>
 <p>1代表producer往集群发送数据只要leader应答就可以发送下一条，只确保leader发送成功</p>
 <p>all代表producer往集群发送数据需要所有的follower都完成从leader的同步才会发送下一条，确保leader发送成功和所有的副本都完成备份。安全性最高，但是效率最低。</p>
-<p>最后要注意的是，如果往不存在的topic写数据，能不能写入成功呢？kafka会自动创建topic，分区和副本的数量根据默认配置都是1。</p>
+<p><strong><em>注意：如果往不存在的topic写数据，kafka会自动创建topic，分区和副本的数量根据默认配置都是1。</em></strong></p>
 <h4 id="3-2-保存数据"><a href="#3-2-保存数据" class="headerlink" title="3.2 保存数据"></a>3.2 保存数据</h4><p>Producer将数据写入kafka后，集群就需要对数据进行保存了！kafka将数据保存在磁盘，可能在我们的一般的认知里，写入磁盘是比较耗时的操作，不适合这种高并发的组件。Kafka初始会单独开辟一块磁盘空间，顺序写入数据（效率比随机写入高）。</p>
 <h5 id="3-2-1-Partition-结构"><a href="#3-2-1-Partition-结构" class="headerlink" title="3.2.1  Partition 结构"></a>3.2.1  Partition 结构</h5><p>前面说过了每个topic都可以分为一个或多个partition，如果你觉得topic比较抽象，那partition就是比较具体的东西了！Partition在服务器上的表现形式就是一个一个的文件夹，每个partition的文件夹下面会有多组segment文件，每组segment文件又包含.index文件、.log文件、.timeindex文件（早期版本中没有）三个文件， log文件就实际是存储message的地方，而index和timeindex文件为索引文件，用于检索消息。</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka-partition%E7%BB%93%E6%9E%84.jpg" alt="partition结构"></p>
@@ -513,7 +523,7 @@
 <li>基于时间，默认配置是168小时（7天）。</li>
 <li>基于大小，默认配置是1073741824。   </li>
 </ol>
-<p>需要注意的是，kafka读取特定消息的时间复杂度是O(1)，所以这里删除过期的文件并不会提高kafka的性能！</p>
+<p><strong><em>注意，kafka读取特定消息的时间复杂度是O(1)，所以这里删除过期的文件并不会提高kafka的性能！</em></strong></p>
 <h4 id="3-3-消费数据"><a href="#3-3-消费数据" class="headerlink" title="3.3 消费数据"></a>3.3 消费数据</h4><p>消息存储在log文件后，消费者就可以进行消费了。在讲消息队列通信的两种模式的时候讲到过点对点模式和发布订阅模式。Kafka采用的是点对点的模式，消费者主动的去kafka集群拉取消息，与producer相同的是，消费者在拉取消息的时候也是找leader去拉取。</p>
 <p>多个消费者可以组成一个消费者组（consumer group），每个消费者组都有一个组id！同一个消费组者的消费者可以消费同一topic下不同分区的数据，但是不会组内多个消费者消费同一分区的数据！！！是不是有点绕。我们看下图：</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka-%E6%B6%88%E8%B4%B9%E6%95%B0%E6%8D%AE.jpg" alt="消费数据"></p>

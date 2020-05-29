@@ -163,11 +163,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                88
+                94
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                23
+                24
                 <span>标签</span>
             </div>
         </div>
@@ -256,9 +256,18 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
-                            Spring
+                            SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -303,7 +312,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -395,6 +404,565 @@
 </aside>
             
             <section id="main">
+        <article id="post-jvm-对象的内存布局" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/jvm/">jvm</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">
+            <time datetime="2018-10-30T16:00:00.000Z" itemprop="datePublished">2018-10-31</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>对象内的布局是：最前面是对象头，有两个VM内部字段：_mark 和 _klass。</p>
+<p>后面紧跟着就是对象的所有实例字段，紧凑排布，规则如下：</p>
+<ul>
+<li>继承深度越浅的类所声明的字段越靠前，继承深度越深的类所声明的字段越靠后。</li>
+<li>在同一个类中声明的字段按字段的类型宽度来重排序，对普通Java类默认的排序是：long/double - 8字节、int/float - 4字节、short/char - 2字节、byte/boolean - 1字节，最后是引用类型字段（4或8字节）。</li>
+<p>
+                
+            
+        
+        
+            </p></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-jvm-类加载器" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/jvm/">jvm</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">
+            <time datetime="2018-10-27T16:00:00.000Z" itemprop="datePublished">2018-10-28</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h4 id="1、类加载器的分类"><a href="#1、类加载器的分类" class="headerlink" title="1、类加载器的分类"></a>1、类加载器的分类</h4><ol>
+<li><code>Bootstrap ClassLoader</code>  负责加载<code>$JAVA_HOME</code>中的 <code>jre/lib/rt.jar</code>里面所有的class 或者 <code>Xbootclassoath</code>选项指定的jar包，由C++实现，不是ClassLoader的子类</li>
+<li><code>Extenson ClassLoader</code>  负责加载java平台中扩展功能的一些jar包，包括<code>$JAVA_HOME</code>中的<code>jre/lib/*.jar</code>或者<code>-Djava.ext.dirs</code>指定目录下的jar包。</li>
+<li><code>App ClassLoader</code> 负责加载classpath中指定的jar包以及 <code>-Djava.class.path</code> 所指定目录下的类和jar包</li>
+<li><code>Custom ClassLoader</code>  通过<code>java.lang.ClassLoader</code>的子类自定义加载器。属于应用程序根据自身需要自定义的classLader。如Tomcat，Jboss都会根据J2EE规范自行实现ClassLoader</li>
+<p>
+                
+            
+        
+        
+            </p></ol></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-jvm-类加载过程" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/jvm/">jvm</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">
+            <time datetime="2018-10-26T16:00:00.000Z" itemprop="datePublished">2018-10-27</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>下图描述的是jvm加载类过程的一个逻辑顺序，具体的执行顺序不一定如下图所示，不同版本的虚拟机有不同的实现方式，本文将按照逻辑顺序逐步分析类加载过程中都发生了什么。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/jvm/jvm-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.jpg" alt="加载流程"></p>
+<h3 id="1-类加载时机"><a href="#1-类加载时机" class="headerlink" title="1 类加载时机"></a>1 类加载时机</h3><p>jvm规范中没有明确规定类“加载”的时机，但是规定了有且只有以下五种情况下需要jvm对类立即执行“初始化”操作：</p>
+<ol>
+<li>虚拟机启动时，要先初始化主类（含main方法的类）</li>
+<p>
+                
+            
+        
+        
+            </p></ol></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-SpringBoot-注解@ConfigurationProperties的正确使用姿势" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">
+            <time datetime="2018-10-23T16:00:00.000Z" itemprop="datePublished">2018-10-24</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h3 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h3><p>在编写项目代码时，我们要求更灵活的配置，更好的模块化整合。在 Spring Boot 项目中，为满足以上要求，我们将大量的参数配置在 application.properties 或 application.yml 文件中，通过 <code>@ConfigurationProperties</code> 注解，我们可以方便的获取这些参数值</p>
+<h3 id="2-使用-ConfigurationProperties-配置模块"><a href="#2-使用-ConfigurationProperties-配置模块" class="headerlink" title="2. 使用 @ConfigurationProperties 配置模块"></a>2. 使用 @ConfigurationProperties 配置模块</h3><p>假设我们正在搭建一个发送邮件的模块。在本地测试，我们不想该模块真的发送邮件，所以我们需要一个参数来「开关」 disable 这个功能。另外，我们希望为这些邮件配置一个默认的主题，这样，当我们查看邮件收件箱，通过邮件主题可以快速判断出这是测试邮件</p>
+<p>在 application.yml文件中创建这些参数:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">app:</span> </span><br><span class="line"><span class="attr">  mail:</span></span><br><span class="line"><span class="attr">    enable:</span> <span class="literal">true</span></span><br><span class="line">	<span class="attr">default-subject:</span> <span class="string">This</span> <span class="string">is</span> <span class="string">a</span> <span class="string">Test</span></span><br></pre></td></tr></table></figure>
+<p>我们可以使用 <code>@Value</code> 注解或着使用 Spring <code>Environment</code> bean 访问这些属性，是这种注入配置方式有时显得很笨重。我们将使用更安全的方式(<code>@ConfigurationProperties</code> )来获取这些属性</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-设计模式之装饰器模式" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/源码中的设计模式/">源码中的设计模式</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/设计模式/">设计模式</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">
+            <time datetime="2018-08-02T16:00:00.000Z" itemprop="datePublished">2018-08-03</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>结构型—-装饰器模式也叫包装模式，是指再不改变原有对象的基础上将新功能附加到对象上，提供了比继承更有弹性的替代方案（扩展原对象功能）</p>
+<p>优点：</p>
+<ul>
+<li>完全符合开闭原则</li>
+<li>装饰功能即插即用</li>
+<p>
+                
+            
+        
+        
+            </p></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-其他-微信支付异步回调通知" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/其他/">其他</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/08/02/其他-微信支付异步回调通知/">
+            <time datetime="2018-08-01T16:00:00.000Z" itemprop="datePublished">2018-08-02</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/08/02/其他-微信支付异步回调通知/">微信支付-异步回调通知</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>应用后台调用统一下单接口时需要指定回调的notify_url，微信支付平台执行统一下单后，会调用该url，发送一个异步通知给应用后台，同时后台需要调用查询微信后台这笔订单的支付结果以及金额，这是一个并行操作，需要注意的是微信后台收到的金额和订单金额需要进行比对，为了防止钓鱼，所以这个查询是有必要的，必须匹配：收到的到账金额 &gt;= 订单金额，具体细节参考<a href="https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7&amp;index=8" target="_blank" rel="noopener">微信支付开发者文档</a></p>
+<p>好吧，来看一下代码，异步通知地址需要自己配置好，在生成预付单的时候就得传过去，这个地址就是自己的应用后台中的某个rest-controller，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/notice"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notice</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> </span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    InputStream inStream = request.getInputStream();</span><br><span class="line">    ByteArrayOutputStream outSteam = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">    <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">int</span> len = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> ((len = inStream.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">        outSteam.write(buffer, <span class="number">0</span>, len);</span><br><span class="line">    &#125;</span><br><span class="line">    outSteam.close();</span><br><span class="line">    inStream.close();</span><br><span class="line">    String result = <span class="keyword">new</span> String(outSteam.toByteArray(), <span class="string">"utf-8"</span>);</span><br><span class="line">    Map&lt;String, String&gt; map = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        map = XMLUtil.doXMLParse(result);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (JDOMException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 此处调用订单查询接口验证是否交易成功</span></span><br><span class="line">    WXOrderQuery wxpayResult = reqOrderQueryResult(map);</span><br><span class="line">    <span class="keyword">boolean</span> isSucc = wxpayResult.isSuccess();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 支付成功，商户处理后同步返回给微信参数</span></span><br><span class="line">    PrintWriter writer = response.getWriter();</span><br><span class="line">    <span class="keyword">if</span> (!isSucc) &#123;</span><br><span class="line">        <span class="comment">// 支付失败， 记录流水失败</span></span><br><span class="line">        System.out.println(<span class="string">"===============支付失败=============="</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        orderService.doWXPayNotice(wxpayResult);</span><br><span class="line">        System.out.println(<span class="string">"===============付款成功，业务处理完毕=============="</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 通知微信已经收到消息，不要再给我发消息了，否则微信会8连击调用本接口</span></span><br><span class="line">        String noticeStr = setXML(<span class="string">"SUCCESS"</span>, <span class="string">""</span>);</span><br><span class="line">        writer.write(noticeStr);</span><br><span class="line">        writer.flush();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    String noticeStr = setXML(<span class="string">"FAIL"</span>, <span class="string">""</span>);</span><br><span class="line">    writer.write(noticeStr);</span><br><span class="line">    writer.flush();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">setXML</span><span class="params">(String return_code, String return_msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"&lt;xml&gt;&lt;return_code&gt;&lt;![CDATA["</span> + return_code + <span class="string">"]]&gt;&lt;/return_code&gt;&lt;return_msg&gt;&lt;![CDATA["</span> + return_msg + <span class="string">"]]&gt;&lt;/return_msg&gt;&lt;/xml&gt;"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>XMLUtil.java是用于解析支付结果通知信息的工具类，用到了</p>
+<p><code>compile group: &#39;jdom&#39;, name: &#39;jdom&#39;, version: &#39;1.0&#39;</code></p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/08/02/其他-微信支付异步回调通知/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-jdk-会用HashMap" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -766,567 +1334,8 @@
 
 
     
-        <article id="post-并发编程-并发工具类" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">
-            <time datetime="2018-05-17T12:36:12.000Z" itemprop="datePublished">2018-05-17</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>在JDK的并发包中提供了几个非常有用的并发工具类。CountDownLatch、CyclicBarrier和Semaphore提供了并发流程控制手段，Exchanger提供了两个线程之间交换数据的手段，本文将配合应用场景介绍该如何使用这几个工具类。</p>
-<h3 id="1-CountDownLatch"><a href="#1-CountDownLatch" class="headerlink" title="1. CountDownLatch"></a>1. CountDownLatch</h3><p>CountDownLatch是JDK 5+里面闭锁的一个实现，他允许一个或多个线程等待其他线程完成各自的工作后再执行。</p>
-<p>闭锁（Latch）：一种同步方法，可以延迟线程的进度直到线程到达某个终点状态。</p>
-<p>与CountDownLatch第一次交互是主线程等待其它的线程，主线程必须在启动其它线程后立即调用await方法，这样主线程的操作就会在这个方法上阻塞，直到其他线程完成各自的任务。</p>
-<p>其他的N个线程必须引用闭锁对象，因为他们需要通知CountDownLatch对象，他们已经完成了各自的任务，这种机制就是通过调用countDown()方法来完成的。每调用一次这个方法，在构造函数中初始化的count值就减1，所以当N个线程都调用了这个方法count的值等于0，然后主线程就能通过await方法，恢复自己的任务。</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-并发编程-线程池源码详解" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">
-            <time datetime="2018-05-15T03:28:21.000Z" itemprop="datePublished">2018-05-15</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>阿里巴巴Java手册有一条：<br>【强制】线程资源必须通过线程池提供，禁止在应用程序中显示创建线程。<br>说明：使用线程池的好处是减少在创建和销毁线程上所花的时间以及系统资源的开销，解决资源不足的问题。如果不使用线程池，有可能造成系统创建大量同类线程导致消耗完内存或者过度切换的问题。</p>
-<p>简单来说使用线程池有以下几个目的：  </p>
-<ul>
-<li>避免频繁的创建。线程是稀缺资源。</li>
-<li>解耦。线程的创建与执行分开，方便维护。</li>
-<p>
-                
-            
-        
-        
-            </p></ul></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-并发编程-ThreadLocal原理" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">
-            <time datetime="2018-05-03T12:58:11.000Z" itemprop="datePublished">2018-05-03</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。</p>
-<h3 id="1-我是什么"><a href="#1-我是什么" class="headerlink" title="1. 我是什么"></a>1. 我是什么</h3><ul>
-<li>是让线程拥有独占的变量</li>
-<li>它通过set、get方法进行设值和取值操作</li>
-<li>它可以覆盖initialValue方法设置初始值，在没进行set之前调用get会调用初始化方法，一个线程只会调用一次</li>
-<p>
-                
-            
-        
-        
-            </p></ul></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-并发编程-阻塞队列BQ" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">
-            <time datetime="2018-04-27T07:37:41.000Z" itemprop="datePublished">2018-04-27</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>阻塞队列常用于生产者-消费者场景。</p>
-<p>BQ有4套出队入队操作：</p>
-<ul>
-<li>offer(e) &amp; poll() 这套操作不会阻塞线程，队列满/空的时候返回特殊值 false/null</li>
-<li>add(e) &amp; remove() 该操作对offer(e) &amp; pool()返回的特殊值抛出异常</li>
-<p>
-                
-            
-        
-        
-            </p></ul></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-并发编程-共享式AQS源码详解" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">
-            <time datetime="2018-04-25T12:36:12.000Z" itemprop="datePublished">2018-04-25</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>上篇文章详细的阐述了AQS在独占模式下的底层原理，本篇主要讲述共享式同步器的原理。</p>
-<h3 id="1-acquireShared-int"><a href="#1-acquireShared-int" class="headerlink" title="1. acquireShared(int)"></a>1. acquireShared(int)</h3><p>此方式是共享模式下线程获取贡献资源的入口，他会获取指定量的资源，获取成功直接返回，失败则进入等待队列，知道获取到资源为止，整个过程忽略终端。下面看源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">acquireShared</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="keyword">if</span> (tryAcquireShared(arg) &lt; <span class="number">0</span>)</span><br><span class="line">        doAcquireShared(arg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">int</span> <span class="title">tryAcquireShared</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里 tryAcquireShared 依然需要自定义同步器去实现，但是AQS已经将返回值的语义定义好了，重载该函数的时候执行逻辑要符合下列语义：<br>-返回负值表示获取失败</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-nginx入门" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/nginx/">nginx</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/04/23/nginx入门/">
-            <time datetime="2018-04-23T07:17:36.000Z" itemprop="datePublished">2018-04-23</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>Nginx是一款自由的、开源的、高性能的HTTP服务器和反向代理服务器；同时也是一个IMAP、POP3、SMTP代理服务器；Nginx可以作为一个HTTP服务器进行网站的发布处理，另外Nginx可以作为反向代理进行负载均衡的实现。</p>
-<h3 id="1、正向代理与反向代理"><a href="#1、正向代理与反向代理" class="headerlink" title="1、正向代理与反向代理"></a>1、正向代理与反向代理</h3><h4 id="1-1-正向代理：代理服务器代表的是客户端，代理对服务器端透明。"><a href="#1-1-正向代理：代理服务器代表的是客户端，代理对服务器端透明。" class="headerlink" title="1.1 正向代理：代理服务器代表的是客户端，代理对服务器端透明。"></a>1.1 正向代理：代理服务器代表的是客户端，代理对服务器端透明。</h4><p>正向代理的应用场景：  </p>
-<ul>
-<li>vpn  </li>
-<li>缓存，加速访问资源  </li>
-<p>
-                
-            
-        
-        
-            </p></ul></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/04/23/nginx入门/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
         <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/5/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/4/">4</a><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/zzkenyon.github.io/page/7/">7</a><a class="page-number" href="/zzkenyon.github.io/page/8/">8</a><a class="page-number" href="/zzkenyon.github.io/page/9/">9</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/7/">下一页 &raquo;</a>
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/5/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/4/">4</a><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/zzkenyon.github.io/page/7/">7</a><a class="page-number" href="/zzkenyon.github.io/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/10/">10</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/7/">下一页 &raquo;</a>
         </nav>
     
 </section>
