@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                94
+                98
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -312,7 +312,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -404,6 +404,382 @@
 </aside>
             
             <section id="main">
+        <article id="post-Mybatis-源码分析之配置解析" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">
+            <time datetime="2019-03-11T16:00:00.000Z" itemprop="datePublished">2019-03-12</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>mybatis与数据库交互使用的接口类是SqlSession，每个SqlSession都会持有一个jdbc连接，SqlSession的接口方法经过层层调用最终都会调用到jdbc的方法，那么我们怎么获取一个SqlSession呢，mybatis为我们提供了一个SqlSessionFactory来获取SqlSession，下面我们从SqlSessionFactory的创建开始，分析mybatis是如何执行一条查询命令的。</p>
+<p>sqlSessionFactory创建代码如下，该对象在应用中以单例形式存在，生命周期与应用相同，一旦创建，就会一直存在</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br></pre></td></tr></table></figure>
+<p>将全局配置文件的文件流传入build方法，创建出一个SqlSessionFactory对象。</p>
+<p>进入<code>SqlSessionFactoryBuilder.build</code>方法：</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-SpringBoot启动之上下文刷新(二)" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/源码分析/">源码分析</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">
+            <time datetime="2019-03-05T16:00:00.000Z" itemprop="datePublished">2019-03-06</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>上下文刷新阶段主要做什么事呢？</p>
+<p>注册beanDefinition。</p>
+<p>beanDefinition来自哪里？</p>
+<ul>
+<li><p>引用的spring-boot-starter jar包</p>
+<p>
+                
+            
+        
+        
+            </p></li></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-SpringBoot启动之上下文刷新(一)" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/源码分析/">源码分析</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">
+            <time datetime="2019-03-04T16:00:00.000Z" itemprop="datePublished">2019-03-05</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>在学习Context之前我们得先区分一下ApplicationContext和BeanFactory两者之间的关系。</p>
+<p>在我们的理解中，容器应该是一个空间的概念，用于存放事物的东西。在spring中，存放的是Bean。而BeanFactory提供了这么一个空间用于存放Bean，所以BeanFactory才是Bean所在的主要容器，而不是我们一直说的ApplicationContext。</p>
+<p>既然ApplicationContext不是容器，那它又是啥呢？我们称之为”上下文”。”上下文”的概念我们也许不见得那么熟，但是”场景”，”场所”这样的概念我们应该就比较熟悉了。比如说”拍摄场景”，”交易场所”等。它们的共同点都是事件发生的地方。所以ApplicationContext正是spring定义的应用程序的事件发生场所，也就是所谓的应用上下文。 </p>
+<p>上面，我了解了BeanFactory作为Bean容器，而ApplicationContext作为上下文。那么Bean容器和上下文之间是什么关系呢？我们可以看一个代码片段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通用的应用上下文实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GenericApplicationContext</span> <span class="keyword">extends</span> <span class="title">AbstractApplicationContext</span> <span class="keyword">implements</span> <span class="title">BeanDefinitionRegistry</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 默认BeanFactory的实现</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> DefaultListableBeanFactory beanFactory;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-springBoot启动之环境准备阶段" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/源码分析/">源码分析</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">
+            <time datetime="2019-02-28T16:00:00.000Z" itemprop="datePublished">2019-03-01</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>环境对象用来干什么的？</p>
+<p>环境对象用来收集项目的各种配置，并且可以做到在不同环境（开发环境、测试环境、生产环境）中，这些配置可以很方便的切换。</p>
+<p>在数据结构的设计上，环境包括两块内容：profiles 和 properties </p>
+<p>profiles 就是环境名称，比如测试环境test、开发环境dev、生产环境pro、默认的default等。</p>
+<p>properties 是环境属性，由一对对的 key:value 组成</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-SpringBoot启动之事件机制" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -955,377 +1331,6 @@
             </p></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-MQ-为什么用和什么时候用" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
-    </div>
-
-                        
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">
-            <time datetime="2018-12-19T16:00:00.000Z" itemprop="datePublished">2018-12-20</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p><a href="http://mp.weixin.qq.com/s/Brd-j3IcljcY7BV01r712Q" target="_blank" rel="noopener">原文地址</a></p>
-<h3 id="1、缘起"><a href="#1、缘起" class="headerlink" title="1、缘起"></a>1、缘起</h3><p>一切脱离业务的架构设计与新技术引入都是耍流氓。</p>
-<p>引入一个技术之前，首先应该解答的问题是，这个技术解决什么问题。</p>
-<p>就像微服务分层架构之前，应该首先回答，为什么要引入微服务，微服务究竟解决什么问题（详见《<a href="http://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=2651959519&amp;idx=1&amp;sn=065074b135fc9cb243abe897261e1a72&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">互联网架构为什么要做微服务？</a>》）。</p>
-<p>最近分享了几篇MQ相关的文章：</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-jvm-元空间" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/jvm/">jvm</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">
-            <time datetime="2018-11-05T16:00:00.000Z" itemprop="datePublished">2018-11-06</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>基础概念：</p>
-<ol>
-<li><p><strong>方法区：</strong>jvm规范中的定义，指一片内存区域，用于存放加载到内存中的类信息、常量池等。</p>
-</li>
-<li><p><strong>永久代：</strong>JDK1.7（含）之前方法区的实现方式，使用永久代实现主要是为了把GC分代收集扩展至方法区，省去了专门为方法区编写内存管理代码的工作。</p>
-<p>
-                
-            
-        
-        
-            </p></li></ol></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-jvm-垃圾回收" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/jvm/">jvm</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">
-            <time datetime="2018-11-04T16:00:00.000Z" itemprop="datePublished">2018-11-05</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>垃圾对象检测：</p>
-<ul>
-<li>引用计数发</li>
-<li>可达性分析</li>
-</ul>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-jvm-运行时数据区和内存模型" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/jvm/">jvm</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">
-            <time datetime="2018-10-31T16:00:00.000Z" itemprop="datePublished">2018-11-01</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>我现在已经了解了类的装载机制，当需要装载一个class时，会经历以下步骤：</p>
-<ol>
-<li>通过全类名获取字节码文件的字节流</li>
-<li>将字节流所代表的静态存储结构转换为方法区的运行时数据结构</li>
-<li>在java堆中声称代表这个类的Class对象实例作为对方法去中这些数据访问的入口</li>
-<p>
-                
-            
-        
-        
-            </p></ol></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">

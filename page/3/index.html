@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                94
+                98
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -312,7 +312,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -874,6 +874,382 @@
 
 
     
+        <article id="post-MQ-kafka-消息的存储" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">
+            <time datetime="2019-07-04T16:00:00.000Z" itemprop="datePublished">2019-07-05</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>一个topic的多个partition在物理磁盘上的保存路径，路径保存在 <code>/tmp/kafka-logs/topic_partition</code>，包 含日志文件、索引文件和时间索引文件 </p>
+<p>kafka是通过分段的方式将Log分为多个LogSegment，LogSegment是一个逻辑上的概念，一个 LogSegment对应磁盘上的一个日志文件和一个索引文件，其中日志文件是用来记录消息的。索引文件是用来保存消息的索引。那么这个LogSegment是什么呢？ </p>
+<h4 id="LogSegment"><a href="#LogSegment" class="headerlink" title="LogSegment"></a><strong>LogSegment</strong></h4><p>假设kafka以partition为最小存储单位，那么我们可以想象当kafka producer不断发送消息，必然会引起partition文件的无线扩张，这样对于消息文件的维护以及被消费的消息的清理带来非常大的挑战，所以kafka以segment为单位又把partition进行细分。每个partition相当于一个巨型文件被平均分配到多个大小相等的segment数据文件中（每个segment文件中的消息不一定相等），这种特性方便已经被消费的消息的清理，提高磁盘的利用率。 </p>
+<p>log.segment.bytes=107370 (设置分段大小)，默认是1gb，我们把这个值调小以后，可以看到日志分段的效果 </p>
+<p>抽取其中3个分段来进行分析</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-MQ-kafka-提交offset存储" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">
+            <time datetime="2019-07-01T16:00:00.000Z" itemprop="datePublished">2019-07-02</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>每个topic可以划分多个分区partition，同一个topic下的不同分区存储的消息是不重复的。在每个消息被分配给一个分区时，会生成一个偏移量offset，它是消息在分区中的唯一编号。kafka通过offset来保证消息在分区内的顺序，分区之间不能保证消息的顺序性。</p>
+<p>消费者可以通过以下配置来开启自动提交：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">props.put(ConsumerConfig.GROUP_ID_CONFIG, <span class="string">"group_2"</span>);</span><br><span class="line">props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, <span class="string">"true"</span>); <span class="comment">// 开启自动提交</span></span><br><span class="line">props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, <span class="string">"1000"</span>); <span class="comment">//自动提交时间间隔</span></span><br><span class="line">props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,<span class="string">"earliest"</span>); <span class="comment">//消费者启动时从哪里开始消费</span></span><br></pre></td></tr></table></figure>
+<p>对于消费者来说，每次消费一个消息并且提交以后，kafka会保存当前消费到的最后的一个offset，那么offset保存在哪里？</p>
+<p>在kafka中提供了一个名为<code>__consumer_offsets-*</code>的topic，默认有50个分区。消费者消费数据并提交之后，offset将存储到该topic的某个分区中。</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-MQ-kafka-副本机制" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">
+            <time datetime="2019-06-27T16:00:00.000Z" itemprop="datePublished">2019-06-28</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>kafka虽然可以对topic进行分片，但是对于partition来说，它还是单点的，当partition所在的broker宕机了，那么这部分消息就无法被消费。所以kafka为了提高partition的可靠性，提供了副本replica的概念，通过副本机制来实现冗余备份。</p>
+<p>每个分区可以有多个副本，并且在副本集合中会存在一个learder副本，所有的读写请求都是由leader来处理。其余的副本称为follower副本，follower会主动从leader同步消息日志。一般情况下，同一个分区的多个副本会被均匀的分配到集群的不同broker上，当leader所在的broker出现故障，可以重新选举新的leader副本继续外提供服务。</p>
+<p>通过下面的命令创建一个带副本的topic</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh kafka-topic.sh --create --zookeeper 192.168.2.112:9092 --replication-factor 3 --partition 3 --topic test_topic</span><br></pre></td></tr></table></figure>
+<p><strong><em>如何知道各个分区中对应的leader是谁呢？</em></strong></p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-MQ-kafka-分区分配策略及分配流程" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">
+            <time datetime="2019-06-25T16:00:00.000Z" itemprop="datePublished">2019-06-26</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>当出现以下几种情况时，kafka会进行一次分区分配操作，也就是kafka consumer的rebalance</p>
+<ol>
+<li><p>同一个consumer group内新增了消费者</p>
+</li>
+<li><p>消费者离开当前所属的consumer group，比如主动停机或者宕机</p>
+<p>
+                
+            
+        
+        
+            </p></li></ol></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-MQ-kafka-集群搭建" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -912,7 +1288,7 @@
                 
     
         <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">Kafka-搭建Kafka集群</a>
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a>
         </h1>
     
 
@@ -955,354 +1331,6 @@
             </p></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-MQ-kafka-架构介绍" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">
-            <time datetime="2019-06-20T16:00:00.000Z" itemprop="datePublished">2019-06-21</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><h3 id="1-消息队列通信的模式"><a href="#1-消息队列通信的模式" class="headerlink" title="1. 消息队列通信的模式"></a>1. 消息队列通信的模式</h3><p>通过上面的例子我们引出了消息中间件，并且介绍了消息队列出现后的好处，这里就需要介绍消息队列通信的两种模式了：</p>
-<h4 id="1-1-点对点模式"><a href="#1-1-点对点模式" class="headerlink" title="1.1 点对点模式"></a>1.1 点对点模式</h4><p>如图所示  </p>
-<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/mq%E9%80%9A%E4%BF%A1-%E7%82%B9%E5%AF%B9%E7%82%B9%E6%A8%A1%E5%BC%8F.jpg" alt="点对点"></p>
-<p>点对点模式通常是基于拉取或者轮询的消息传送模型，这个模型的特点是发送到队列的消息被一个且只有一个消费者进行处理。生产者将消息放入消息队列后，由消费者主动的去拉取消息进行消费。点对点模型的的优点是消费者拉取消息的频率可以由自己控制。但是消息队列是否有消息需要消费，在消费者端无法感知，所以在消费者端需要额外的线程去监控。</p>
-<h4 id="1-2-发布订阅模式"><a href="#1-2-发布订阅模式" class="headerlink" title="1.2 发布订阅模式"></a>1.2 发布订阅模式</h4><p>如图所示  </p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-分布式-分布式事务" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/分布式架构技术/">分布式架构技术</a>
-    </div>
-
-                        
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/06/21/分布式-分布式事务/">
-            <time datetime="2019-06-20T16:00:00.000Z" itemprop="datePublished">2019-06-21</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/06/21/分布式-分布式事务/">分布式-分布式事务</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-            
-        
-        
-            
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-nio-jdk中nio编程的三大件" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/I-O和网络编程/">I/O和网络编程</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/nio/">nio</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">
-            <time datetime="2019-05-26T02:21:34.000Z" itemprop="datePublished">2019-05-26</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>nio过程：</p>
-<p>channel注册到selector的时候会指定该通道需要selector监听的事件类型</p>
-<p>发送程序使用channel向fd中写入数据，完成之后fd会产生一个写就绪的事件，</p>
-<p>selector轮询的时候会发现到该事件，并将该事件对应的通道取出来进行处理（将fd中的数据通过socket进行发送）</p>
-<p>接收程序将channel注册到selector时会指定监听读就绪事件，</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-分布式-zookeeper分布式锁" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/分布式架构技术/">分布式架构技术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/zookeeper/">zookeeper</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">
-            <time datetime="2019-05-20T16:00:00.000Z" itemprop="datePublished">2019-05-21</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>Zookeeper的每一个节点，都是一个天然的顺序发号器。</p>
-<p>在一个节点下面创建子节点时，只要选择的创建类型是有序（EPHEMERAL_SEQUENTIAL 临时有序或者PERSISTENT_SEQUENTIAL 永久有序）类型，那新的子节点后面，会加上一个次序编号，这个次序编号，是上一个生成的次序编号加1<br>。</p>
-<p>其次，Zookeeper节点的递增性，可以规定节点编号最小的那个获得锁。</p>
-<p>一个zookeeper分布式锁，首先需要创建一个父节点，尽量是持久节点（PERSISTENT类型），然后每个要获得锁的线程都会在这个节点下创建个临时顺序节点，由于序号的递增性，可以规定排号最小的那个获得锁。所以，每个线程在尝试占用锁之前，首先判断自己是排号是不是当前最小，如果是，则获取锁。</p>
-<p>第三，Zookeeper的节点监听机制，可以保障占有锁的方式有序而且高效。</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">
