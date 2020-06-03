@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://yoursite.com/child/zzkenyon.github.io/2019/07/10/MQ-rabbit%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E6%8A%95%E9%80%92/</loc>
+    <lastmod>2020-06-03</lastmod>
+  </url>  <url>
+    <loc>http://yoursite.com/child/zzkenyon.github.io/2019/07/11/MQ-rabbit%E6%B6%88%E6%81%AF%E6%94%B6%E5%8F%91%E6%B5%81%E7%A8%8B/</loc>
+    <lastmod>2020-06-03</lastmod>
+  </url>  <url>
+    <loc>http://yoursite.com/child/zzkenyon.github.io/2019/07/10/MQ-rabbit%20centos7%E9%83%A8%E7%BD%B2/</loc>
+    <lastmod>2020-06-03</lastmod>
+  </url>  <url>
+    <loc>http://yoursite.com/child/zzkenyon.github.io/2016/08/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</loc>
+    <lastmod>2020-06-03</lastmod>
+  </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2019/06/22/MQ-kafka-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/</loc>
     <lastmod>2020-06-01</lastmod>
   </url>  <url>
@@ -119,9 +131,6 @@
     <lastmod>2020-05-22</lastmod>
   </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2017/05/14/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2020-05-22</lastmod>
-  </url>  <url>
-    <loc>http://yoursite.com/child/zzkenyon.github.io/2016/08/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</loc>
     <lastmod>2020-05-22</lastmod>
   </url>  <url>
     <loc>http://yoursite.com/child/zzkenyon.github.io/2016/08/04/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</loc>

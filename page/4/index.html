@@ -163,11 +163,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                98
+                101
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                24
+                25
                 <span>标签</span>
             </div>
         </div>
@@ -312,7 +312,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -404,6 +404,288 @@
 </aside>
             
             <section id="main">
+        <article id="post-MQ-kafka-副本机制" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">
+            <time datetime="2019-06-27T16:00:00.000Z" itemprop="datePublished">2019-06-28</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>kafka虽然可以对topic进行分片，但是对于partition来说，它还是单点的，当partition所在的broker宕机了，那么这部分消息就无法被消费。所以kafka为了提高partition的可靠性，提供了副本replica的概念，通过副本机制来实现冗余备份。</p>
+<p>每个分区可以有多个副本，并且在副本集合中会存在一个learder副本，所有的读写请求都是由leader来处理。其余的副本称为follower副本，follower会主动从leader同步消息日志。一般情况下，同一个分区的多个副本会被均匀的分配到集群的不同broker上，当leader所在的broker出现故障，可以重新选举新的leader副本继续外提供服务。</p>
+<p>通过下面的命令创建一个带副本的topic</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh kafka-topic.sh --create --zookeeper 192.168.2.112:9092 --replication-factor 3 --partition 3 --topic test_topic</span><br></pre></td></tr></table></figure>
+<p><strong><em>如何知道各个分区中对应的leader是谁呢？</em></strong></p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-MQ-kafka-分区分配策略及分配流程" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">
+            <time datetime="2019-06-25T16:00:00.000Z" itemprop="datePublished">2019-06-26</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>当出现以下几种情况时，kafka会进行一次分区分配操作，也就是kafka consumer的rebalance</p>
+<ol>
+<li><p>同一个consumer group内新增了消费者</p>
+</li>
+<li><p>消费者离开当前所属的consumer group，比如主动停机或者宕机</p>
+<p>
+                
+            
+        
+        
+            </p></li></ol></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-MQ-kafka-集群搭建" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">
+            <time datetime="2019-06-21T16:00:00.000Z" itemprop="datePublished">2019-06-22</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>每台主机都需要安装jdk 本文版本jdk-1.8.0_231</p>
+<p>需要搭建好的zookeeper集群</p>
+<p>本文zookeeper环境：<code>192.168.2.112:2181,192.168.2.113:2181,192.168.2.114:2181</code></p>
+<p>本文将Kafka搭建在部署zookeeper集群的三台主机上，当然也可以另外准备三台主机。</p>
+<h4 id="在每台主机上执行下面步骤："><a href="#在每台主机上执行下面步骤：" class="headerlink" title="在每台主机上执行下面步骤："></a>在每台主机上执行下面步骤：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>将安装包移到/usr/local目录下</span><br><span class="line">mv kafka_2.11-2.0.0 .tgz /usr/local</span><br><span class="line"><span class="meta">#</span>解压文件</span><br><span class="line">tar -zxvf kafka_2.11-2.0.0 .tgz</span><br><span class="line"><span class="meta">#</span>重命名文件夹为kafka</span><br><span class="line">mv kafka_2.11-2.0.0 kafka</span><br><span class="line"><span class="meta">#</span>配置kafka环境变量，首先打开profile文件</span><br><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span>进入编辑模式，在文件末尾添加kafka环境变量</span><br><span class="line">export KAFKA_HOME=/usr/local/apache/kafka</span><br><span class="line">PATH=$&#123;KAFKA_HOME&#125;/bin:$PATH</span><br><span class="line"><span class="meta">#</span>保存文件后，让该环境变量生效</span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-MQ-kafka-架构介绍" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -1034,290 +1316,8 @@
 
 
     
-        <article id="post-dubbo-配置中心" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/RPC框架Dubbo/">RPC框架Dubbo</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/dubbo/">dubbo</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">
-            <time datetime="2019-04-22T16:00:00.000Z" itemprop="datePublished">2019-04-23</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>dubbo在2.7版本之前只配备了注册中心，2.7中新增的功能-配置中心和元数据中心，因此dubbo现在拥有三大中心，指的是注册中心、元数据中心和配置中心。</p>
-<p>注册中心：分布式环境下提供服务的注册和发现功能，服务治理的关键组件</p>
-<p>元数据中心：元数据指的是描述数据的数据。在服务治理中的数据可以理解成provider供者提供的服务、consumer需要消费的服务，而这些服务通常都会有一些描述信息例如接口名、版本号、重试次数、容错机制等等，这些对服务的描述信息就是服务的元数据。</p>
-<p>2.7以前，元数据一股脑的丢在注册中心，造成了一系列的问题：</p>
-<p><em>推送量大大-&gt;存储数据量大-&gt;网络传输量大-&gt;延迟</em></p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-dubbo-SPI原理及源码分析" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/RPC框架Dubbo/">RPC框架Dubbo</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/dubbo/">dubbo</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/04/21/dubbo-SPI原理及源码分析/">
-            <time datetime="2019-04-20T16:00:00.000Z" itemprop="datePublished">2019-04-21</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/04/21/dubbo-SPI原理及源码分析/">dubbo-SPI原理及源码分析</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>SPI ，全称为 Service Provider Interface，是一种服务发现机制。它通过在ClassPath路径下的META-INF/services文件夹查找文件，自动加载文件里所定义的类。java语言的特性，一处编译处处运行，很大程度上是因为使用了使用spi机制。</p>
-<p>JDK在rt.jar包中定义了很多的接口，这些接口由于各种原因没有给出实现类，</p>
-<ul>
-<li>操作系统不同，实现方式不同，例如nio底层的selector实现类，不同os有自己的实现</li>
-<li>服务商不同，实现方式不同，例如jdbc，不同的数据库服务商对jdbc都有自己的实现</li>
-<p>
-                
-            
-        
-        
-            </p></ul></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/04/21/dubbo-SPI原理及源码分析/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-Mybatis-源码分析之sql执行" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">
-            <time datetime="2019-03-13T16:00:00.000Z" itemprop="datePublished">2019-03-14</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>经过解析阶段，我们获得了一个填充完整的<code>Configuration</code>对象，对象中有一个<code>Map&lt;String, MappedStatement&gt;</code>存放解析好的sql配置，还有一个<code>MapperRegistry</code>记录mapper接口与其代理类工厂的映射关系。</p>
-<p>执行一条查询之前，首先要获得执行查询的SqlSession对象，在此之前要拿到工厂类<code>SqlSessionFactory</code>的实例。</p>
-<p>使用配置对象创建出一个<code>SqlSessionFactory</code>，这里创建的是默认的实现类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SqlSessionFactoryBuilder.class</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">build</span><span class="params">(Configuration config)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> DefaultSqlSessionFactory(config);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>用户代码获取<code>SqlSession</code></p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
         <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/3/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><a class="page-number" href="/zzkenyon.github.io/page/2/">2</a><a class="page-number" href="/zzkenyon.github.io/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><a class="page-number" href="/zzkenyon.github.io/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/10/">10</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/5/">下一页 &raquo;</a>
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/3/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><a class="page-number" href="/zzkenyon.github.io/page/2/">2</a><a class="page-number" href="/zzkenyon.github.io/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><a class="page-number" href="/zzkenyon.github.io/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/11/">11</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/5/">下一页 &raquo;</a>
         </nav>
     
 </section>
