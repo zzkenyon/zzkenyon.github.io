@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>dubbo-SPI原理及源码分析 | 黑风雅过吟</title>
+    <title>dubbo-JDK的SPI原理及源码分析 | 黑风雅过吟</title>
     
     
         <meta name="keywords" content="dubbo">
@@ -12,14 +12,14 @@
     <meta name="description" content="SPI ，全称为 Service Provider Interface，是一种服务发现机制。它通过在ClassPath路径下的META-INF/services文件夹查找文件，自动加载文件里所定义的类。java语言的特性，一处编译处处运行，很大程度上是因为使用了使用spi机制。 JDK在rt.jar包中定义了很多的接口，这些接口由于各种原因没有给出实现类，  操作系统不同，实现方式不同，例如nio">
 <meta name="keywords" content="dubbo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="dubbo-SPI原理及源码分析">
-<meta property="og:url" content="http://yoursite.com/child/2019/04/21/dubbo-SPI原理及源码分析/index.html">
+<meta property="og:title" content="dubbo-JDK的SPI原理及源码分析">
+<meta property="og:url" content="http://yoursite.com/child/2019/04/21/dubbo-JDK的SPI原理及源码分析/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="SPI ，全称为 Service Provider Interface，是一种服务发现机制。它通过在ClassPath路径下的META-INF/services文件夹查找文件，自动加载文件里所定义的类。java语言的特性，一处编译处处运行，很大程度上是因为使用了使用spi机制。 JDK在rt.jar包中定义了很多的接口，这些接口由于各种原因没有给出实现类，  操作系统不同，实现方式不同，例如nio">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-05-28T01:23:38.681Z">
+<meta property="og:updated_time" content="2020-06-12T00:31:08.920Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="dubbo-SPI原理及源码分析">
+<meta name="twitter:title" content="dubbo-JDK的SPI原理及源码分析">
 <meta name="twitter:description" content="SPI ，全称为 Service Provider Interface，是一种服务发现机制。它通过在ClassPath路径下的META-INF/services文件夹查找文件，自动加载文件里所定义的类。java语言的特性，一处编译处处运行，很大程度上是因为使用了使用spi机制。 JDK在rt.jar包中定义了很多的接口，这些接口由于各种原因没有给出实现类，  操作系统不同，实现方式不同，例如nio">
     
 
@@ -168,11 +168,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                101
+                104
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                25
+                28
                 <span>标签</span>
             </div>
         </div>
@@ -254,7 +254,7 @@
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file active"><a href="/zzkenyon.github.io/2019/04/21/dubbo-SPI原理及源码分析/">dubbo-SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file active"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -288,9 +288,27 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
                             分布式架构技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">分布式-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">分布式-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/分布式-分布式事务/">分布式-分布式事务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-日志上传es/">分布式-ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -337,7 +355,7 @@
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
                     </li> 
-                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/其他-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/web-彻底理解cookie，session，token/">彻底理解cookie/session/token（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
     </div>
     <script>
         $(document).ready(function() {
@@ -408,7 +426,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><article id="post-dubbo-SPI原理及源码分析" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-dubbo-JDK的SPI原理及源码分析" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -430,7 +448,7 @@
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/04/21/dubbo-SPI原理及源码分析/">
+        <a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">
             <time datetime="2019-04-20T16:00:00.000Z" itemprop="datePublished">2019-04-21</time>
         </a>
     </div>
@@ -446,7 +464,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            dubbo-SPI原理及源码分析
+            dubbo-JDK的SPI原理及源码分析
         </h1>
     
 
@@ -508,8 +526,12 @@
 <p>拿到实现类的全类名，现在开始实例化：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> S <span class="title">next</span><span class="params">()</span> </span>&#123;   </span><br><span class="line">    <span class="keyword">if</span> (acc == <span class="keyword">null</span>) &#123;      </span><br><span class="line">        <span class="keyword">return</span> nextService();   </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;        </span><br><span class="line">        PrivilegedAction&lt;S&gt; action = <span class="keyword">new</span> PrivilegedAction&lt;S&gt;() &#123;           </span><br><span class="line">            <span class="function"><span class="keyword">public</span> S <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> nextService(); </span><br><span class="line">            &#125;      </span><br><span class="line">        &#125;;        </span><br><span class="line">        <span class="keyword">return</span> AccessController.doPrivileged(action, acc);  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>调用到<code>nextService()</code>方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> S <span class="title">nextService</span><span class="params">()</span> </span>&#123;   </span><br><span class="line">    <span class="keyword">if</span> (!hasNextService())      </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();  </span><br><span class="line">    String cn = nextName;    </span><br><span class="line">    nextName = <span class="keyword">null</span>;  </span><br><span class="line">    Class&lt;?&gt; c = <span class="keyword">null</span>;   </span><br><span class="line">    <span class="keyword">try</span> &#123;       </span><br><span class="line">        c = Class.forName(cn, <span class="keyword">false</span>, loader); </span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException x) &#123;  </span><br><span class="line">        fail(service,<span class="string">"Provider "</span> + cn + <span class="string">" not found"</span>);  </span><br><span class="line">    &#125;    <span class="keyword">if</span> (!service.isAssignableFrom(c)) &#123;       </span><br><span class="line">        fail(service, <span class="string">"Provider "</span> + cn  + <span class="string">" not a subtype"</span>);    </span><br><span class="line">    &#125;    <span class="keyword">try</span> &#123;       </span><br><span class="line">        Sp = service.cast(c.newInstance());       </span><br><span class="line">        providers.put(cn, p);       </span><br><span class="line">        <span class="keyword">return</span> p;  </span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable x) &#123;       </span><br><span class="line">        fail(service, <span class="string">"Provider "</span> + cn + <span class="string">" could not be instantiated"</span>,x);   </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> Error();          <span class="comment">// This cannot happen</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> S <span class="title">nextService</span><span class="params">()</span> </span>&#123;   </span><br><span class="line">    <span class="keyword">if</span> (!hasNextService())      </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();  </span><br><span class="line">    String cn = nextName;    </span><br><span class="line">    nextName = <span class="keyword">null</span>;  </span><br><span class="line">    Class&lt;?&gt; c = <span class="keyword">null</span>;   </span><br><span class="line">    <span class="keyword">try</span> &#123;       </span><br><span class="line">        c = Class.forName(cn, <span class="keyword">false</span>, loader); </span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException x) &#123;  </span><br><span class="line">        fail(service,<span class="string">"Provider "</span> + cn + <span class="string">" not found"</span>);  </span><br><span class="line">    &#125;    </span><br><span class="line">  	<span class="keyword">if</span> (!service.isAssignableFrom(c)) &#123;       </span><br><span class="line">        fail(service, <span class="string">"Provider "</span> + cn  + <span class="string">" not a subtype"</span>);    </span><br><span class="line">    &#125;    </span><br><span class="line">  	<span class="keyword">try</span> &#123;       </span><br><span class="line">        Sp = service.cast(c.newInstance());       </span><br><span class="line">        providers.put(cn, p);       </span><br><span class="line">        <span class="keyword">return</span> p;  </span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable x) &#123;       </span><br><span class="line">        fail(service, <span class="string">"Provider "</span> + cn + <span class="string">" could not be instantiated"</span>,x);   </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> Error();          <span class="comment">// This cannot happen</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>使用反射的方式实例化实现类</p>
+<p>总结：</p>
+<p>1、 Jdk的spi 会一次性加载并<strong>实例化</strong>扩展点的所有实现，就是如果在MATA-INF/services下的文件里面加了N个实现类，那么JDK启动的时候都会一次性全部<strong>实例化</strong>，那么如果有的扩展点初始化很耗时，且运行时并没有用到，那么就会很浪费资源（堆）</p>
+<p>2、 扩展点加载失败，会导致调用方报错，而且这个错误很难定位到时这个原因。</p>
+<p>因此Dubbo在使用SPI时，对其做了很多的优化。</p>
 
             </div>
         
@@ -532,9 +554,9 @@
         </a>
     
     
-        <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">Mybatis-源码分析之sql执行</div>
+            <div class="article-nav-title">dubbo-基于SPI的自适应扩展机制</div>
         </a>
     
 </nav>
