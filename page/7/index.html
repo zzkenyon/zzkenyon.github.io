@@ -163,11 +163,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                104
+                107
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                28
+                29
                 <span>标签</span>
             </div>
         </div>
@@ -285,7 +285,7 @@
                             &nbsp;
                             业务
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -1075,7 +1075,7 @@
 
 
     
-        <article id="post-并发编程-执行异步任务" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-shiro-过滤器原理分析" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -1085,20 +1085,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/业务/">业务</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/shrio/">shrio</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">
-            <time datetime="2018-05-29T16:00:00.000Z" itemprop="datePublished">2018-05-30</time>
+        <a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">
+            <time datetime="2018-06-09T16:00:00.000Z" itemprop="datePublished">2018-06-10</time>
         </a>
     </div>
 
@@ -1113,7 +1113,7 @@
                 
     
         <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a>
+            <a class="article-title" href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a>
         </h1>
     
 
@@ -1143,11 +1143,11 @@
                 
                 
                     
-                    <p></p><p>异步编程的目标是：提交一个任务给线程池，在任务执行期间，提交者可以执行其他的逻辑，当提交的任务执行完成，通知提交者来获取执行结果</p>
-<p>jdk并发包中的异步编程是通过Future<v> 接口实现的：</v></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(<span class="keyword">boolean</span> mayInterruptIfRunning)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isCancelled</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException</span>;</span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>泛型V是任务执行结果的类型。</p>
-<p>我们通过如下方式提交任务给线程池：</p>
+                    <p></p><p>ShiroFilter的实现原理：</p>
+<p>Shiro对servlet容器的<code>FilterChain</code>进行了代理，在执行Servlet容器的Filter链之前，通过<code>ProxiedFilterChain</code>对Servlet容器的Filter链进行了代理，先执行Shiro自己的Filter体系，然后才会委托给Servlet容器的Filter链进行Servlet容器级别的过滤。</p>
+<p><strong>在应用启动阶段</strong>，shiro会初始化一些对象：</p>
+<p>创建一个<code>PathMatchingFilterChainResolver</code>对象用来解析请求的url匹配到哪个Filter，方式是将url逐一的与Filter的url模式进行匹配，直到匹配到正确的filter，就生成<code>ProxiedFilterChain</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PathMatchingFilterChainResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.pathMatcher = <span class="keyword">new</span> AntPathMatcher();</span><br><span class="line">    <span class="keyword">this</span>.filterChainManager = <span class="keyword">new</span> DefaultFilterChainManager();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>
                 
             
@@ -1155,7 +1155,7 @@
         
             </p></div>   
             <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/#more">查看更多</a>
+                <a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">
@@ -1169,7 +1169,7 @@
 
 
     
-        <article id="post-并发编程-CopyOnWrite容器" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-shiro-密码的散列存储" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -1179,20 +1179,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/业务/">业务</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/shrio/">shrio</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">
-            <time datetime="2018-05-26T04:32:12.000Z" itemprop="datePublished">2018-05-26</time>
+        <a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">
+            <time datetime="2018-06-02T16:00:00.000Z" itemprop="datePublished">2018-06-03</time>
         </a>
     </div>
 
@@ -1207,7 +1207,7 @@
                 
     
         <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a>
+            <a class="article-title" href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a>
         </h1>
     
 
@@ -1237,11 +1237,11 @@
                 
                 
                     
-                    <p></p><p>Copy-On-Write简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。</p>
-<h3 id="1-什么是CopyOnWrite容器"><a href="#1-什么是CopyOnWrite容器" class="headerlink" title="1. 什么是CopyOnWrite容器"></a>1. 什么是CopyOnWrite容器</h3><p>CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。</p>
-<h3 id="2-CopyOnWriteArrayList的实现原理"><a href="#2-CopyOnWriteArrayList的实现原理" class="headerlink" title="2. CopyOnWriteArrayList的实现原理"></a>2. CopyOnWriteArrayList的实现原理</h3><p>在使用CopyOnWriteArrayList之前，我们先阅读其源码了解下它是如何实现的。以下代码是向CopyOnWriteArrayList中add方法的实现（向CopyOnWriteArrayList里添加元素），可以发现在添加的时候是需要加锁的，否则多线程写的时候会Copy出N个副本出来。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public boolean add(E e) &#123;</span><br><span class="line">    final ReentrantLock lock = this.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    try &#123;</span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        int len = elements.length;</span><br><span class="line">        Object[] newElements = Arrays.copyOf(elements, len + 1);</span><br><span class="line">        newElements[len] = e;</span><br><span class="line">        setArray(newElements);</span><br><span class="line">        return true;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>读的时候不需要加锁，如果读的时候有多个线程正在向CopyOnWriteArrayList添加数据，读还是会读到旧的数据，因为写的时候不会锁住旧的CopyOnWriteArrayList。</p>
+                    <p></p><p>在涉及到密码存储问题上，应该加密 / 生成密码摘要存储，而不是存储明文密码。比如之前的 600w csdn 账号泄露对用户可能造成很大损失，因此应加密 / 生成不可逆的摘要方式存储。</p>
+<h4 id="散列算法"><a href="#散列算法" class="headerlink" title="散列算法"></a>散列算法</h4><p>散列算法一般用于生成数据的摘要信息，是一种不可逆的算法，一般适合存储密码之类的数据，常见的散列算法如 MD5、SHA 等。一般进行散列时最好提供一个 salt（盐）</p>
+<p>比如加密密码 “admin”，产生的散列值是 “21232f297a57a5a743894a0e4a801fc3”，可以到一些 md5 解密网站很容易的通过散列值得到密码 “admin”，即如果直接对密码进行散列相对来说破解更容易，此时我们可以加一些只有系统知道的干扰数据，如用户名和 ID（即盐）；这样散列的对象是 “密码 + 用户名 +ID”，这样生成的散列值相对来说更难破解。</p>
+<p>Shiro 还提供了通用的散列支持：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"hello"</span>;</span><br><span class="line">String salt = <span class="string">"123"</span>;</span><br><span class="line"><span class="comment">//内部使用MessageDigest</span></span><br><span class="line">String simpleHash = <span class="keyword">new</span> SimpleHash(<span class="string">"SHA-1"</span>, str, salt).toString();</span><br></pre></td></tr></table></figure>
 <p>
                 
             
@@ -1249,7 +1249,7 @@
         
             </p></div>   
             <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/#more">查看更多</a>
+                <a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">
@@ -1263,7 +1263,7 @@
 
 
     
-        <article id="post-并发编程-CHM源码分析" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-shiro-zuul鉴权网关设计" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -1273,20 +1273,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/业务/">业务</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/shrio/">shrio</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">
-            <time datetime="2018-05-25T04:35:45.000Z" itemprop="datePublished">2018-05-25</time>
+        <a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">
+            <time datetime="2018-06-01T16:00:00.000Z" itemprop="datePublished">2018-06-02</time>
         </a>
     </div>
 
@@ -1301,7 +1301,7 @@
                 
     
         <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a>
+            <a class="article-title" href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a>
         </h1>
     
 
@@ -1331,19 +1331,19 @@
                 
                 
                     
-                    <p></p><h3 id="1-重要的属性"><a href="#1-重要的属性" class="headerlink" title="1.重要的属性"></a>1.重要的属性</h3><p>首先来看几个重要的属性，与HashMap相同的就不再介绍了，这里重点解释一下sizeCtl这个属性。可以说它是ConcurrentHashMap中出镜率很高的一个属性，因为它是一个控制标识符，在不同的地方有不同用途，而且它的取值不同，也代表不同的含义。</p>
-<ul>
-<li>负数代表正在进行初始化或扩容操作</li>
-<li>-1代表正在初始化</li>
-<li>-N 表示有N-1个线程正在进行扩容操作</li>
+                    <p></p><p>场景：用户的角色不同，有不同的接口访问权限。</p>
+<p>支持多种登录方式（用户名登录、手机号登录、ldap登录）</p>
+<p>支持密码散列存储</p>
+<p>支持黑名单</p>
+<p>防暴力破解</p>
 <p>
                 
             
         
         
-            </p></ul></div>   
+            </p></div>   
             <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/#more">查看更多</a>
+                <a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">

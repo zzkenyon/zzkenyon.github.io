@@ -163,11 +163,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                104
+                107
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                28
+                29
                 <span>标签</span>
             </div>
         </div>
@@ -285,7 +285,7 @@
                             &nbsp;
                             业务
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -870,7 +870,7 @@
 <p>需要搭建好的zookeeper集群</p>
 <p>本文zookeeper环境：<code>192.168.2.112:2181,192.168.2.113:2181,192.168.2.114:2181</code></p>
 <p>本文将Kafka搭建在部署zookeeper集群的三台主机上，当然也可以另外准备三台主机。</p>
-<h4 id="在每台主机上执行下面步骤："><a href="#在每台主机上执行下面步骤：" class="headerlink" title="在每台主机上执行下面步骤："></a>在每台主机上执行下面步骤：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>将安装包移到/usr/local目录下</span><br><span class="line">mv kafka_2.11-2.0.0 .tgz /usr/local</span><br><span class="line"><span class="meta">#</span>解压文件</span><br><span class="line">tar -zxvf kafka_2.11-2.0.0 .tgz</span><br><span class="line"><span class="meta">#</span>重命名文件夹为kafka</span><br><span class="line">mv kafka_2.11-2.0.0 kafka</span><br><span class="line"><span class="meta">#</span>配置kafka环境变量，首先打开profile文件</span><br><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span>进入编辑模式，在文件末尾添加kafka环境变量</span><br><span class="line">export KAFKA_HOME=/usr/local/apache/kafka</span><br><span class="line">PATH=$&#123;KAFKA_HOME&#125;/bin:$PATH</span><br><span class="line"><span class="meta">#</span>保存文件后，让该环境变量生效</span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<h4 id="在每台主机上执行下面步骤："><a href="#在每台主机上执行下面步骤：" class="headerlink" title="在每台主机上执行下面步骤："></a>在每台主机上执行下面步骤：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">将安装包移到/usr/<span class="built_in">local</span>目录下</span></span><br><span class="line">mv kafka_2.11-2.0.0 .tgz /usr/local</span><br><span class="line"><span class="meta">#</span><span class="bash">解压文件</span></span><br><span class="line">tar -zxvf kafka_2.11-2.0.0 .tgz</span><br><span class="line"><span class="meta">#</span><span class="bash">重命名文件夹为kafka</span></span><br><span class="line">mv kafka_2.11-2.0.0 kafka</span><br><span class="line"><span class="meta">#</span><span class="bash">配置kafka环境变量，首先打开profile文件</span></span><br><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash">进入编辑模式，在文件末尾添加kafka环境变量</span></span><br><span class="line">export KAFKA_HOME=/usr/local/apache/kafka</span><br><span class="line">PATH=$&#123;KAFKA_HOME&#125;/bin:$PATH</span><br><span class="line"><span class="meta">#</span><span class="bash">保存文件后，让该环境变量生效</span></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
 <p>
                 
             

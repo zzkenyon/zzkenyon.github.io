@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>鉴权模块-zuul鉴权网关设计 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="shrio">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="场景：用户的角色不同，有不同的接口访问权限。 支持多种登录方式（用户名登录、手机号登录、ldap登录） 支持密码散列存储 支持黑名单 防暴力破解 api限流 支持高并发 需求分析： 接口权限 用户的角色属于用户属性 1对多  –&amp;gt; 数据库存储 角色的权限属于角色的属性  1对多 –&amp;gt; 数据库存储 权限对应的接口调用属于业务范围 1对多 –&amp;gt;  项目中进行配置  多登录方式意味着多">
+<meta name="keywords" content="shrio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="鉴权模块-zuul鉴权网关设计">
+<meta property="og:url" content="http://yoursite.com/child/2018/06/02/shiro-zuul鉴权网关设计/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="场景：用户的角色不同，有不同的接口访问权限。 支持多种登录方式（用户名登录、手机号登录、ldap登录） 支持密码散列存储 支持黑名单 防暴力破解 api限流 支持高并发 需求分析： 接口权限 用户的角色属于用户属性 1对多  –&amp;gt; 数据库存储 角色的权限属于角色的属性  1对多 –&amp;gt; 数据库存储 权限对应的接口调用属于业务范围 1对多 –&amp;gt;  项目中进行配置  多登录方式意味着多">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E6%B3%A8%E5%86%8C.jpeg">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E7%99%BB%E5%BD%95.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E9%89%B4%E6%9D%83.jpeg">
+<meta property="og:updated_time" content="2020-06-18T02:25:25.241Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="鉴权模块-zuul鉴权网关设计">
+<meta name="twitter:description" content="场景：用户的角色不同，有不同的接口访问权限。 支持多种登录方式（用户名登录、手机号登录、ldap登录） 支持密码散列存储 支持黑名单 防暴力破解 api限流 支持高并发 需求分析： 接口权限 用户的角色属于用户属性 1对多  –&amp;gt; 数据库存储 角色的权限属于角色的属性  1对多 –&amp;gt; 数据库存储 权限对应的接口调用属于业务范围 1对多 –&amp;gt;  项目中进行配置  多登录方式意味着多">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E6%B3%A8%E5%86%8C.jpeg">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                107
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                29
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file active"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-shiro-zuul鉴权网关设计" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/业务/">业务</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/shrio/">shrio</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">
+            <time datetime="2018-06-01T16:00:00.000Z" itemprop="datePublished">2018-06-02</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            鉴权模块-zuul鉴权网关设计
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>场景：用户的角色不同，有不同的接口访问权限。</p>
+<p>支持多种登录方式（用户名登录、手机号登录、ldap登录）</p>
+<p>支持密码散列存储</p>
+<p>支持黑名单</p>
+<p>防暴力破解</p>
+<p>api限流</p>
+<p>支持高并发</p>
+<h2 id="需求分析："><a href="#需求分析：" class="headerlink" title="需求分析："></a>需求分析：</h2><ul>
+<li><p>接口权限</p>
+<p>用户的角色属于用户属性 1对多  –&gt; 数据库存储</p>
+<p>角色的权限属于角色的属性  1对多 –&gt; 数据库存储</p>
+<p>权限对应的接口调用属于业务范围 1对多 –&gt;  项目中进行配置</p>
+</li>
+<li><p>多登录方式意味着多数据源</p>
+<p>用户名登录  需要存储用户名密码 –&gt; 关系型数据库</p>
+<p>手机号登录  需要短信服务  –&gt;付费开通短信服务</p>
+<p>Ldap登录  需要接入Ldap数据库</p>
+</li>
+<li><p>黑名单：指定用户不予登录，</p>
+<p>黑名单的存储（缓存）</p>
+<p>黑名单有效期</p>
+</li>
+<li><p>防暴力破解</p>
+<p>登录验证失败超过一定次数进入黑名单</p>
+</li>
+<li><p>api限流</p>
+<p>在单位时间内同一个用户调用同一个接口的次数是有限的</p>
+<p>要避免单位时间交界处的超频访问</p>
+</li>
+</ul>
+<h2 id="技术选型："><a href="#技术选型：" class="headerlink" title="技术选型："></a>技术选型：</h2><ol>
+<li>关系型数据库及orm框架 -&gt; mysql + mybatis </li>
+<li>黑名单缓存使用redis  -&gt; 可配置自动过期</li>
+<li>鉴权框架–&gt; apache shiro  ，轻量，支持多数据源</li>
+<li>网关 netflix.zuul</li>
+</ol>
+<h2 id="方案设计："><a href="#方案设计：" class="headerlink" title="方案设计："></a>方案设计：</h2><h3 id="登录设计"><a href="#登录设计" class="headerlink" title="登录设计"></a>登录设计</h3><p>1、 首次访问需要登陆，客户端需提供用户名密码，由shiro进行用户名/密码认证，shiro获取当前用户信息，并生成token令牌设置到response的cookie中返回给客户端（具体实现上走controller），客户端保存cookie</p>
+<p>2、 token令牌中携带uid信息，并进行数字签名防止被篡改，在TCP连接keeplive期间再次请求，服务器能从携带的token中获取到uid，不再需要登录，token需要设置有效期。</p>
+<p>3、TCP断开后，再次访问同域名下的API，客户端会带上之前发放的Token，shiro会进行token认证，此次认证不需要客户端提供用户名密码，自动登录。认证成功，shiro会获取到当前的用户信息（token中有用户名）–具体实现上走Filter</p>
+<h3 id="鉴权设计"><a href="#鉴权设计" class="headerlink" title="鉴权设计"></a>鉴权设计</h3><p>传统的三表结构</p>
+<p>User表  用户有1到多种role</p>
+<p>Role表  role有1到多个permission</p>
+<p>Permission表 </p>
+<h2 id="具体方案"><a href="#具体方案" class="headerlink" title="具体方案"></a>具体方案</h2><h3 id="关于用户系统"><a href="#关于用户系统" class="headerlink" title="关于用户系统"></a>关于用户系统</h3><p>对于一个简单的用户系统（不考虑复杂的权限控制，只考虑最单一的“合法用户”的鉴定），其功能其实可以被拆的很简单：注册、登录、鉴权。</p>
+<ul>
+<li>注册：用户将用户名和密码交给服务器，并由服务器存储的过程。</li>
+<li>登录：用户将用户名和密码交给服务器，服务器鉴定是否正确的过程（在 Token鉴权系统中，这一步如果通过，会生成并返回 Token）。</li>
+<li>鉴权：用户将 Token 发送给服务器，服务器校验该 Token 是否合法的过程（不考虑复杂鉴权）。</li>
+</ul>
+<h3 id="安全问题"><a href="#安全问题" class="headerlink" title="安全问题"></a>安全问题</h3><p>流程清楚了，我们就来分析一下问题。不考虑前端可能出现的网络抓包等问题，仅从服务器角度考虑，我们可能遇到的安全问题有以下几个：</p>
+<ul>
+<li>密码泄漏</li>
+<li>生成 Token 的 Secret Key（Salt）泄漏</li>
+<li>Token 泄漏 / 伪造</li>
+</ul>
+<p>归纳一下：我们要解决的最重要的安全问题，就是用户最机密的安全信息被泄漏或伪造。</p>
+<h3 id="鉴权设计实践"><a href="#鉴权设计实践" class="headerlink" title="鉴权设计实践"></a>鉴权设计实践</h3><p>在我最近完成的产品上，为了规避这些问题，我们在关键步骤上进行了一些处理。整个鉴权系统依赖 Apache Shiro 框架；同时，在密码处理，Token 认证上，我们结合了一些自己的解决方案。</p>
+<p>整个流程大致是这样的：（流程图软件到期了 TAT）</p>
+<h4 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E6%B3%A8%E5%86%8C.jpeg" alt="img"></p>
+<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E7%99%BB%E5%BD%95.png" alt="img"></p>
+<h4 id="鉴权"><a href="#鉴权" class="headerlink" title="鉴权"></a>鉴权</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/java%E7%BC%96%E7%A8%8B/%E9%89%B4%E6%9D%83.jpeg" alt="img"></p>
+<h4 id="关于密码加密存储与验证"><a href="#关于密码加密存储与验证" class="headerlink" title="关于密码加密存储与验证"></a>关于密码加密存储与验证</h4><p>密码是一定要进行加密存储的。用户系统最核心的数据表，就是包含用户名（ID）、加密后的密码、Salt 的表。Salt 的生成，我们使用了 Shiro 提供的随机字符串生成工具，与用户名连接后，再进行 MD5。然后使用 Salt 加密密码，然后同时保存 Salt 和加密后的密码。<br> 当用户登录时，我们使用 Salt 对用户输入的密码进行加密，再尝试与存储的密码进行匹配。</p>
+<h3 id="关于-Token-方案（JWT-Token）"><a href="#关于-Token-方案（JWT-Token）" class="headerlink" title="关于 Token 方案（JWT Token）"></a>关于 Token 方案（JWT Token）</h3><p>使用 JWT Token 作为我们的 Token 方案。</p>
+<h4 id="JWT-Token"><a href="#JWT-Token" class="headerlink" title="JWT Token"></a>JWT Token</h4><p>JWT Token 的全称是 JSON Web Token。一个 JWT Token 由三部分构成：Header，Payload，Signature。Header 规定了 Token 使用的加密方式与 Token 的类型，Payload 是 Token 中包含的用户信息（用户名，过期时间等），Signature 是 Header 的 Base64 值 + Payload 的 Base64 值 + Secret Key 生成的字符串，再对该字符串使用 Header 中规定的散列方式（HS256 或 RS256）取散列值后得到的字符串。一个典型的 JWT Token 是这个样子的：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span><span class="selector-class">.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9</span><span class="selector-class">.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// HEADER</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"alg"</span>: <span class="string">"HS256"</span>,</span><br><span class="line">  <span class="attr">"typ"</span>: <span class="string">"JWT"</span></span><br><span class="line">&#125;</span><br><span class="line">// PAYLOAD</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"sub"</span>: <span class="string">"1234567890"</span>,</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"John Doe"</span>,</span><br><span class="line">  <span class="attr">"admin"</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line">// SIGNATURE</span><br><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + "." +</span><br><span class="line">  base64UrlEncode(payload),  </span><br><span class="line">  secret</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>Header、Payload 和 Signature 用 <code>.</code> 分隔。</p>
+<p>验证 Token 的时候，我们只需要将前两段（即 Header 和 Payload 的 Base64）加上 Secret Key，然后按照 Header 规定的加密方式进行加密，将生成的字符串与第三段（Signature）比对即可。当然，Token 验证的实践上，不同的项目存在一些分歧：有些人会将生成的 Token 直接存在数据库（比如 Redis）里，然后通过 Query 的方式验证是否合法。这一点我们随后讨论。</p>
+<p>一个 JWT Token 唯一不可见的部分，就是 Secret Key。它是保证这个 Token 合法且安全的唯一字段。拿不到 Secret Key ，就无法生成 Token，也无法验证 Token。这种 Token 机制很常见（HTTPS 的握手过程就类似这样，SSH 连接也是 - 私钥只有一方持有），难点在于，如何生成并管理 Secret Key。</p>
+<h4 id="Secret-Key"><a href="#Secret-Key" class="headerlink" title="Secret Key"></a>Secret Key</h4><p>首先，所有用户使用相同的 Secret Key <strong>一定是不合理的</strong>。所以我们要解决的第一个问题是，如何为每一个用户生成唯一的 Secret Key ？</p>
+<p>还记得刚才的 Salt 么？每个用户的 Salt 都是唯一的，我们使用 Salt ，但不直接使用 Salt 作为 Secret Key。我们使用 Salt + 加密后的密码，再取 MD5 值作为该用户的 Secret Key。每次鉴权前，我们通过这个方式生成 Secret Key，再使用 Secret Key 进行鉴权。</p>
+<h3 id="安全性分析"><a href="#安全性分析" class="headerlink" title="安全性分析"></a>安全性分析</h3><p>整套系统的安全之处在于，我们没有将任何敏感信息本地化。假设一种最坏的情况：攻击者拿到了我们数据库的全部数据，他能做什么？</p>
+<ul>
+<li>获取密码：密码被加密了，而且每个用户使用不同的 Salt 进行加密，加密方法是自定义的，不知道加密方法的话难以破解。</li>
+<li>获取 Token：我们没有保存任何的 Token。</li>
+<li>获取 Secret Key：Secret Key 是算出来的，即便拿到了 Salt，不知道算法也无法直接得到 Secret Key。</li>
+</ul>
+<p>我们避免了直接保存任何安全信息。攻击者拿到的数据，都无法被直接利用。即便尝试破解，代价也是巨大的。</p>
+<h3 id="关于-Redis"><a href="#关于-Redis" class="headerlink" title="关于 Redis"></a>关于 Redis</h3><p>在我看到的一些实践中，有些项目喜欢使用 Redis 存储生成的 Token，从而简化鉴权流程，提升鉴权效率。这样做可以吗？</p>
+<p>我咨询了一位业界专家，同时查阅了相关资料，我给出的答案是：可以，但是不合理，不推荐。</p>
+<h4 id="避免用-Redis-直接存储-Token"><a href="#避免用-Redis-直接存储-Token" class="headerlink" title="避免用 Redis 直接存储 Token"></a>避免用 Redis 直接存储 Token</h4><p>还记得我们安全性分析的前提么：如果攻击者拿到了我们数据库的全部数据，他能做什么？</p>
+<p>将 Token 保存在 Redis 中，一定是有风险的。如果服务器被攻破，用户 Token 泄漏的话，在规定的过期时间内，这些被泄漏的 Token 将会使用户账户变得非常危险。</p>
+<p>当然，如果系统运行在内网环境，或者系统本身对用户安全的要求不高，这种方案从某种程度上讲，确实可以提升鉴权效率，简化鉴权流程。但是鉴于其可能存在的安全问题，不推荐。</p>
+<h4 id="可以用-Redis-缓存-Salt"><a href="#可以用-Redis-缓存-Salt" class="headerlink" title="可以用 Redis 缓存 Salt"></a>可以用 Redis 缓存 Salt</h4><p>在我们的产品设计中，我们使用 Salt 计算 Secret Key，然后再进行 Token 认证。我们可以在用户登录时把 Salt 缓存到 Redis 中以提升查询效率。</p>
+<h3 id="进一步优化"><a href="#进一步优化" class="headerlink" title="进一步优化"></a>进一步优化</h3><h4 id="使用-Payload-生成-Secret-Key"><a href="#使用-Payload-生成-Secret-Key" class="headerlink" title="使用 Payload 生成 Secret Key"></a>使用 Payload 生成 Secret Key</h4><p>现在，整个系统的安全性基本可靠了。但是，仔细分析系统的设计，还是有一点问题：每次鉴权都需要去查询 Salt，I/O 开销比较大。这恰恰也是有些人使用 Redis 的原因之一 —— 提升查询速度。</p>
+<p>仔细分析一下，我们用 Salt 当做了生成 Secret Key 的 Seed ，目的在于保证 Secret Key 唯一，同时不直接存储 Secret Key 。但其实，保持 Secret Key 唯一的方式有很多，不一定要通过 Salt 。实际上只有登录操作必须依赖 Salt，鉴权操作完全可以使用别的机制。</p>
+<p>我们可以使用 JWT 的 Payload 中的某些字段，通过特定算法生成 Secret Key。比如：有效期时间戳 + 用户名，再取 SHA256 散列值（当然可以更复杂，不过要注意性能开销）。因为生成 Secret Key 的算法是不透明的，所以 Secret Key 也是相对安全的。</p>
+<p>如果对把生成 Token 的信息放在 Payload 中心存顾虑的话，我们可以在服务器上通过静态配置文件的方式设置固定的 Secret Salt ，配合 Payload 生成 Secret Key。</p>
+<p>通过这样的方式，我们可以避免在鉴权阶段对数据库进行访问，提升响应效率。我们也可以利用 Secret Salt 进行细粒度的权限角色划分，在此就不赘述了。</p>
+<h4 id="更标准的密码加密模式"><a href="#更标准的密码加密模式" class="headerlink" title="更标准的密码加密模式"></a>更标准的密码加密模式</h4><p>关于密码加密等方式，我的老师给了我一些建议：可以使用 Blowfish 算法进行对称加密。这样的加密更标准，更安全。</p>
+<h3 id="JWT-Token-与前端"><a href="#JWT-Token-与前端" class="headerlink" title="JWT Token 与前端"></a>JWT Token 与前端</h3><h4 id="JWT-Token-应该放在哪"><a href="#JWT-Token-应该放在哪" class="headerlink" title="JWT Token 应该放在哪"></a>JWT Token 应该放在哪</h4><p>官方建议使用 Bearer 的模式，即：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Authorization: Bearer <span class="tag">&lt;<span class="name">token</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="合理使用-Payload，避免-Token-过长"><a href="#合理使用-Payload，避免-Token-过长" class="headerlink" title="合理使用 Payload，避免 Token 过长"></a>合理使用 Payload，避免 Token 过长</h4><p>JWT Token 是有 Payload 的，这从一定程度上会造成 Payload 滥用。我在 Chrome 上遇到一个奇怪的 Bug：如果 Authorization 过长，Chrome 传递这个字段的时候会发生截断。我们的产品刚开始研发的时候，过度依赖 JWT 的 Payload 传递用户基本信息（用户名、所属用户组、邮箱等），造成 Token 长度非常长。后来对 Token 进行了几次瘦身，才避免了 Chrome 上的 Bug。</p>
+<h4 id="前端真的需要依赖-Payload-吗？"><a href="#前端真的需要依赖-Payload-吗？" class="headerlink" title="前端真的需要依赖 Payload 吗？"></a>前端真的需要依赖 Payload 吗？</h4><p>答案是否定的。前端并不关心，也不应该关心 Token 的 Payload 是什么，真正使用 Payload 的应该是后端。前端获取用户信息的方式，应当是在用户登录的时候，由服务器作为 HTTP Response 回传，并使用 Cookie / Local Storage / Session Storage 进行持久化存储，而不是通过解析 Token 的 Payload 获得。</p>
+<h2 id="开发遇到的问题"><a href="#开发遇到的问题" class="headerlink" title="开发遇到的问题"></a>开发遇到的问题</h2><p>问题描述：</p>
+<p>在网关中实现鉴权，考虑到分布式环境可能不止部署一台网关服务器，因此服务器不记录会话信息（为了实现高可用）。因此首次登录之后发放accessToken，再次请求网关会携带这个token</p>
+<p>问题是，再次请求网关时，网关并不知道该请求的客户端已经登录了，因此无法获取权限信息，通过url过滤实现鉴权时，会直接跳转到登录页面</p>
+<p>这个问题的主要原因是一个url不能经过两个过滤器，然后我将token登录过滤器的逻辑集成到鉴权过滤器中，在鉴权之前先使用token登录</p>
+<p>新问题：token登录之后principal关联到accessTokenRealm，鉴权时，shiro还是会去sqlRealm中拿权限信息，然后当然拿不到，报异常。</p>
+<p>异常原因：sqlRealm中获取user的语句是这样写的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User user = (User) principals.fromRealm(<span class="keyword">this</span>.getClass().getName()).iterator().next();</span><br></pre></td></tr></table></figure>
+<p>fromRealm方法返回一个集合，当集合为空时，获取迭代器执行next操作就会报错，编码不严谨造成的低级错误，正确的做法是应该先对集合判空</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">User user;</span><br><span class="line">Collection users =  principalCollection.fromRealm(<span class="keyword">this</span>.getClass().getName());</span><br><span class="line"><span class="keyword">if</span>(users.isEmpty())&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span> ;</span><br><span class="line">&#125; <span class="keyword">else</span>&#123;</span><br><span class="line">    user = (User)users.iterator().next();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在作出以上两点修改之后，分布式网关的鉴权功能基本实现了，接下来进行优化。</p>
+<p>shrio默认使用的是<code>PermissionsAuthorizationFilter</code>来进行鉴权，我上面的做法是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccessTokenAuthorizedFilter</span> <span class="keyword">extends</span> <span class="title">PermissionsAuthorizationFilter</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String[] perms;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AccessTokenLoginFilter accessTokenLoginFilter = <span class="keyword">new</span> AccessTokenLoginFilter();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AccessTokenAuthorizedFilter</span><span class="params">(String[] perms)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.perms = perms;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isAccessAllowed</span><span class="params">(ServletRequest request, ServletResponse response, Object mappedValue)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        accessTokenLoginFilter.executeLogin(request,response);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.isAccessAllowed(request,response,perms);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样带来的缺点是不能像<code>PermissionsAuthorizationFilter</code>那样优雅的配置过滤器了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ShiroFilterFactoryBean factoryBean = <span class="keyword">new</span> ShiroFilterFactoryBean();</span><br><span class="line">Map&lt;String, Filter&gt; filterMap = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">filterMap.put(<span class="string">"permedit"</span>,<span class="keyword">new</span> AccessTokenAuthorizedFilter(<span class="keyword">new</span> String[]&#123;<span class="string">"edit"</span>&#125;));</span><br><span class="line">factoryBean.setFilters(filterMap);</span><br><span class="line">factoryBean.setSecurityManager(manager);</span><br><span class="line">LinkedHashMap&lt;String,String&gt; filterRuleMap = <span class="keyword">new</span> LinkedHashMap&lt;String, String&gt;();</span><br><span class="line"><span class="comment">//拥有edit权限</span></span><br><span class="line">filterRuleMap.put(<span class="string">"/user-provider/user/edit"</span>,<span class="string">"permedit"</span>);</span><br><span class="line">factoryBean.setFilterChainDefinitionMap(filterRuleMap);</span><br><span class="line"><span class="keyword">return</span> factoryBean;</span><br></pre></td></tr></table></figure>
+<p>接下来的优化就是看能不能有更好的设计方式，能像原生的shiro那样优雅的配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filterRuleMap.put(<span class="string">"/user-provider/user/edit"</span>,<span class="string">"perms[edit]"</span>);</span><br></pre></td></tr></table></figure>
+<p>以上问题，在我阅读shiroFilter部分的源码之后迎刃而解，详细见下一篇</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    鉴权模块-密码的散列存储
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">并发编程-执行异步任务</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
