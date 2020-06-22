@@ -17,10 +17,13 @@
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="典型的事务场景：下单、转账 事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成 MYSQL中支持事务的数据引擎：innodb  ndb 1、数据库事务的四大特性是什么？原子性  Atomicity   由undo log保证 一致性  Consistent   数据完整性 隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的 持久性">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-05-22T11:52:56.185Z">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/%E5%9B%9E%E8%A1%A8.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/Gap-NextKey.png">
+<meta property="og:updated_time" content="2020-06-19T07:08:53.361Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql-innodb的事务管理与锁">
 <meta name="twitter:description" content="典型的事务场景：下单、转账 事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成 MYSQL中支持事务的数据引擎：innodb  ndb 1、数据库事务的四大特性是什么？原子性  Atomicity   由undo log保证 一致性  Consistent   数据完整性 隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的 持久性">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/%E5%9B%9E%E8%A1%A8.png">
     
 
     
@@ -168,11 +171,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                107
+                112
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                29
+                30
                 <span>标签</span>
             </div>
         </div>
@@ -245,7 +248,7 @@
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-插件源码分析/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -263,7 +266,7 @@
                             &nbsp;
                             SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -497,9 +500,10 @@
 <p>提交结束 commit;</p>
 <p>回滚结束 rollback；</p>
 <p>连接断开 会话结束 -&gt; 事务结束</p>
-<h5 id="3、事务并发带来的问题有哪些？"><a href="#3、事务并发带来的问题有哪些？" class="headerlink" title="3、事务并发带来的问题有哪些？"></a>3、事务并发带来的问题有哪些？</h5><p>脏读（读未提交）：事务A执行一条查询，事务B修改了这部分数据但没提交，导致A读取到事务B没有提交的数据，事务B可能回滚导致事务A读取到的数据是脏数据。</p>
+<h5 id="3、事务并发带来的问题有哪些？"><a href="#3、事务并发带来的问题有哪些？" class="headerlink" title="3、事务并发带来的问题有哪些？"></a>3、事务并发带来的问题有哪些？</h5><p>脏读（读到未提交的数据）：事务A执行一条查询，事务B修改了这部分数据但没提交，导致A读取到事务B没有提交的数据，事务B可能回滚导致事务A读取到的数据是脏数据。</p>
 <p>不可重复读：事务A执行一条查询后，事务B对这部分数据执行了update/delete并提交了，导致事务A再次查询时与上一次的查询结果不一致，称为不可重复度。</p>
 <p>幻读：事务A执行一条范围查询后，事务B在此范围insert了若干条数据，导致事务A再次执行该查询是记录数增多，产生幻读。</p>
+<p><strong><em>注意：幻读和不可重复度的区别是事务B对数据进行的操作不同，幻读是insert操作，不可重复读是update和delete操作</em></strong></p>
 <p>以上三个问题称为数据库的读一致性问题，必须由数据库自己提供一定的事务隔离机制来解决</p>
 <h5 id="4、SQL92-标准"><a href="#4、SQL92-标准" class="headerlink" title="4、SQL92 标准"></a>4、SQL92 标准</h5><p>许多数据库专家联合制定了一个标准，建议数据库厂商都按照这个标准提供一定的事务隔离级别，来解决事务并发问题。</p>
 <p>看一下SQL92标准的官网：<a href="http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt" target="_blank" rel="noopener">http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt</a></p>
@@ -558,7 +562,7 @@
 </ul>
 <p>事务串行化运行，没有并发自然没有不一性问题产生，但是严重影响效率，不推荐使用</p>
 <p>不同的厂商或者数据库引擎在实现以上标准时会有一些差异。Oracle只实现了两种RC和Serializable，Innodb对以上的四种隔离级别都进行了实现，值得一提的是，innodb 对Repeatable Read 这一级别的实现同时也解决了幻读的问题，因此这一级别是innodb的默认事务隔离级别。</p>
-<h5 id="5、innodb是如何实现的呢"><a href="#5、innodb是如何实现的呢" class="headerlink" title="5、innodb是如何实现的呢?"></a>5、innodb是如何实现的呢?</h5><p>如果要解决读一致性的问题 ，保证一个事务前后两次读取数据一致，实现事务隔离级别，应该怎么做 </p>
+<h5 id="5、innodb是如何实现事务隔离级别的呢"><a href="#5、innodb是如何实现事务隔离级别的呢" class="headerlink" title="5、innodb是如何实现事务隔离级别的呢?"></a>5、innodb是如何实现事务隔离级别的呢?</h5><p>如果要解决读一致性的问题 ，保证一个事务前后两次读取数据一致，实现事务隔离级别，应该怎么做 </p>
 <p>方案一 ： LBCC 基于锁的并发控制</p>
 <p>方案二： MVCC 基于多版本的并发控制  生成一个数据请求时间点的一致性数据，并用这个快照来提供一定级别的一致性读取。</p>
 <p>首先介绍MVCC的实现原理</p>
@@ -566,35 +570,317 @@
 <p>InnoDB为每行记录都实现了三个隐藏字段</p>
 <p>DB_ROW_ID   6字节：行标识</p>
 <p>DB_TRX_ID  6字节：插入或更新行的最后一个事务ID，自动递增（理解为创建版本号）</p>
-<p>DB_ROLL_PTR：  7字节：回滚指针（理解为删除版本号）</p>
-<p>mvcc核心思想，一个事务根据自己的事务id进行判断，</p>
-<p>只能查询到创建版本号比我的事务ID小的  和  删除版本号比我事务ID大的记录  </p>
-<p>innodb的锁：</p>
-<p>锁的模式：</p>
-<p>行锁—共享锁 和 排它锁</p>
-<p>表所 — 意向排他锁 和 意向共享锁</p>
-<p>为什么需要 表级别的意向锁</p>
-<p>意向锁可以理解为表的锁标志</p>
-<p>一个事务尝试给一张表加上表锁，前提是没有其他任何事务已经锁定了这张表的任意一行，那么需要检索所有的行确定没有锁。意向锁是又来避免这种检索的</p>
-<p>锁的作用：</p>
-<p>锁的算法：在什么时候锁定什么范围</p>
-<p>记录锁</p>
-<p>间隙锁</p>
-<p>邻键锁</p>
-<p>插入意向锁 </p>
-<p>自增锁</p>
-<p>解决资源竞争的问题</p>
-<p>锁到底锁住了什么？</p>
-<p>锁住的是索引</p>
-<p>问题1 一张表没有索引或者没用到索引为什么会锁表？</p>
-<p>一张表不可能没有索引，没有显示声明索引的表，隐藏的row_id字段会作为聚集索引。。。如果查询语句没有用到索引，那只能走全表扫描，就会锁住全表</p>
-<p>问题2 为什么锁住辅助索引，会导致主键索引也被锁住？</p>
-<p>回表</p>
-<p>记录锁 —- 唯一索引 等值查询 精确匹配时</p>
-<p>间隙锁—- 锁定记录不存在的范围区间，主要用来控制插入，不同间隙的锁互相不影响</p>
-<p>邻键锁 —- 锁定查询的范围，包含记录和区间，执行了范围查询时会用到邻键锁，是行锁的默认锁定方式，以上两种是邻键锁的特殊情况</p>
-<p>innodb在RR实现里就解决幻读问题 就是依靠邻 键锁</p>
-<p>共享锁和排他锁   行所</p>
+<p>DB_ROLL_PTR：  7字节：回滚指针（理解为删除版本号）数据被删除或记录为旧数据的时候记录当前的操作事务id。</p>
+<p><strong><em>mvcc核心思想，一个事务根据自己的事务id进行判断，只能查询到创建版本号比我的事务ID小的（在我之前插入或更新的数据）  和  删除版本号比我事务ID大的记录</em></strong>  </p>
+<p>下面通过一个简单的例子说明：</p>
+<p>事务一：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 1</span></span><br><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> mvcctest <span class="keyword">values</span>(<span class="literal">NULL</span>,<span class="string">"zzk"</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> mvcctest <span class="keyword">values</span>(<span class="literal">NULL</span>,<span class="string">"pjp"</span>);</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>此时的数据，创建版本是当前的事务id，删除版本号为空；</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>事务二：执行第一次查询，读取到两天原始数据，这时事务id为2：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>事务三，插入一条数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Transaction 3</span></span><br><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> mvctest <span class="keyword">values</span>(<span class="literal">NULL</span>,<span class="string">"zpd"</span>);</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>此时的数据多了一条zpd，它的创建版号是3：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>3</td>
+<td>zpd</td>
+<td>3</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>然后事务二再进行第二次查询</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (2) 第二次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>根据MVCC的原则：只能查询创建版本比自己小的数据，所以第二次查询也只能查询2条数据。</p>
+<p>事务四：删除数据，删除了id=1 zzk这条记录</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 4</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> mvcctest <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>这时候的数据，赵政康的删除版本被记录为事务id 4，其他不变：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>3</td>
+<td>zpd</td>
+<td>3</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>然后事务二执行第三次查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (2) 第二次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (3) 第三次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>根据MVCC的查找原则：只能查询创建版本比自己小，删除版本比自己大、以及未删除的记录</p>
+<p>也就是说在事务2开始之后被删除的数据依然可以被查出来，所以查询结果依然是2条数据。</p>
+<p>事务五：执行更新操作</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 5</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">update</span> mvcctest <span class="keyword">set</span> <span class="keyword">name</span>=<span class="string">'潘佳萍'</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span>；</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>此时的数据，更新数据的时候，旧数据的删除版本被记录为当前事务id，产生一条新数据，创建版本为当前事务id</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>5</td>
+</tr>
+<tr>
+<td>3</td>
+<td>zpd</td>
+<td>3</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>2</td>
+<td>潘佳萍</td>
+<td>5</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>然后事务二执行第四次查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (2) 第二次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (3) 第三次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (4) 第四次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>查找规则：只能查询创建版本小于自己，删除版本大于自己，或者未删除的数据，所以依然是2条数据。</p>
+<p>通过以上演示我们可以看到，通过版本号的控制，无论其他事物是插入修改删除，事务2查询到的数据都没有变化。</p>
+<p>在InnoDB中，MVCC是通过undo log实现的，需要注意的是，MVCC和锁是协同使用来实现隔离性的，这两种方案并不是互斥的。</p>
+<p>Oracle、postgres等其他数据口都有MVCC的实现。</p>
+<h5 id="6、innodb中的锁"><a href="#6、innodb中的锁" class="headerlink" title="6、innodb中的锁"></a>6、innodb中的锁</h5><p>官网将锁分成了8类，这里我们将两个行级别的锁，和两个表级别的锁称为所得基本模式；后面三个Record Locks、Gap Locks、Next-Key Locks 称为锁的算法，也就是分别在上面情况下锁定什么范围。</p>
+<h6 id="6-1-共享锁"><a href="#6-1-共享锁" class="headerlink" title="6.1 共享锁"></a>6.1 共享锁</h6><p>第一个行级别的锁就是我们在广网看到的Shard Locks（共享锁），我们获取了一行数据的共享锁之后，可以用他来读取数据，所以叫他读锁。而且多个事务可以共享一把读锁。</p>
+<p>可以用<code>select... lock in share mode;</code>的方式手工加上一把读锁。</p>
+<p>释放读锁有两种方式：提交事务或断开连接</p>
+<p>读锁可以重复的获取</p>
+<h6 id="6-2-排它锁"><a href="#6-2-排它锁" class="headerlink" title="6.2 排它锁"></a>6.2 排它锁</h6><p>第二个行级别的锁叫Exclusive Locks（排它锁），它是用来操作数据的，所以又叫写锁。只要一个事务获取了一行数据的排它锁，其他的事务就不能再获取这一行数据额的共享锁和排它锁。</p>
+<p>排它锁加锁两种方式：自动（增删改查操作自动加），手动加锁</p>
+<p>手动加锁命令 在查询语句后面加上<code>for update</code>，就会给查询的数据加上一个写锁</p>
+<p>释放排它锁的方式和共享锁一样。</p>
+<h6 id="6-3-意向锁"><a href="#6-3-意向锁" class="headerlink" title="6.3 意向锁"></a>6.3 意向锁</h6><p>意向锁是数据库自己维护的。</p>
+<p>当我们你给一行数据加上共享锁之前，数据库会自动在这张表上面加上一个意向共享锁；当我们给一行数据加上排它锁之前，数据库会自动在这张表上加上一个意向排它锁。</p>
+<p>如果一张表上至少有一个意向共享锁，说明有其他的事务给其中的某些数据加上了共享锁；如果一张表上面至少有一个意向排他锁，说明有其他的事务给其中的某些数据行加 了排他锁。</p>
+<p>那么这两个表级别锁存在的意义是什么？</p>
+<p>第一个，有了表级别锁，在innodb中就可以支持更多粒度的锁；第二个，如果没有意向锁的话，当我们想要一张表加上表锁的时候，是不是必须先判断有没有其他的事务锁定了其中的一行数据，那么这时候我们要扫描整张表才能确定能不能成功加上一个表锁，如果数据量大，加表锁的效率肯定很低</p>
+<p>这是引入意向锁之后，只要判断这张表上面有没有意向锁，如果有加表锁操作直接返回失败。所以innodb中的意向表锁，我们可以把它理解成一个标志。</p>
+<h5 id="7、行锁的原理"><a href="#7、行锁的原理" class="headerlink" title="7、行锁的原理"></a>7、行锁的原理</h5><p>行锁锁住的是什么？</p>
+<p>首先我们准备三张表，一张没有索引的 t1，一张有主键索引的 t2，一张有唯一索引的 t3。</p>
+<p>我们先假设 InnoDB 的锁锁住了是一行数据或者一条记录。 </p>
+<p>我们先来看一下 t1 的表结构，它有两个字段，int 类型的 id 和 varchar 类型的 name。 里面有 4 条数据，1、2、3、4。 </p>
+<table>
+<thead>
+<tr>
+<th><strong>Transaction 1 </strong></th>
+<th>Transaction 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>SELECT * FROM t1 WHERE id =1 FOR UPDATE;</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t1 where id=3 for update; //blocked</td>
+</tr>
+<tr>
+<td></td>
+<td>INSERT INTO <code>t1</code> (<code>id</code>, <code>name</code>) VALUES (5, ‘5’); //blocked</td>
+</tr>
+</tbody>
+</table>
+<p>现在我们在两个会话里面手工开启两个事务。 </p>
+<p>在第一个事务里面，我们通过 where id =1 锁住第一行数据。 </p>
+<p>在第二个事务里面，我们尝试给 id=3 的这一行数据加锁。 </p>
+<p>这个加锁的操作被阻塞了。为什么第一个事务锁住了 id=1 的这行数据，我不能操作 </p>
+<p>id=3 的数据呢？ </p>
+<p>再来操作一条不存在的数据，插入 id=5。它也被阻塞了。实际上这里整张表都被锁 住了。所以，我们的第一个猜想被推翻了，InnoDB 的锁锁住的应该不是 Record。</p>
+<p>为什么在没有索引或者没有用到索引的情况下，会锁住整张表？这个问题我们先留 在这里。 </p>
+<p><strong>有主键索引的表</strong> </p>
+<p>我们看一下 t2 的表结构。字段是一样的，不同的地方是 id 上创建了一个主键索引。 </p>
+<p>里面的数据是 1、4、7、10。 </p>
+<table>
+<thead>
+<tr>
+<th><strong>Transaction 1 </strong></th>
+<th>Transaction 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>select * from t2 where id=1 for update;</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t2 where id=1 for update; // blocked</td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t2 where id=4 for update; // OK</td>
+</tr>
+</tbody>
+</table>
+<p>第一种情况，使用相同的 id 值去加锁，冲突；使用不同的 id 加锁，可以加锁成功。 那么，既然不是锁定一行数据，有没有可能是锁住了 id 的这个字段呢？ </p>
+<p>我们继续往下验证。 </p>
+<p><strong>唯一索引（假设锁住字段）</strong> </p>
+<p>我们看一下 t3 的表结构。字段还是一样的， id 上创建了一个主键索引，name 上 </p>
+<p>创建了一个唯一索引。里面的数据是 1、4、7、10。 </p>
+<table>
+<thead>
+<tr>
+<th><strong>Transaction 1 </strong></th>
+<th>Transaction 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>select * from t3 where name= ‘4’ for update;</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t3 where name = ‘4’ for update; // blocked</td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t3 where id = 4 for update; // blocked</td>
+</tr>
+</tbody>
+</table>
+<p>在第一个事务里面，我们通过 name 字段去锁定值是 4 的这行数据。 </p>
+<p>在第二个事务里面，尝试获取一样的排它锁，肯定是失败的。 </p>
+<p>在这里我们怀疑 InnoDB 锁住的是字段，所以换一个字段，用 id=4 去给这行数据加锁。又被阻塞了，说明锁住的是字段的这个推测也是错的，否则就不会出现第一个事务 锁住了 name，第二个字段锁住 id 失败的情况。 </p>
+<p>既然锁住的不是 record，也不是 column，InnoDB 里面锁住的到底是什么呢？在这 三个案例里面，我们要去分析一下他们的差异在哪里，也就是这三张表的结构，是什么 区别导致了加锁的行为的差异？其实答案就是索引。InnoDB 的行锁，就是通过锁住索引实现的。 </p>
+<p>那么我们还有两个问题没有解决： </p>
+<p>1、为什么表里面没有索引的时候，锁住一行数据会导致锁表？ </p>
+<p>或者说，如果锁住的是索引，一张表没有索引怎么办？ </p>
+<p>所以，一张表有没有可能没有索引？ </p>
+<p>1）如果我们定义了主键(PRIMARY KEY)，那么 InnoDB 会选择主键作为聚集索引。 </p>
+<p>2）如果没有显式定义主键，则 InnoDB 会选择第一个不包含有 NULL 值的唯一索 引作为主键索引。 </p>
+<p>3）如果也没有这样的唯一索引，则 InnoDB 会选择内置 6 字节长的 ROWID 作 为隐藏的聚集索引，它会随着行记录的写入而主键递增。 </p>
+<p>所以，为什么锁表，是因为查询没有使用索引，会进行全表扫描，然后把每一个隐 藏的聚集索引都锁住了。 </p>
+<p>2、为什么通过唯一索引给数据行加锁，主键索引也会被锁住？ </p>
+<p>大家还记得在 InnoDB 里面，当我们使用辅助索引的时候，它是怎么检索数据的吗？ 辅助索引的叶子节点存储的是什么内容？</p>
+<p>在辅助索引里面，索引存储的是二级索引和主键的值。比如name=4，存储的是name 的索引和主键 id 的值 4。 </p>
+<p>而主键索引里面除了索引之外，还存储了完整的数据。所以我们通过辅助索引锁定 一行数据的时候，它跟我们检索数据的步骤是一样的，会通过主键值找到主键索引，然 后也锁定。 </p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/%E5%9B%9E%E8%A1%A8.png" alt="回表"></p>
+<h5 id="8、锁的算法"><a href="#8、锁的算法" class="headerlink" title="8、锁的算法"></a>8、锁的算法</h5><p>t2 这张表有一个主键索引。 </p>
+<p>我们插入了 4 行数据，主键 id 分别是 1、4、7、10。 </p>
+<p>因为我们用主键索引加锁，我们这里的划分标准就是主键索引的值。 </p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/Gap-NextKey.png" alt></p>
+<p>这些数据库里面存在的主键值，我们把它叫做 Record，记录，那么这里我们就有 4 个 Record。 </p>
+<p>根据主键，这些存在的 Record 隔开的数据不存在的区间，我们把它叫做 Gap，间 隙，它是一个左开右开的区间。 </p>
+<p>假设我们有 N 个 Record，那么所有的数据会被划分成多少个 Gap 区间？答案是 N+1，就像我们把一条绳子砍 N 刀，它最后肯定是变成 N+1 段。 </p>
+<p>最后一个，间隙（Gap）连同它左边的记录（Record），我们把它叫做临键的区间， 它是一个左开右闭的区间。 </p>
+<h6 id="8-1-记录锁"><a href="#8-1-记录锁" class="headerlink" title="8.1 记录锁"></a>8.1 <strong>记录锁</strong></h6><p>第一种情况，当我们对于唯一性的索引（包括唯一索引和主键索引）使用等值查询， 精准匹配到一条记录的时候，这个时候使用的就是记录锁。 </p>
+<p>比如 where id = 1 4 7 10 。 </p>
+<p>我们使用不同的 key 去加锁，不会冲突，它只锁住这个 record。 </p>
+<h6 id="8-2-间隙锁"><a href="#8-2-间隙锁" class="headerlink" title="8.2 间隙锁"></a>8.2 <strong>间隙锁</strong></h6><p>第二种情况，当我们查询的记录不存在，没有命中任何一个 record，无论是用等值 查询还是范围查询的时候，它使用的都是间隙锁。 </p>
+<p>举个例子，where id &gt;4 and id &lt;7，where id = 6。 </p>
+<p>注意，间隙锁主要是阻塞插入 insert。相同的间隙锁之间不冲突。 </p>
+<p>Gap Lock 只在 RR 中存在，如果要关闭间隙锁，就是把事务隔离级别设置成 RC， 并且把 innodb_locks_unsafe_for_binlog 设置为 ON。 </p>
+<p>这种情况下除了外键约束和唯一性检查会加间隙锁，其他情况都不会用间隙锁。</p>
+<h6 id="8-3-临键锁"><a href="#8-3-临键锁" class="headerlink" title="8.3 临键锁"></a>8.3 <strong>临键锁</strong></h6><p>第三种情况，当我们使用了范围查询，不仅仅命中了 Record 记录，还包含了 Gap 间隙，在这种情况下我们使用的就是临键锁，它是 MySQL 里面默认的行锁算法，相当于 记录锁加上间隙锁。 </p>
+<p>唯一性索引，等值查询匹配到一条记录的时候，退化成记录锁。 </p>
+<p>没有匹配到任何记录的时候，退化成间隙锁。</p>
+<p>比如我们使用&gt;5 &lt;9， 它包含了记录不存在的区间，也包含了一个 Record 7。 </p>
+<p>临键锁，锁住最后一个 key 的下一个左开右闭的区间。 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span> &gt;<span class="number">5</span> <span class="keyword">and</span> <span class="keyword">id</span> &lt;=<span class="number">7</span> <span class="keyword">for</span> <span class="keyword">update</span>; <span class="comment">-- 锁住(4,7]和(7,10] </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span> &gt;<span class="number">8</span> <span class="keyword">and</span> <span class="keyword">id</span> &lt;=<span class="number">10</span> <span class="keyword">for</span> <span class="keyword">update</span>; <span class="comment">-- 锁住 (7,10]，(10,+∞)</span></span><br></pre></td></tr></table></figure>
+<p>为什么要锁住下一个左开右闭的区间？——就是为了解决幻读的问题。</p>
+<h5 id="9、innodb隔离级别的实现"><a href="#9、innodb隔离级别的实现" class="headerlink" title="9、innodb隔离级别的实现"></a>9、innodb隔离级别的实现</h5><h6 id="9-1-Read-Uncommited"><a href="#9-1-Read-Uncommited" class="headerlink" title="9.1 Read Uncommited"></a>9.1 Read Uncommited</h6><p>RU 隔离级别：不加锁。 </p>
+<h6 id="9-2-Serializable"><a href="#9-2-Serializable" class="headerlink" title="9.2 Serializable"></a>9.2 <strong>Serializable</strong></h6><p>Serializable 所有的 select 语句都会被隐式的转化为 <code>select ... in share mode</code>，会 和 update、delete 互斥。 </p>
+<p>这两个很好理解，主要是 RR 和 RC 的区别？ </p>
+<h6 id="9-3-Repeatable-Read"><a href="#9-3-Repeatable-Read" class="headerlink" title="9.3  Repeatable Read"></a>9.3  <strong>Repeatable Read</strong></h6><p>RR 隔离级别下，普通的 select 使用基于MVCC的快照读(snapshot read)</p>
+<p>加锁的 select(<code>select ... in share mode / select ... for update</code>)以及更新操作 update, delete 等语句使用当前读（current read），底层使用记录锁、或者间隙锁、 临键锁。 </p>
+<h6 id="9-4-Read-Commited"><a href="#9-4-Read-Commited" class="headerlink" title="9.4 Read Commited"></a>9.4 <strong>Read Commited</strong></h6><p>RC 隔离级别下，普通的 select 都是快照读，使用 MVCC 实现。 </p>
+<p>加锁的 select 都使用记录锁，因为没有 Gap Lock。 </p>
+<p>除了两种特殊情况——外键约束检查(foreign-key constraint checking)以及重复键检查(duplicate-key checking)时会使用间隙锁封锁区间。 </p>
+<p>所以 RC 会出现幻读的问题。 </p>
 
             </div>
         
@@ -607,19 +893,19 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    reids-5.0版本的高可用集群搭建
+                    彻底理解cookie/session/token
                 
             </div>
         </a>
     
     
-        <a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">彻底理解cookie/session/token</div>
+            <div class="article-nav-title">netty源码分析之PipeLine</div>
         </a>
     
 </nav>
