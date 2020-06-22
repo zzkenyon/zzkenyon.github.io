@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                112
+                113
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -258,7 +258,7 @@
                             &nbsp;
                             SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -422,6 +422,100 @@
 </aside>
             
             <section id="main">
+        <article id="post-并发编程-线程中断" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">
+            <time datetime="2018-03-20T12:36:12.000Z" itemprop="datePublished">2018-03-20</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>中断标志就是线程对象的一个成员变量，它表示一个运行中的线程是否被被其他线程进行了中断操作。中断好比其他线程对该线程打了个招呼，其他线程通过调用该线程对象的interrupt()方法对其进行中断操作。</p>
+<p>线程通过检查自身是否被中断来进行响应，线程通过对象方法 isInterrupted()来进行判断是否被中断。</p>
+<p>在线程中调用静态方法 Thread.interrupted() 对当前线程的中断标识进行复位。</p>
+<p><strong>中断与响应中断是异步的。</strong></p>
+<p>本篇将从以下两个方面来介绍Java中对线程中断机制的具体实现：</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-并发编程-基础" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -1250,100 +1344,6 @@
             </p></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-SpringBoot-入门注解介绍" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringBoot/">SpringBoot</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">
-            <time datetime="2017-05-11T16:00:00.000Z" itemprop="datePublished">2017-05-12</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><h3 id="SpringBootApplication"><a href="#SpringBootApplication" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h3><p>我们经常直接将@SpringBootApplication打在了主类上，其实更加清晰的写法应该是将主类和SpringBoot配置类分开，如下所示：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SBConfiguration</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SBApplication</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">		SpringApplication.run(SBConfiguration.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如此一来，就能比较清晰的看出主类SBApplication只是程序的入口，没有什么特殊的。调用了SpringApplication的静态方法run，并使用SpringBoot主配置类SBConfigration.class作为参数。 主配置类就是打上@SpringBootApplication注释的类，首先看一下注释SpringBootApplication的代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE&#125;) <span class="comment">//表示该注解只能用于类型</span></span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)<span class="comment">//表示该注解的生命周期可以维持到运行时</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@SpringBootConfiguration</span></span><br><span class="line"><span class="meta">@EnableAutoConfiguration</span></span><br><span class="line"><span class="meta">@ComponentScan</span>(</span><br><span class="line">    excludeFilters = &#123;<span class="meta">@Filter</span>(</span><br><span class="line">    type = FilterType.CUSTOM,</span><br><span class="line">    classes = &#123;TypeExcludeFilter.class&#125;</span><br><span class="line">    ), <span class="meta">@Filter</span>(</span><br><span class="line">    type = FilterType.CUSTOM,</span><br><span class="line">    classes = &#123;AutoConfigurationExcludeFilter.class&#125;</span><br><span class="line">    )&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SpringBootApplication &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这是一个复合注释，其中@SpringBootConfiguration代表了SpringBoot的配置类，除了测试时有些区别，大体上就是Spring标准@Configuration的替代品。</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">

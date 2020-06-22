@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                112
+                113
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -258,7 +258,7 @@
                             &nbsp;
                             SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -422,6 +422,100 @@
 </aside>
             
             <section id="main">
+        <article id="post-SpringBoot-事务源码分析" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">
+            <time datetime="2020-06-20T16:00:00.000Z" itemprop="datePublished">2020-06-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>事务源码入口：<code>PlatformTransactionManager</code>，这个接口定义了三个方法，官方给出的注释很详细：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PlatformTransactionManager</span> <span class="keyword">extends</span> <span class="title">TransactionManager</span> </span>&#123;</span><br><span class="line">  <span class="comment">//根据指定的传播行为，返回当前活动的事务或创建新的事务。</span></span><br><span class="line">  <span class="comment">//注意，隔离级别或超时等参数将仅应用于新事务，因此在参与活动事务时将被忽略。</span></span><br><span class="line">  <span class="comment">//此外，并非每个事务管理器都支持所有事务定义设置:当遇到不支持的设置时，适当的事务管理器实现应该抛出异常。</span></span><br><span class="line">  <span class="comment">//上述规则的一个例外是只读标志，如果不支持显式只读模式，则应该忽略该标志。本质上，只读标志只是潜在的优化提示。</span></span><br><span class="line">  <span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(@Nullable TransactionDefinition definition)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//提交给定事务的状态。如果事务以编程方式标记为仅回滚，则执行回滚。</span></span><br><span class="line">  <span class="comment">//如果事务不是新的，则省略commit以适当地参与周围的事务。如果之前的事务已被挂起以便能够创建新事务，则在提交新事务后恢复之前的事务。</span></span><br><span class="line">  <span class="comment">//注意，当commit调用完成时，无论正常还是抛出异常，事务都必须完全完成并清理。在这种情况下不应该期望回滚调用。</span></span><br><span class="line">  <span class="comment">//如果此方法抛出的异常不是TransactionException，那么一些提交前错误会导致提交尝试失败。例如，O/R映射工具可能试图在提交之前刷新对数据库的更改，结果导致DataAccessException导致事务失败。在这种情况下，原始异常将传播到该提交方法的调用者。</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//执行给定事务的回滚。</span></span><br><span class="line">  <span class="comment">//如果事务不是新事务，只需设置它回滚——仅用于适当地参与周围的事务。如果以前的事务已被挂起以便能够创建新事务，则在回滚新事务后恢复以前的事务。</span></span><br><span class="line">  <span class="comment">//如果提交抛出异常，不要对事务调用回滚。事务将在commit返回时已经完成并清理完毕，即使出现commit异常。因此，提交失败后的回滚调用将导致IllegalTransactionStateException异常。</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该接口的一个抽象实现类就是<code>AbstractPlatformTransactionManager</code>，这个类实现了事务管理的整个逻辑关系流程，但是把与具体事务打交道的东西又定义为抽象方法让子类去实现。</p>
+<h4 id="1、事务源码涉及的关键对象"><a href="#1、事务源码涉及的关键对象" class="headerlink" title="1、事务源码涉及的关键对象"></a>1、事务源码涉及的关键对象</h4><h5 id="1-1-事务定义-TransactionDefinition"><a href="#1-1-事务定义-TransactionDefinition" class="headerlink" title="1.1 事务定义 TransactionDefinition"></a>1.1 事务定义 <code>TransactionDefinition</code></h5><p>这是一个接口，然而并没有需要实现的方法，接口中定义了spring事务支持的传播属性、隔离级别、超时时间、只读标记等事务属性的可选值，并制定了默认值。</p>
+<h5 id="1-2-事务对象-SmartTransactionObject"><a href="#1-2-事务对象-SmartTransactionObject" class="headerlink" title="1.2 事务对象 SmartTransactionObject"></a>1.2 事务对象 <code>SmartTransactionObject</code></h5><p>不同数据源框架定义的事务对象不同，<code>SmartTransactionObject</code>只是spring-tx包定义的接口标准，不同框架对其都有自己的实现，这里我们一<code>DataSourceTransactionObject</code>为例，它是jdbc定义的事务对象</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-MyBatis-给源码加中文注释(转)" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -1255,100 +1349,6 @@
             </p></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-redis-集群搭建" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/noSql/">noSql</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/redis/">redis</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">
-            <time datetime="2019-12-30T16:00:00.000Z" itemprop="datePublished">2019-12-31</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>Redis系统介绍：</p>
-<p><a href="https://www.jianshu.com/p/2a23257af57b" target="_blank" rel="noopener">Redis的基础介绍与安装使用步骤</a><br><a href="https://www.jianshu.com/p/c95c8450c5b6" target="_blank" rel="noopener">Redis的基础数据结构与使用</a><br><a href="https://www.jianshu.com/p/4e6b7809e10a" target="_blank" rel="noopener">Redis核心原理</a><br><a href="https://www.jianshu.com/p/8045b92fafb2" target="_blank" rel="noopener">Redis 5 之后版本的高可用集群搭建</a><br><a href="https://www.jianshu.com/p/6355d0827aea" target="_blank" rel="noopener">Redis 5 版本的高可用集群的水平扩展</a><br><a href="https://www.jianshu.com/p/e6894713a6d5" target="_blank" rel="noopener">Redis 5 集群选举原理分析</a><br><a href="https://www.jianshu.com/p/575544f68615" target="_blank" rel="noopener">Redis 5 通信协议解析以及手写一个Jedis客户端</a></p>
-<hr>
-<h4 id="1-集群方案比较："><a href="#1-集群方案比较：" class="headerlink" title="1. 集群方案比较："></a>1. 集群方案比较：</h4><h5 id="1-1-哨兵模式："><a href="#1-1-哨兵模式：" class="headerlink" title="1.1 哨兵模式："></a>1.1 哨兵模式：</h5><p>在redis3.0以前的版本要实现集群一般是借助哨兵sentinel工具来监控master节点的状态，如果master节点异常，则会做主从切换，将某一台slave作为master，哨兵的配置略微复杂，并且性能和高可用性等各方面表现一般，特别是在主从切换的瞬间存在访问瞬断的情况，而且哨兵模式只有一个主节点对外提供服务，没法支持很高的并发，且单个主节点内存也不宜设置得过大，否则会导致持久化文件过大，影响数据恢复或主从同步的效率。</p>
-<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-cluster%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F.png" alt="哨兵模式"></p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/#more">查看更多</a>
             </div>
         
         <footer class="article-footer">

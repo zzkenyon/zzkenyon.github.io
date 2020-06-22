@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>SpringBoot-事务源码分析 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="SpringBoot">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="事务源码入口：PlatformTransactionManager，这个接口定义了三个方法，官方给出的注释很详细： 12345678910111213141516171819public interface PlatformTransactionManager extends TransactionManager &amp;#123;  //根据指定的传播行为，返回当前活动的事务或创建新的事务。  //注">
+<meta name="keywords" content="SpringBoot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot-事务源码分析">
+<meta property="og:url" content="http://yoursite.com/child/2020/06/21/SpringBoot-事务源码分析/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="事务源码入口：PlatformTransactionManager，这个接口定义了三个方法，官方给出的注释很详细： 12345678910111213141516171819public interface PlatformTransactionManager extends TransactionManager &amp;#123;  //根据指定的传播行为，返回当前活动的事务或创建新的事务。  //注">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/%E4%BA%8B%E5%8A%A1%E5%AF%B9%E8%B1%A1%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/%E4%BA%8B%E5%8A%A1%E7%8A%B6%E6%80%81%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png">
+<meta property="og:updated_time" content="2020-06-22T15:32:07.365Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringBoot-事务源码分析">
+<meta name="twitter:description" content="事务源码入口：PlatformTransactionManager，这个接口定义了三个方法，官方给出的注释很详细： 12345678910111213141516171819public interface PlatformTransactionManager extends TransactionManager &amp;#123;  //根据指定的传播行为，返回当前活动的事务或创建新的事务。  //注">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/%E4%BA%8B%E5%8A%A1%E5%AF%B9%E8%B1%A1%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                113
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                30
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-插件源码分析/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-SpringBoot-事务源码分析" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringBoot/">SpringBoot</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">
+            <time datetime="2020-06-20T16:00:00.000Z" itemprop="datePublished">2020-06-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            SpringBoot-事务源码分析
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>事务源码入口：<code>PlatformTransactionManager</code>，这个接口定义了三个方法，官方给出的注释很详细：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PlatformTransactionManager</span> <span class="keyword">extends</span> <span class="title">TransactionManager</span> </span>&#123;</span><br><span class="line">  <span class="comment">//根据指定的传播行为，返回当前活动的事务或创建新的事务。</span></span><br><span class="line">  <span class="comment">//注意，隔离级别或超时等参数将仅应用于新事务，因此在参与活动事务时将被忽略。</span></span><br><span class="line">  <span class="comment">//此外，并非每个事务管理器都支持所有事务定义设置:当遇到不支持的设置时，适当的事务管理器实现应该抛出异常。</span></span><br><span class="line">  <span class="comment">//上述规则的一个例外是只读标志，如果不支持显式只读模式，则应该忽略该标志。本质上，只读标志只是潜在的优化提示。</span></span><br><span class="line">  <span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(@Nullable TransactionDefinition definition)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//提交给定事务的状态。如果事务以编程方式标记为仅回滚，则执行回滚。</span></span><br><span class="line">  <span class="comment">//如果事务不是新的，则省略commit以适当地参与周围的事务。如果之前的事务已被挂起以便能够创建新事务，则在提交新事务后恢复之前的事务。</span></span><br><span class="line">  <span class="comment">//注意，当commit调用完成时，无论正常还是抛出异常，事务都必须完全完成并清理。在这种情况下不应该期望回滚调用。</span></span><br><span class="line">  <span class="comment">//如果此方法抛出的异常不是TransactionException，那么一些提交前错误会导致提交尝试失败。例如，O/R映射工具可能试图在提交之前刷新对数据库的更改，结果导致DataAccessException导致事务失败。在这种情况下，原始异常将传播到该提交方法的调用者。</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//执行给定事务的回滚。</span></span><br><span class="line">  <span class="comment">//如果事务不是新事务，只需设置它回滚——仅用于适当地参与周围的事务。如果以前的事务已被挂起以便能够创建新事务，则在回滚新事务后恢复以前的事务。</span></span><br><span class="line">  <span class="comment">//如果提交抛出异常，不要对事务调用回滚。事务将在commit返回时已经完成并清理完毕，即使出现commit异常。因此，提交失败后的回滚调用将导致IllegalTransactionStateException异常。</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该接口的一个抽象实现类就是<code>AbstractPlatformTransactionManager</code>，这个类实现了事务管理的整个逻辑关系流程，但是把与具体事务打交道的东西又定义为抽象方法让子类去实现。</p>
+<h4 id="1、事务源码涉及的关键对象"><a href="#1、事务源码涉及的关键对象" class="headerlink" title="1、事务源码涉及的关键对象"></a>1、事务源码涉及的关键对象</h4><h5 id="1-1-事务定义-TransactionDefinition"><a href="#1-1-事务定义-TransactionDefinition" class="headerlink" title="1.1 事务定义 TransactionDefinition"></a>1.1 事务定义 <code>TransactionDefinition</code></h5><p>这是一个接口，然而并没有需要实现的方法，接口中定义了spring事务支持的传播属性、隔离级别、超时时间、只读标记等事务属性的可选值，并制定了默认值。</p>
+<h5 id="1-2-事务对象-SmartTransactionObject"><a href="#1-2-事务对象-SmartTransactionObject" class="headerlink" title="1.2 事务对象 SmartTransactionObject"></a>1.2 事务对象 <code>SmartTransactionObject</code></h5><p>不同数据源框架定义的事务对象不同，<code>SmartTransactionObject</code>只是spring-tx包定义的接口标准，不同框架对其都有自己的实现，这里我们一<code>DataSourceTransactionObject</code>为例，它是jdbc定义的事务对象</p>
+<p><code>DataSourceTransactionObject</code>是<code>DataSourceTransactionManager</code>的内部类，看下面简单的类继承图</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/%E4%BA%8B%E5%8A%A1%E5%AF%B9%E8%B1%A1%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png" style="zoom:67%;"></p>
+<p>这个事务对象中最终要的成员是抽象类<code>JdbcTransactionObjectSupport</code>中定义的<code>ConnectionHolder</code>对象，它存储了该执行事务的数据库连接。</p>
+<h5 id="1-3-事务状态-TransactionStatus"><a href="#1-3-事务状态-TransactionStatus" class="headerlink" title="1.3 事务状态 TransactionStatus"></a>1.3 事务状态 <code>TransactionStatus</code></h5><p><code>TransactionStatus</code>是一个接口，它继承了其他的三个接口：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/%E4%BA%8B%E5%8A%A1%E7%8A%B6%E6%80%81%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png" style="zoom:67%;"></p>
+<p>常用的实现类是<code>DefaultTransactionStatus</code>，继承自<code>AbstractTransactionStatus</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultTransactionStatus</span> <span class="keyword">extends</span> <span class="title">AbstractTransactionStatus</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Nullable</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> Object transaction;  <span class="comment">// 事务对象</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> newTransaction; <span class="comment">// 是否为新创建的事务</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> newSynchronization; <span class="comment">// 是否开启了新事务的同步</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> readOnly; <span class="comment">// 是否为只读事务</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> debug; </span><br><span class="line">   <span class="meta">@Nullable</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> Object suspendedResources;</span><br><span class="line">   <span class="comment">// 继承的属性</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">boolean</span> rollbackOnly = <span class="keyword">false</span>;  <span class="comment">//事务是否只支持回滚</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">boolean</span> completed = <span class="keyword">false</span>; <span class="comment">// 事务是否已完成</span></span><br><span class="line">	<span class="meta">@Nullable</span></span><br><span class="line">	<span class="keyword">private</span> Object savepoint; <span class="comment">// 保存点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它持有一个事务对象的引用<code>Object transaction</code>，还记录了一下事务的状态信息</p>
+<h4 id="2、事务执行流程分析"><a href="#2、事务执行流程分析" class="headerlink" title="2、事务执行流程分析"></a>2、事务执行流程分析</h4><p>当调用的方法注解了事务，调用之前会通过cglib产生一个代理对象，cglib的动态代理的关键是实现<code>MethodInterceptor</code>接口，找到这个类，是CglibAopProxy的一个私有的内部类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CglibAopProxy</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">DynamicAdvisedInterceptor</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> AdvisedSupport advised;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="title">DynamicAdvisedInterceptor</span><span class="params">(AdvisedSupport advised)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.advised = advised;</span><br><span class="line">   &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object proxy, Method method, Object[] args, MethodProxy methodProxy)</span> </span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> Throwable</span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    retVal = <span class="keyword">new</span> CglibMethodInvocation(proxy, target, method, args, </span><br><span class="line">                                       targetClass,  chain,  methodProxy).proceed();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>intercept() 是spring aop 进行拦截的方法，spring事务基于aop实现，所以会被拦截，执行intercept方法</p>
+<p>intercept方法中不会直接开启事务，关闭事务，因为事务是aop实现的，所以事务增强逻辑肯定是封装成了一个Advisor，交给aop统一管理。</p>
+<p>那么我们就去找这个Advisor</p>
+<p>上面的代码创建了<code>CglibMethodInvocation</code>对象后执行了<code>proceed()</code>方法，进入方法发现他调用了父类<code>ReflectiveMethodInvocation</code>的<code>proceed</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">proceed</span><span class="params">()</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">   <span class="comment">// interceptorsAndDynamicMethodMatchers是拦截器链，同一个切点可能被多个advice拦截</span></span><br><span class="line">   <span class="comment">// currentInterceptorIndex为-1，这条判断其实是若拦截器链中没有拦截器，直接调用invokeJoinpoint</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.currentInterceptorIndex == <span class="keyword">this</span>.interceptorsAndDynamicMethodMatchers.size() - <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> invokeJoinpoint();</span><br><span class="line">   &#125;</span><br><span class="line">  <span class="comment">// currentInterceptorIndex先加1，再获取拦截器，</span></span><br><span class="line">   Object interceptorOrInterceptionAdvice =</span><br><span class="line">         <span class="keyword">this</span>.interceptorsAndDynamicMethodMatchers.get(++<span class="keyword">this</span>.currentInterceptorIndex);</span><br><span class="line">   <span class="keyword">if</span> (interceptorOrInterceptionAdvice <span class="keyword">instanceof</span> InterceptorAndDynamicMethodMatcher) &#123;</span><br><span class="line">      <span class="comment">// Evaluate dynamic method matcher here: static part will already have</span></span><br><span class="line">      <span class="comment">// been evaluated and found to match.</span></span><br><span class="line">      InterceptorAndDynamicMethodMatcher dm =</span><br><span class="line">            (InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;</span><br><span class="line">      Class&lt;?&gt; targetClass = (<span class="keyword">this</span>.targetClass != <span class="keyword">null</span> ? <span class="keyword">this</span>.targetClass : </span><br><span class="line">                              <span class="keyword">this</span>.method.getDeclaringClass());</span><br><span class="line">      <span class="keyword">if</span> (dm.methodMatcher.matches(<span class="keyword">this</span>.method, targetClass, <span class="keyword">this</span>.arguments)) &#123;</span><br><span class="line">         <span class="keyword">return</span> dm.interceptor.invoke(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">         <span class="comment">// 嵌套调用，执行下一个拦截器</span></span><br><span class="line">         <span class="keyword">return</span> proceed();</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// It's an interceptor, so we just invoke it: The pointcut will have</span></span><br><span class="line">      <span class="comment">// been evaluated statically before this object was constructed.</span></span><br><span class="line">      <span class="keyword">return</span> ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(<span class="keyword">this</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>跟代码可以看到获取到的拦截器是<code>TransactionInterceptor</code>类型的，中间的判断都不满足直接运行到代码的最后一行，调用<code>Invoke()</code></p>
+<p>注意：<code>TransactionInterceptor</code> 实现的<code>MethodInterceptor</code>接口与上面cglig的不是同一个，这里的<code>MethodInterceptor</code>接口只有一个方法就是<code>Invoke()</code></p>
+<p>cglib的<code>MethodInterceptor</code>接口是为了生成代理对象时插入代理逻辑</p>
+<p>此处的<code>MethodInterceptor</code>接口是为了执行代理方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TransactionInterceptor</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">   <span class="comment">// 参数invocation就是上面创建的CglibMethodInvocation，获取被代理对象的类型</span></span><br><span class="line">   Class&lt;?&gt; targetClass = (invocation.getThis() != <span class="keyword">null</span> ? </span><br><span class="line">                           AopUtils.getTargetClass(invocation.getThis()) : <span class="keyword">null</span>);</span><br><span class="line">   <span class="comment">// 终于开始进入正题了,在事务中调用方法&gt;&gt;</span></span><br><span class="line">   <span class="keyword">return</span> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>invokeWithinTransaction</code>方法是定义在父类<code>TransactionAspectSupport</code>中的，此方法代码有点长，这里节选一些关键代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">invokeWithinTransaction</span><span class="params">(Method method, @Nullable Class&lt;?&gt; targetClass,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> InvocationCallback invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">   ...</span><br><span class="line">   <span class="comment">// 获取注解属性源，此处获取到的是AnnotationTransactionAttributeSource对象</span></span><br><span class="line">   TransactionAttributeSource tas = getTransactionAttributeSource();</span><br><span class="line">   <span class="comment">// 从属性源中拿到事务的属性，RuleBasedTransactionAttribute对象</span></span><br><span class="line">   <span class="keyword">final</span> TransactionAttribute txAttr = (tas != <span class="keyword">null</span> ? </span><br><span class="line">                                        tas.getTransactionAttribute(method, targetClass) : <span class="keyword">null</span>);</span><br><span class="line">   <span class="comment">// 根据事务属性，创建事务管理器，如果没有配置事务管理器，自适应创建</span></span><br><span class="line">   <span class="keyword">final</span> PlatformTransactionManager tm = determineTransactionManager(txAttr);</span><br><span class="line">   <span class="comment">// com.pd.service.AccountService.transferAccount  就是方法的名称</span></span><br><span class="line">   <span class="keyword">final</span> String joinpointIdentification = methodIdentification(method, targetClass, txAttr);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (txAttr == <span class="keyword">null</span> || !(tm <span class="keyword">instanceof</span> CallbackPreferringPlatformTransactionManager)) &#123;</span><br><span class="line">      <span class="comment">// 创建事务，开启事务 &gt;&gt;</span></span><br><span class="line">      TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);</span><br><span class="line"></span><br><span class="line">      Object retVal;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">         <span class="comment">// 调用方法逻辑</span></span><br><span class="line">         retVal = invocation.proceedWithInvocation();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">         <span class="comment">// 目标方法抛出异常，结束事务。可能回滚，可能啥也不做</span></span><br><span class="line">         completeTransactionAfterThrowing(txInfo, ex);</span><br><span class="line">         <span class="keyword">throw</span> ex;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">finally</span> &#123;</span><br><span class="line">         <span class="comment">// 清理事务现场</span></span><br><span class="line">         cleanupTransactionInfo(txInfo);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (vavrPresent &amp;&amp; VavrDelegate.isVavrTry(retVal)) &#123;</span><br><span class="line">         <span class="comment">// Set rollback-only in case of Vavr failure matching our rollback rules...</span></span><br><span class="line">         TransactionStatus status = txInfo.getTransactionStatus();</span><br><span class="line">         <span class="keyword">if</span> (status != <span class="keyword">null</span> &amp;&amp; txAttr != <span class="keyword">null</span>) &#123;</span><br><span class="line">            retVal = VavrDelegate.evaluateTryFailure(retVal, txAttr, status);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">			<span class="comment">// 提交事务</span></span><br><span class="line">      commitTransactionAfterReturning(txInfo);</span><br><span class="line">      <span class="keyword">return</span> retVal;</span><br><span class="line">   &#125;</span><br><span class="line">	 ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这里已看到了事务创建的方法<code>createTransactionIfNecessary</code>，跟进方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> TransactionInfo <span class="title">createTransactionIfNecessary</span><span class="params">(@Nullable PlatformTransactionManager tm,</span></span></span><br><span class="line"><span class="function"><span class="params">      @Nullable TransactionAttribute txAttr, <span class="keyword">final</span> String joinpointIdentification)</span> </span>&#123;</span><br><span class="line">   <span class="comment">// 事务如果没有指定名称，用之前生成的方法切入点id作为事务名称</span></span><br><span class="line">   <span class="keyword">if</span> (txAttr != <span class="keyword">null</span> &amp;&amp; txAttr.getName() == <span class="keyword">null</span>) &#123;</span><br><span class="line">      txAttr = <span class="keyword">new</span> DelegatingTransactionAttribute(txAttr) &#123;</span><br><span class="line">         <span class="meta">@Override</span></span><br><span class="line">         <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> joinpointIdentification;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   TransactionStatus status = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">if</span> (txAttr != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (tm != <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="comment">// 就是在这里创建事务开启事务了，事务的属性传进去</span></span><br><span class="line">         status = tm.getTransaction(txAttr);</span><br><span class="line">      &#125;</span><br><span class="line">      ... <span class="comment">// 日志操作</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>跟进方法<code>getTransaction</code>，该方法将返回一个<code>TransactionStatus</code>类型的结果，这个表示为事务状态的返回结果持有创建的事务对象，以及该事务对象的一些状态信息。</p>
+<p>那我们来看一下这个获取事务的方法的整一个流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> TransactionStatus <span class="title">getTransaction</span><span class="params">(@Nullable TransactionDefinition definition)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> TransactionException </span>&#123;</span><br><span class="line">   TransactionDefinition def = (definition != <span class="keyword">null</span> ? definition : </span><br><span class="line">                                TransactionDefinition.withDefaults());</span><br><span class="line">	<span class="comment">// doGetTransaction()从当前上下文中获取事务对象，这是一个抽象方法，子类实现 &gt;&gt;</span></span><br><span class="line">   Object transaction = doGetTransaction();</span><br><span class="line">   <span class="keyword">boolean</span> debugEnabled = logger.isDebugEnabled();</span><br><span class="line">	 <span class="comment">//若被调用的事务方法已处于事务之中（事务方法A调用事务方法B）</span></span><br><span class="line">   <span class="keyword">if</span> (isExistingTransaction(transaction)) &#123;</span><br><span class="line">      <span class="comment">// 根据当前事务的传播属性，来决定下一步处理 &gt;&gt;</span></span><br><span class="line">      <span class="keyword">return</span> handleExistingTransaction(def, transaction, debugEnabled);</span><br><span class="line">   &#125;</span><br><span class="line">  </span><br><span class="line">   <span class="comment">//-----------------------当前还没有事务会往下走-----------------------</span></span><br><span class="line">   <span class="comment">// 检查超时设置是否合理</span></span><br><span class="line">   <span class="keyword">if</span> (def.getTimeout() &lt; TransactionDefinition.TIMEOUT_DEFAULT) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> InvalidTimeoutException(<span class="string">"Invalid transaction timeout"</span>, def.getTimeout());</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 若配置的事务传播属性是MANDATORY（该配置表示当前存在事务则加入，否则），抛异常</span></span><br><span class="line">   <span class="keyword">if</span> (def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalTransactionStateException(</span><br><span class="line">            <span class="string">"No existing transaction found for transaction marked with propagation 'mandatory'"</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">else</span> <span class="keyword">if</span> (def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED ||</span><br><span class="line">         def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW ||</span><br><span class="line">         def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) &#123;</span><br><span class="line">      SuspendedResourcesHolder suspendedResources = suspend(<span class="keyword">null</span>);</span><br><span class="line">      <span class="keyword">if</span> (debugEnabled) &#123;</span><br><span class="line">         logger.debug(<span class="string">"Creating new transaction with name ["</span> + def.getName() + <span class="string">"]: "</span> + def);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">         <span class="keyword">boolean</span> newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);</span><br><span class="line">         DefaultTransactionStatus status = newTransactionStatus(</span><br><span class="line">               def, transaction, <span class="keyword">true</span>, newSynchronization, debugEnabled, suspendedResources);</span><br><span class="line">         doBegin(transaction, def);  <span class="comment">//  开启一个新事务</span></span><br><span class="line">         prepareSynchronization(status, def);</span><br><span class="line">         <span class="keyword">return</span> status;</span><br><span class="line">      &#125;</span><br><span class="line">      ...</span><br><span class="line">   &#125;<span class="keyword">else</span></span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在分析以上代码之前，需要明白几个概念，最终要搞清楚几个问题：</p>
+<ol>
+<li><p>物理事务就是到数据库的一个物理链接，那么这个链接一开始是如何建立？建立好后又是如何保存起来的？</p>
+</li>
+<li><p>逻辑事务就是一个带有spring事务注解的方法，它需要关联到一个物理事务上。那它是不是先从当前上下文寻找物理事务，找到就用，否则就新开一个物理事务呢？</p>
+</li>
+<li>多个逻辑事务可以映射到一个物理事务上，逻辑事务是各自提交的，如何处理逻辑事务提交和物理事务提交间的关系呢，至少所有的逻辑事务都提交了才可以提交物理事务。</li>
+</ol>
+<p>首先来看<code>doGetTransaction()</code>这个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doGetTransaction</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="comment">// 创建事务对象（逻辑事务）</span></span><br><span class="line">   DataSourceTransactionObject txObject = <span class="keyword">new</span> DataSourceTransactionObject();</span><br><span class="line">   txObject.setSavepointAllowed(isNestedTransactionAllowed());</span><br><span class="line">   <span class="comment">// 从线程私有变量中获取物理事务</span></span><br><span class="line">   ConnectionHolder conHolder =</span><br><span class="line">         (ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());</span><br><span class="line">   <span class="comment">// 将物理事务 绑定给 逻辑事务</span></span><br><span class="line">   txObject.setConnectionHolder(conHolder, <span class="keyword">false</span>);</span><br><span class="line">   <span class="keyword">return</span> txObject;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此处创建的是一个数据源的事务对象，该事务对象中有一个很重要的成员变量是<code>ConnectionHolder</code>类型，该变量将存储处理该逻辑事务的物理事务引用。</p>
+<p>接下来的关键点是获取线程中已经获得的物理事务，在事务同步管理器<code>TransactionSynchronizationManager</code>中，有几个线程私有的变量（ThreadLocal）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionSynchronizationManager</span> </span>&#123;</span><br><span class="line">	 <span class="comment">// 存储事务资源 map的key是数据源DataSource，value是ConnectionHolder（内含数据库连接）</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Map&lt;Object, Object&gt;&gt; resources =</span><br><span class="line">         <span class="keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="string">"Transactional resources"</span>);</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Set&lt;TransactionSynchronization&gt;&gt; synchronizations =</span><br><span class="line">         <span class="keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="string">"Transaction synchronizations"</span>);</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;String&gt; currentTransactionName =</span><br><span class="line">         <span class="keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="string">"Current transaction name"</span>);</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Boolean&gt; currentTransactionReadOnly =</span><br><span class="line">         <span class="keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="string">"Current transaction read-only status"</span>);</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Integer&gt; currentTransactionIsolationLevel =</span><br><span class="line">         <span class="keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="string">"Current transaction isolation level"</span>);</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Boolean&gt; actualTransactionActive =</span><br><span class="line">         <span class="keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="string">"Actual transaction active"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>事务性资源是存储在Map&lt;Object, Object&gt;里，key就是DataSource对象，value就是ConnectionHolder对象，那么是怎么知道key和value的类型的呢？往下看会看到map的put操作</p>
+</li>
+<li><p>事务同步这个集合Set<transactionsynchronization>，只有在多个数据源的分布式事务时才使用。</transactionsynchronization></p>
+</li>
+<li><p>剩下的是四个和事务相关的变量，事务名称/是否只读/隔离级别/是否激活。*</p>
+</li>
+</ul>
+<p>获取事务对象之后，继续往下将执行<code>isExistingTransaction()</code>方法，该方法判断获取到的事务对象是否已经开启</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">isExistingTransaction</span><span class="params">(Object transaction)</span> </span>&#123;</span><br><span class="line">   DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;</span><br><span class="line">   <span class="keyword">return</span> (txObject.hasConnectionHolder() &amp;&amp;  </span><br><span class="line">           txObject.getConnectionHolder().isTransactionActive());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里主要是检查事务对象中是否设置了<code>ConnectionHolder</code>，并判断该物理事务是不是已经被激活。</p>
+<p>那么在首次执行事务方法时，事务肯定是不存在的，因为从线程的ThreadLocal里没有取出ConnectionHolder对象。那就新开一个事务，新开事务是在doBegin方法中进行的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doBegin</span><span class="params">(Object transaction, TransactionDefinition definition)</span> </span>&#123;</span><br><span class="line">   DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;</span><br><span class="line">   Connection con = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">try</span> &#123;  <span class="comment">// 若事务对象没有绑定物理资源  或者  持有的物理资源还没有和事务对象同步</span></span><br><span class="line">      <span class="keyword">if</span> (!txObject.hasConnectionHolder() ||</span><br><span class="line">            txObject.getConnectionHolder().isSynchronizedWithTransaction()) &#123;</span><br><span class="line">         <span class="comment">// 创建新连接，封装成物理资源赋值给事务对象</span></span><br><span class="line">         Connection newCon = obtainDataSource().getConnection();</span><br><span class="line">         txObject.setConnectionHolder(<span class="keyword">new</span> ConnectionHolder(newCon), <span class="keyword">true</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      txObject.getConnectionHolder().setSynchronizedWithTransaction(<span class="keyword">true</span>);</span><br><span class="line">      con = txObject.getConnectionHolder().getConnection();</span><br><span class="line"></span><br><span class="line">      Integer previousIsolationLevel = </span><br><span class="line">        DataSourceUtils.prepareConnectionForTransaction(con, definition);</span><br><span class="line">      txObject.setPreviousIsolationLevel(previousIsolationLevel);</span><br><span class="line">			<span class="comment">// 若物理连接开启了自动提交（默认开启）</span></span><br><span class="line">      <span class="keyword">if</span> (con.getAutoCommit()) &#123;</span><br><span class="line">         txObject.setMustRestoreAutoCommit(<span class="keyword">true</span>);   <span class="comment">// 存储物理连接的自动提交状态</span></span><br><span class="line">         con.setAutoCommit(<span class="keyword">false</span>);  <span class="comment">// 关闭物理连接自动提交</span></span><br><span class="line">      &#125;</span><br><span class="line">      prepareTransactionalConnection(con, definition);</span><br><span class="line">      <span class="comment">// 激活物理事务</span></span><br><span class="line">      txObject.getConnectionHolder().setTransactionActive(<span class="keyword">true</span>);</span><br><span class="line">			...</span><br><span class="line">      <span class="comment">// 将物理事务绑定到ThreadLocal变量，这里是map的put操作</span></span><br><span class="line">      <span class="keyword">if</span> (txObject.isNewConnectionHolder()) &#123;</span><br><span class="line">         TransactionSynchronizationManager.bindResource</span><br><span class="line">           (obtainDataSource(), txObject.getConnectionHolder());</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;<span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">      <span class="keyword">if</span> (txObject.isNewConnectionHolder()) &#123;</span><br><span class="line">         DataSourceUtils.releaseConnection(con, obtainDataSource());</span><br><span class="line">         txObject.setConnectionHolder(<span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> CannotCreateTransactionException(</span><br><span class="line">        <span class="string">"Could not open JDBC Connection for transaction"</span>, ex);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>新事务开启之后，继续回到<code>getTransaction()</code>方法，这个方法返回的是一个事务状态对象，继续看返回值创建的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> DefaultTransactionStatus <span class="title">newTransactionStatus</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      TransactionDefinition definition, @Nullable Object transaction, <span class="keyword">boolean</span> newTransaction,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">boolean</span> newSynchronization, <span class="keyword">boolean</span> debug, @Nullable Object suspendedResources)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">boolean</span> actualNewSynchronization = newSynchronization &amp;&amp;</span><br><span class="line">         !TransactionSynchronizationManager.isSynchronizationActive();</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> DefaultTransactionStatus(</span><br><span class="line">         transaction, newTransaction, actualNewSynchronization,</span><br><span class="line">         definition.isReadOnly(), debug, suspendedResources);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个对象有很重要的三点：</p>
+<ol>
+<li><p>它需要包含逻辑事务对象（已关联了物理事务）。</p>
+</li>
+<li><p>它需要表明这个事务是一个新开启的物理事务，还是参与到已有的物理事务。</p>
+</li>
+<li><p>它需要包含被挂起的（上一个）物理事务对象（如果有的话）。</p>
+</li>
+</ol>
+<h5 id="物理事务与逻辑事务的对应关系"><a href="#物理事务与逻辑事务的对应关系" class="headerlink" title="物理事务与逻辑事务的对应关系"></a>物理事务与逻辑事务的对应关系</h5><ul>
+<li><p>当事务A调用事务B并且传播属性允许两个逻辑事务合并时，用一个物理事务执行就可以执行两个逻辑事务，此时物理事务与逻辑事务是<strong>1对多</strong>的关系。</p>
+</li>
+<li><p>事务A中调用事务B，B的传播属性为<strong><em>Propagation.REQUIRES_NEW</em></strong>，物理事务与逻辑事务是<strong>1对1</strong>的关系</p>
+</li>
+<li>不存在1个逻辑事务对应多个物理事务的情况。</li>
+</ul>
+<h5 id="事务的挂起"><a href="#事务的挂起" class="headerlink" title="事务的挂起"></a>事务的挂起</h5><p>在一些事务的传播模式下，可能会挂起当前的事务，举例：</p>
+<p>事务A中调用事务B，B的传播属性为<strong><em>Propagation.REQUIRES_NEW</em></strong>，这时候需要将事务A挂起，创建事务B运行，创建事务B的时候会将挂起的事务A资源放到事务B的<code>TransactionStatus</code>对象中，事务B结束（提交或回滚）之后，恢复事务A继续执行</p>
+<p>挂起做了哪些工作？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doSuspend</span><span class="params">(Object transaction)</span> </span>&#123;</span><br><span class="line">   DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;</span><br><span class="line">   txObject.setConnectionHolder(<span class="keyword">null</span>);</span><br><span class="line">   <span class="keyword">return</span> TransactionSynchronizationManager.unbindResource(obtainDataSource());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将事务对象中的ConnectionHolder清空</li>
+<li>将ThreadLocal中的数据源对应的ConnectionHolder清除，并返回被清除的ConnectionHolder</li>
+<li>将返回的ConnectionHolder封装成SuspendedResourcesHolder，保存到创建的新事务对象中</li>
+</ul>
+<p>为什么要这么做？</p>
+<p>ThreadLocal资源虽然是一个map，但是这个map的数据源是key，这意味着每个线程在同一个数据源上只能使用一个连接（可以持有多个连接，但同一时间只能使用一个，单线程）。事务A在挂起的时候将物理连接保存起来，然后事务B再重新获取一个连接执行操作，事务B结束之后，再取出事务A对应的物理资源，继续执行事务A。</p>
+<p>因此可以得出结论：逻辑事务没有结束之前，对应的物理事务是不能执行其他事务操作的，物理事务上应该是保存了事务的状态信息，不能串着用</p>
+<h5 id="事务的提交"><a href="#事务的提交" class="headerlink" title="事务的提交"></a>事务的提交</h5><h5 id="事务回滚"><a href="#事务回滚" class="headerlink" title="事务回滚"></a>事务回滚</h5><p><a href="https://mp.weixin.qq.com/s/i0QmrEDZ6aTsZFFahYC_ow" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/i0QmrEDZ6aTsZFFahYC_ow</a>  </p>
+<p><a href="https://mp.weixin.qq.com/s/sysm3AY7PG9MV9584UTasg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sysm3AY7PG9MV9584UTasg</a>  </p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+    
+        <a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">MyBatis-给源码加中文注释(转)</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
