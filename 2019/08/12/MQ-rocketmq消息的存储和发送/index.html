@@ -3,24 +3,31 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>MyBatis-给源码加中文注释(转) | 黑风雅过吟</title>
+    <title>rocketmq-消息的存储和发送 | 黑风雅过吟</title>
     
     
-        <meta name="keywords" content="Mybatis">
+        <meta name="keywords" content="rocketmq">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="我们在看框架源码的时候，如果没有注释，看起来会比较吃力。所以如果能够一边看源码一边自己加中文注释，下次阅读的时候就会轻松很多。 问题是：通过maven下载的jar，查看源码，实际上看到的是经过反编译的class文件，是不能够修改的（提示：file is read only）。如果把当前maven下载的jar包强行关联到自己下载的源码，又有可能会出现字节码跟源码文件不一致的情况（提示：Library">
-<meta name="keywords" content="Mybatis">
+    <meta name="description" content="由于分布式消息队列对于可靠性的要求比较高，所以需要保证生产者将消息发送到broker之后，保证消 息是不出现丢失的，因此消息队列就少不了对于可靠性存储的要求。 MQ消息存储选择 从主流的几种MQ消息队列采用的存储方式来看，主要会有三种  分布式KV存储，比如ActiveMQ中采用的levelDB、Redis， 这种存储方式对于消息读写能力要求不 高的情况下可以使用 文件系统存储，常见的比如kafk">
+<meta name="keywords" content="rocketmq">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MyBatis-给源码加中文注释(转)">
-<meta property="og:url" content="http://yoursite.com/child/2020/04/24/MyBatis-给源码加中文注释(转)/index.html">
+<meta property="og:title" content="rocketmq-消息的存储和发送">
+<meta property="og:url" content="http://yoursite.com/child/2019/08/12/MQ-rocketmq消息的存储和发送/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
-<meta property="og:description" content="我们在看框架源码的时候，如果没有注释，看起来会比较吃力。所以如果能够一边看源码一边自己加中文注释，下次阅读的时候就会轻松很多。 问题是：通过maven下载的jar，查看源码，实际上看到的是经过反编译的class文件，是不能够修改的（提示：file is read only）。如果把当前maven下载的jar包强行关联到自己下载的源码，又有可能会出现字节码跟源码文件不一致的情况（提示：Library">
+<meta property="og:description" content="由于分布式消息队列对于可靠性的要求比较高，所以需要保证生产者将消息发送到broker之后，保证消 息是不出现丢失的，因此消息队列就少不了对于可靠性存储的要求。 MQ消息存储选择 从主流的几种MQ消息队列采用的存储方式来看，主要会有三种  分布式KV存储，比如ActiveMQ中采用的levelDB、Redis， 这种存储方式对于消息读写能力要求不 高的情况下可以使用 文件系统存储，常见的比如kafk">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-05-22T11:54:43.915Z">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketMQ%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%9A%84%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B1.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B2.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B3.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B4.png">
+<meta property="og:updated_time" content="2020-07-06T05:32:33.749Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MyBatis-给源码加中文注释(转)">
-<meta name="twitter:description" content="我们在看框架源码的时候，如果没有注释，看起来会比较吃力。所以如果能够一边看源码一边自己加中文注释，下次阅读的时候就会轻松很多。 问题是：通过maven下载的jar，查看源码，实际上看到的是经过反编译的class文件，是不能够修改的（提示：file is read only）。如果把当前maven下载的jar包强行关联到自己下载的源码，又有可能会出现字节码跟源码文件不一致的情况（提示：Library">
+<meta name="twitter:title" content="rocketmq-消息的存储和发送">
+<meta name="twitter:description" content="由于分布式消息队列对于可靠性的要求比较高，所以需要保证生产者将消息发送到broker之后，保证消 息是不出现丢失的，因此消息队列就少不了对于可靠性存储的要求。 MQ消息存储选择 从主流的几种MQ消息队列采用的存储方式来看，主要会有三种  分布式KV存储，比如ActiveMQ中采用的levelDB、Redis， 这种存储方式对于消息读写能力要求不 高的情况下可以使用 文件系统存储，常见的比如kafk">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketMQ%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95.png">
     
 
     
@@ -168,11 +175,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                113
+                116
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                30
+                31
                 <span>标签</span>
             </div>
         </div>
@@ -239,13 +246,13 @@
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
                     </li> 
                     
-                    <li class="directory open">
+                    <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder-open"></i>
+                            <i class="fa fa-folder"></i>
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-插件源码分析/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">Mybatis-与spring整合</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -329,13 +336,13 @@
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
                     </li> 
                     
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -426,7 +433,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><article id="post-MyBatis-给源码加中文注释(转)" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-MQ-rocketmq消息的存储和发送" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -436,20 +443,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/rocketmq/">rocketmq</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">
-            <time datetime="2020-04-23T16:00:00.000Z" itemprop="datePublished">2020-04-24</time>
+        <a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">
+            <time datetime="2019-08-11T16:00:00.000Z" itemprop="datePublished">2019-08-12</time>
         </a>
     </div>
 
@@ -464,7 +471,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            MyBatis-给源码加中文注释(转)
+            rocketmq-消息的存储和发送
         </h1>
     
 
@@ -477,38 +484,60 @@
             
         
         
-            <p>我们在看框架源码的时候，如果没有注释，看起来会比较吃力。所以如果能够一边看源码一边自己加中文注释，下次阅读的时候就会轻松很多。</p>
-<p>问题是：通过maven下载的jar，查看源码，实际上看到的是经过反编译的class文件，是不能够修改的（提示：file is read only）。<br>如果把当前maven下载的jar包强行关联到自己下载的源码，又有可能会出现字节码跟源码文件不一致的情况（提示：Library source does not match the bytecode for class），导致debug的时候无法进入代码。</p>
-<p>如果要保证源码和字节码一致，最好的办法当然是在本地把下载的源码编译生成jar包，上传到本地maven仓库，再引用这个jar。</p>
-<p>以MyBatis为例，如果我们要给MyBatis源码加上中文注释（以IDEA操作为例）</p>
-<p><a href="https://mp.weixin.qq.com/s/v0ihaPsuyGufdc_ImEqX8A" target="_blank" rel="noopener">原文连接</a></p>
-<h4 id="1、配置Maven"><a href="#1、配置Maven" class="headerlink" title="1、配置Maven"></a>1、配置Maven</h4><p>因为需要用Maven打包编译源代码，所以第一步是检查Maven的配置。</p>
-<p>第一个是环境变量，需要在系统变量中添加MAVEN_HOME，配置Maven主路径，例如“E:\dev\apache-maven-3.5.4”，确保mvn命令可以使用。</p>
-<p>第二个是检查Maven的配置。Maven运行时，默认会使用conf目录下的settings.xml配置，例如：E:\dev\apache-maven-3.5.4\conf\settings.xml。</p>
-<p>为了保证下载速度，建议配置成国内的aliyun中央仓库（此处需要自行搜索）。</p>
-<p>并且，settings.xml中的localRepository应该和IDEA中打开的项目设置中的Local repository保持一致（例如：E:\repository）。否则项目引入依赖时，无法读取到编译后的jar包。</p>
-<h4 id="2、下载编译MyBatis源码"><a href="#2、下载编译MyBatis源码" class="headerlink" title="2、下载编译MyBatis源码"></a>2、下载编译MyBatis源码</h4><p>因为MyBatis源码编译依赖parent项目的源码，所以第一步是编译parent项目。</p>
-<p>先从git clone两个工程的项目（截止2020年4月，最新版本是3.5.4）。</p>
-<p>以在E盘根目录下载为例。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/mybatis/parent</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/mybatis/mybatis-3</span><br></pre></td></tr></table></figure>
-<p>打开mybatis-3中的pom.xml文件，查看parent的版本号，例如：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>31<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>确定parent版本是31（记住这个数字）。</p>
-<p>把mybatis版本号改成自定义的版本号，避免跟官方版本号冲突（加上了-snapshot）：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.4-snapshot<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>进入parent目录，切换项目分支（不能在默认的master分支中编译），工程名后面的数字就是前面看到的parent版本号。</p>
-<p>开始编译parent项目：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> parent</span><br><span class="line"></span><br><span class="line">git checkout mybatis-parent-31</span><br><span class="line"></span><br><span class="line">mvn install</span><br></pre></td></tr></table></figure>
-<p>接下来编译mybatis工程，进入mybatis-3目录，切换到最新3.5.4分支（不能在默认的master分支中编译）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cd ../mybatis-3</span><br><span class="line"></span><br><span class="line">git checkout mybatis-3.5.4</span><br><span class="line"></span><br><span class="line">mvn clean</span><br><span class="line"></span><br><span class="line">mvn install -DskipTests=true -Dmaven.test.skip=true -Dlicense.skip=true</span><br></pre></td></tr></table></figure>
-<p>编译完毕，本地仓库就会出现一个编译后的jar包，例如：E:\repository\org\mybatis\mybatis\3.5.4-snapshot\mybatis-3.5.4-snapshot.jar</p>
-<p>在我们的项目中就可以引入这个jar包了（version是自定义的version）</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.4-snapshot<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h4 id="3、关联jar包到源码"><a href="#3、关联jar包到源码" class="headerlink" title="3、关联jar包到源码"></a>3、关联jar包到源码</h4><p>本地编译的jar包已经有了，接下来是把jar包和源码关联起来。</p>
-<p>Project Structure —— Libries —— Maven: org.mybatis:mybatis:3.5.4-snapshot —— 在原来的Sources上面点+（加号） —— 选择到下载的源码路径，例如：E:\mybatis-3\src\main\java，点击OK</p>
-<p>关联好之后，开始打断点debug，就会进入到本地的源码，可以给本地的源码加上注释了。</p>
-<h4 id="4、注意"><a href="#4、注意" class="headerlink" title="4、注意"></a>4、注意</h4><p>1、如果之前打开过类的字节码文件，本地可能有缓存，一样会有“Library source does not match the bytecode for class”的提示。解决办法：File —— Invalidate Caches and Restart（IDEA会重启）。</p>
-<p>2、如果添加注释导致了debug的当前行跟实际行不一致，再把mybatis3工程编译一次即可。</p>
+            <p>由于分布式消息队列对于可靠性的要求比较高，所以需要保证生产者将消息发送到broker之后，保证消 息是不出现丢失的，因此消息队列就少不了对于可靠性存储的要求。</p>
+<p><strong>MQ消息存储选择</strong></p>
+<p>从主流的几种MQ消息队列采用的存储方式来看，主要会有三种</p>
+<ol>
+<li>分布式KV存储，比如ActiveMQ中采用的levelDB、Redis， 这种存储方式对于消息读写能力要求不 高的情况下可以使用</li>
+<li>文件系统存储，常见的比如kafka、RocketMQ、RabbitMQ都是采用消息刷盘到所部署的机器上的 文件系统来做持久化，这种方案适合对于有高吞吐量要求的消息中间件，因为消息刷盘是一种高效 率，高可靠、高性能的持久化方式，除非磁盘出现故障，否则一般是不会出现无法持久化的问题</li>
+<li>关系型数据库，比如ActiveMQ可以采用mysql作为消息存储，关系型数据库在单表数据量达到千 万级的情况下IO性能会出现瓶颈，所以ActiveMQ并不适合于高吞吐量的消息队列场景。</li>
+</ol>
+<p>总的来说，对于存储效率，文件系统要优于分布式KV存储，分布式KV存储要优于关系型数据库</p>
+<p>RocketMQ就是采用文件系统的方式来存储消息，消息的存储是由ConsumeQueue和CommitLog配合 完成的。CommitLog是消息真正的物理存储文件。ConsumeQueue是消息的逻辑队列，有点类似于数据库的索引文件，里面存储的是指向CommitLog文件中消息存储的地址。</p>
+<p>每个Topic下的每个Message Queue都会对应一个ConsumeQueue文件，文件的地址是: <strong>{store_home}/consumequeue/{topicNmae}/{queueId}/​{filename}</strong>，默认路径: /root/store</p>
+<p>在rocketMQ的文件存储目录下，可以看到这样一个结构的的而文件。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketMQ%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95.png" style="zoom:50%;"></p>
+<p>我们只需要关心Commitlog、Consumequeue、Index。</p>
+<p><strong>CommitLog</strong></p>
+<p>CommitLog是用来存放消息的物理文件，每个broker上的commitLog被当前机器上的所有 consumerQueue共享，不做任何的区分。</p>
+<p>CommitLog中的文件默认大小为1G，可以动态配置；当一个文件写满以后，会生成一个新的 commitlog文件。所有的Topic数据是顺序写入在CommitLog文件中的。</p>
+<p>文件名的长度为20位，左边补0，剩余未起始偏移量，比如<br> 00000000000000000000 表示第一个文件， 文件大小为1024X1024X1024，当第一个文件写满之后，生</p>
+<p>成第二个文件<br> 000000000001073741824 表示第二个文件，起始偏移量为1073741824</p>
+<p><strong>ConsumeQueue</strong></p>
+<p>consumeQueue表示消息消费的逻辑队列，这里面包含MessageQueue在commitlog中的其实物理位 置偏移量offset，消息实体内容的大小和Message Tag的hash值。对于实际物理存储来说， consumeQueue对应每个topic和queueid下的文件，每个consumeQueue类型的文件也是有大小，每 个文件默认大小约为600W个字节，如果文件满了后会也会生成一个新的文件</p>
+<p><strong>IndexFile</strong></p>
+<p>索引文件，如果一个消息包含Key值的话，会使用IndexFile存储消息索引。Index索引文件提供了对 CommitLog进行数据检索，提供了一种通过key或者时间区间来查找CommitLog中的消息的方法。在物 理存储中，文件名是以创建的时间戳命名，固定的单个IndexFile大小大概为400M，一个IndexFile可以 保存2000W个索引</p>
+<p><strong>abort</strong></p>
+<p>broker在启动的时候会创建一个空的名为abort的文件，并在shutdown时将其删除，用于标识进程是否正常退出，如果不正常退出，会在启动时做故障恢复</p>
+<h4 id="消息存储的整体结构"><a href="#消息存储的整体结构" class="headerlink" title="消息存储的整体结构"></a>消息存储的整体结构</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%9A%84%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84.png" alt></p>
+<p>RocketMQ的消息存储采用的是混合型的存储结构，也就是Broker单个实例下的所有队列公用一个日志 数据文件CommitLog。这个是和Kafka又一个不同之处。</p>
+<p>为什么不采用kafka的设计，针对不同的partition存储一个独立的物理文件呢?这是因为在kafka的设计 中，一旦kafka中Topic的Partition数量过多，队列文件会过多，那么会给磁盘的IO读写造成比较大的压 力，也就造成了性能瓶颈。所以RocketMQ进行了优化，消息主题统一存储在CommitLog中。</p>
+<p>当然，这种设计并不是银弹，它也有它的优缺点：</p>
+<p><strong>优点在于</strong>:由于消息主题都是通过CommitLog来进行读写，ConsumerQueue中只存储很少的数据， 所以队列更加轻量化。对于磁盘的访问是串行化从而避免了磁盘的竞争</p>
+<p><strong>缺点在于</strong>:消息写入磁盘虽然是基于顺序写，但是读的过程确是随机的。读取一条消息会先读取 ConsumeQueue，再读CommitLog，会降低消息读的效率。</p>
+<h4 id="消息发送到消息接收的整体流程"><a href="#消息发送到消息接收的整体流程" class="headerlink" title="消息发送到消息接收的整体流程"></a>消息发送到消息接收的整体流程</h4><ol>
+<li>Producer将消息发送到Broker后，Broker会采用同步或者异步的方式把消息写入到CommitLog。 RocketMQ所有的消息都会存放在CommitLog中，为了保证消息存储不发生混乱，对CommitLog 写之前会加锁，同时也可以使得消息能够被顺序写入到CommitLog，只要消息被持久化到磁盘文 件CommitLog，那么就可以保证Producer发送的消息不会丢失。</li>
+</ol>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B1.png" style="zoom:50%;"></p>
+<ol start="2">
+<li>commitLog持久化后，会把里面的消息Dispatch到对应的Consume Queue上，Consume Queue 相当于kafka中的partition，是一个逻辑队列，queue中的消息存储了这个实际的消息在CommiLog中的起始offset， log大小和MessageTag的hashCode。</li>
+</ol>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B2.png" style="zoom:50%;"></p>
+<ol start="3">
+<li>当消费者进行消息消费时，会先读取consumerQueue , 逻辑消费队列ConsumeQueue保存了指 定Topic下的队列消息在CommitLog中的起始物理偏移量Offset，消息大小、和消息Tag的 HashCode值</li>
+</ol>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B3.png" style="zoom:50%;"></p>
+<ol start="4">
+<li>直接从consumequeue中读取消息是没有数据的，真正的消息主体在commitlog中，所以还需要 从commitlog中读取消息</li>
+</ol>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E6%B5%81%E7%A8%8B4.png" style="zoom:50%;"></p>
+<h4 id="什么时候清理物理消息文件"><a href="#什么时候清理物理消息文件" class="headerlink" title="什么时候清理物理消息文件?"></a>什么时候清理物理消息文件?</h4><p>消息存储在CommitLog之后，的确是会被清理的，但是这个清理只会在以下任一条件成立才会批量删除消息文件(CommitLog):</p>
+<ol>
+<li>消息文件过期(默认72小时)，且到达清理时点(默认是凌晨4点)，删除过期文件。</li>
+<li>消息文件过期(默认72小时)，且磁盘空间达到了水位线(默认75%)，删除过期文件。</li>
+<li>磁盘已经达到必须释放的上限(85%水位线)的时候，则开始批量清理文件(无论是否过期)，直到空间充足。 </li>
+</ol>
+<p>注:若磁盘空间达到危险水位线(默认90%)，出于保护自身的目的，broker会拒绝写入服务。</p>
 
             </div>
         
@@ -521,19 +550,19 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    SpringBoot-事务源码分析
+                    rocketmq-分布式事务解决方案
                 
             </div>
         </a>
     
     
-        <a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">RPC-手写RPC调用过程</div>
+            <div class="article-nav-title">rocketmq-基本原理分析</div>
         </a>
     
 </nav>

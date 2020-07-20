@@ -17,10 +17,12 @@
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="kafka虽然可以对topic进行分片，但是对于partition来说，它还是单点的，当partition所在的broker宕机了，那么这部分消息就无法被消费。所以kafka为了提高partition的可靠性，提供了副本replica的概念，通过副本机制来实现冗余备份。 每个分区可以有多个副本，并且在副本集合中会存在一个learder副本，所有的读写请求都是由leader来处理。其余的副本称为fo">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-08T02:22:43.817Z">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%9C%BA%E6%99%AF.png">
+<meta property="og:updated_time" content="2020-06-23T13:17:19.692Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kafka-副本机制">
 <meta name="twitter:description" content="kafka虽然可以对topic进行分片，但是对于partition来说，它还是单点的，当partition所在的broker宕机了，那么这部分消息就无法被消费。所以kafka为了提高partition的可靠性，提供了副本replica的概念，通过副本机制来实现冗余备份。 每个分区可以有多个副本，并且在副本集合中会存在一个learder副本，所有的读写请求都是由leader来处理。其余的副本称为fo">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%9C%BA%E6%99%AF.png">
     
 
     
@@ -168,11 +170,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                113
+                116
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                30
+                31
                 <span>标签</span>
             </div>
         </div>
@@ -245,7 +247,7 @@
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-插件源码分析/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -335,7 +337,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -478,22 +480,19 @@
         
         
             <p>kafka虽然可以对topic进行分片，但是对于partition来说，它还是单点的，当partition所在的broker宕机了，那么这部分消息就无法被消费。所以kafka为了提高partition的可靠性，提供了副本replica的概念，通过副本机制来实现冗余备份。</p>
-<p>每个分区可以有多个副本，并且在副本集合中会存在一个learder副本，所有的读写请求都是由leader来处理。其余的副本称为follower副本，follower会主动从leader同步消息日志。一般情况下，同一个分区的多个副本会被均匀的分配到集群的不同broker上，当leader所在的broker出现故障，可以重新选举新的leader副本继续外提供服务。</p>
+<p>每个分区可以有多个副本，并且在副本集合中会存在一个learder副本，所有的读写请求都是由leader来处理。其余的副本称为follower副本，follower会主动从leader同步消息日志。一般情况下，同一个分区的多个副本会被均匀的分配到集群的不同broker上，当leader所在的broker出现故障，可以重新选举新的leader副本继续向外提供服务。</p>
 <p>通过下面的命令创建一个带副本的topic</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh kafka-topic.sh --create --zookeeper 192.168.2.112:9092 --replication-factor 3 --partition 3 --topic test_topic</span><br></pre></td></tr></table></figure>
-<p><strong><em>如何知道各个分区中对应的leader是谁呢？</em></strong></p>
-<p>在zookeeper服务器上，通过如下命令去获取对应分区的信息, 比如下面这个是获取Topic第1个分区的状态信息。 </p>
+<h4 id="如何知道各个分区中对应的leader是谁呢？"><a href="#如何知道各个分区中对应的leader是谁呢？" class="headerlink" title="如何知道各个分区中对应的leader是谁呢？"></a>如何知道各个分区中对应的leader是谁呢？</h4><p>在zookeeper服务器上，通过如下命令去获取对应分区的信息，比如下面这个是获取Topic第1个分区的状态信息。 </p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get /brokers/topics/topicName/partitions/1/state</span><br></pre></td></tr></table></figure>
 <p>{“controller_epoch”:12,”leader”:0,”version”:1,”leader_epoch”:0,”isr”:[0,1]} </p>
 <p>或通过这个命令 </p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh kafka-topics.sh --zookeeper 192.168.13.106:2181 --describe --topic test_partition</span><br></pre></td></tr></table></figure>
 <p>leader表示当前分区的leader是那个broker-id。</p>
-<p>需要注意的是，kafka集群中的一个broker中最多只能持有一个分区的一个副本，leader副本所在的broker节点的</p>
-<p>分区叫leader节点，follower副本所在的broker节点的分区叫follower节点。</p>
-<p><strong><em>副本同步中的重要概念</em></strong></p>
-<p>Kafka提供了数据复制算法保证，如果leader副本所在的broker节点宕机或者出现故障，或者分区的 leader节点发生故障，这个时候怎么处理呢？ </p>
-<p>那么，kafka必须要保证从follower副本中选择一个新的leader副本。那么kafka是如何实现选举的呢？ 要了解leader选举，我们需要了解几个概念 </p>
-<p>Kafka分区下有可能有很多个副本(replica)用于实现冗余，从而进一步实现高可用。副本根据角色的不同 可分为3类： </p>
+<p>需要注意的是，kafka集群中的一个broker中最多只能持有一个分区的一个副本，leader副本所在的broker节点叫<strong>分区的leader节点</strong>，follower副本所在的broker节点叫<strong>分区的follower节点</strong>。</p>
+<h4 id="副本同步中的重要概念"><a href="#副本同步中的重要概念" class="headerlink" title="副本同步中的重要概念"></a>副本同步中的重要概念</h4><p>Kafka提供了数据复制算法保证，如果leader副本所在的broker节点宕机或者出现故障，或者分区的 leader节点发生故障，这个时候怎么处理呢？ </p>
+<p>kafka必须要保证从follower副本中选择一个新的leader副本。那么kafka是如何实现选举的呢？ 要了解leader选举，我们需要了解几个概念 </p>
+<p>Kafka分区下有可能有很多个副本(replica)用于实现冗余，从而进一步实现高可用。副本根据角色的不同可分为3类： </p>
 <ul>
 <li><p>leader副本：响应clients端读写请求的副本 </p>
 </li>
@@ -504,60 +503,49 @@
 </ul>
 <p>每个Kafka副本对象都有两个重要的属性：<strong><em>LEO</em></strong>和<strong><em>HW</em></strong>。注意是所有的副本，而不只是 leader副本。 </p>
 <ul>
-<li>LEO：即日志末端位移(log end offset)，记录了该副本底层日志(log)中下一条消息的offset。</li>
-</ul>
+<li><p>LEO：日志末端位移（Log End Offset），记录了该副本底层日志(log)中下一条消息的offset。</p>
 <p>注意是下 一条消息！也就是说，如果LEO=10，那么表示该副本保存了10条消息，位移值范围是[0, 9]。另外， leader LEO和follower LEO的更新是有区别的。</p>
-<ul>
-<li>HW：即上面提到的水位值。对于同一个副本对象而言，其HW值不会大于LEO值。小于等于HW值的所有消息都被认为是“已备份”的（replicated）。</li>
+</li>
+<li><p>HW：高水位（High Water），对于同一个副本对象而言，其HW值不会大于LEO值。小于等于HW值的所有消息都被认为是<strong>已备份</strong>的。</p>
+</li>
 </ul>
 <p>同理，leader副本和follower副本的HW更新是有区别的 </p>
-<p>从生产者发出的 一 条消息首先会被写入分区的leader 副本，不过还需要等待ISR集合中的所有 follower副本都同步完之后才能被认为已经提交，之后才会更新分区的HW, 进而消费者可以消费到这条消息。 </p>
-<p><strong><em>副本协同机制</em></strong> </p>
-<p>刚刚提到了，消息的读写操作都只会由leader节点来接收和处理。follower副本只负责同步数据以及当leader副本所在的broker挂了以后，会从follower副本中选取新的leader。写请求首先由Leader副本处理，之后follower副本会从leader上拉取写入的消息，这个过程会有一定的延迟，导致follower副本中保存的消息略少于leader副本，但是只要没有超出阈值都可以容忍。</p>
-<p>但是如果一个follower副本出现异常，比如宕机、网络断开等原因长时间没有同步到消息，那这个时候，leader就会把它踢出去。kafka通过ISR集合来维护一个分区副本信息</p>
-<p>一个新leader被选举并被接受客户端的消息成功写入。Kafka确保从同步副本列表中选举一个副本为 leader；leader负责维护和跟踪ISR(in-Sync replicas ，副本同步队列)中所有follower滞后的状态。当 producer发送一条消息到broker后，leader写入消息并复制到所有follower。消息提交之后才被成功复制到所有的同步副本。 </p>
-<p><strong><em>ISR集合</em></strong></p>
-<p>ISR表示目前“可用且消息量与leader相差不多的副本集合，这是整个副本集合的一个子集”。怎么去理解<u><em>可用</em></u>和<u><em>相差不多</em></u>这两个词呢？具体来说，ISR集合中的副本必须满足两个条件 ：</p>
+<p>从生产者发出的一条消息首先会被写入分区的leader 副本，不过还需要等待ISR集合中的所有 follower副本都同步完之后才能被认为已经提交，之后才会更新分区的HW， 进而消费者可以消费到这条消息。 </p>
+<h4 id="副本协同机制"><a href="#副本协同机制" class="headerlink" title="副本协同机制"></a>副本协同机制</h4><p>刚刚提到了，消息的读写操作都只会由leader节点来接收和处理。follower副本只负责同步数据以及当leader副本所在的broker挂了以后，会从follower副本中选取新的leader。写请求首先由Leader副本处理，之后follower副本会从leader上拉取写入的消息，这个过程会有一定的延迟，导致follower副本中保存的消息略少于leader副本，但是只要没有超出阈值都可以容忍。</p>
+<p>但是如果一个follower副本出现异常，比如宕机、网络断开等原因长时间没有同步到消息，那这个时候，leader就会把它踢出去。kafka通过ISR集合来维护一个分区副本信息，leader负责维护和跟踪ISR中所有follower滞后的状态。当 producer发送一条消息到broker后，leader写入消息并复制到所有follower。消息提交之后才被成功复制到所有的同步副本。 </p>
+<h4 id="ISR集合"><a href="#ISR集合" class="headerlink" title="ISR集合"></a>ISR集合</h4><p>ISR表示目前”可用且消息量与leader相差不多的副本集合，这是整个副本集合的一个子集”。怎么去理解<strong><u><em>可用</em></u></strong>和<strong><u><em>相差不多</em></u></strong>这两个词呢？具体来说，ISR集合中的副本必须满足两个条件 ：</p>
 <ol>
 <li><p>副本所在节点必须维持着与zookeeper的连接 ；</p>
 </li>
-<li><p>副本最后一条消息的offset与leader副本的最后一条消息的offset之间的差值不能超过指定的阈值 。</p>
+<li><p>副本最后一条消息的offset与leader副本的最后一条消息的offset（也就是LEO）之间的差值不能超过指定的阈值 。</p>
 </li>
 </ol>
-<p>ISR数据保存在Zookeeper的 /brokers/topics/<topic>/partitions/<partitionid>/state 节点中。</partitionid></topic></p>
-<p>follower副本把leader副本LEO之前的日志全部同步完成时，则认为follower副本已经追赶上了leader 副本，这个时候会更新这个副本的<code>lastCaughtUpTimeMs</code>标识；</p>
+<p>ISR数据保存在Zookeeper的 <code>/brokers/topics/&lt;topic&gt;/partitions/&lt;partitionId&gt;/state</code> 节点中。</p>
+<p>follower副本把leader副本LEO之前的日志全部同步完成时，则认为follower副本已经追赶上了leader 副本，这个时候会更新这个副本的<code>lastCaughtUpTimeMs</code>标识，顾名思义，最后一次赶上的时间</p>
 <p>kafk副本管理器会启动一个副本过期检查的定时任务，这个任务会定期检查当前时间与副本<code>lastCaughtUpTimeMs</code>的差值是否大于参数 <code>replica.lag.time.max.ms</code> 的值，如果大于，则会把这个副本踢出ISR集合</p>
 <hr>
-<p><strong><em>副本同步原理</em></strong></p>
-<p>了解了副本的协同过程以后，还有一个最重要的机制，就是数据的同步过程。它需要解决 </p>
+<h4 id="副本同步原理"><a href="#副本同步原理" class="headerlink" title="副本同步原理"></a>副本同步原理</h4><p>了解了副本的协同过程以后，还有一个最重要的机制，就是数据的同步过程。它需要解决 </p>
 <ol>
 <li><p>怎么传播消息 </p>
 </li>
 <li><p>在向消息发送端返回ack之前需要保证多少个Replica已经接收到这个消息</p>
 </li>
 </ol>
-<p>Producer在发布消息到某个Partition时， </p>
+<p>Producer在发布消息到某个Partition时：</p>
 <ol>
-<li><p>先通过ZooKeeper找到该Partition的Leader ，<code>get /brokers/topics/&lt;topic&gt;/partitions/2/state</code> ，然后无论该Topic的Replication Factor为多 少（也即该Partition有多少个Replica），Producer只将该消息发送到该Partition的Leader。 </p>
-</li>
-<li><p>Leader会将该消息写入其本地Log。每个Follower都从Leader pull数据。这种方式上，Follower存储的数据顺序与Leader保持一致。Follower在收到该消息并写入其Log后，向Leader发送ACK。 </p>
-</li>
-<li><p>一旦Leader收到了ISR中的所有Replica的ACK，该消息就被认为已经commit了，Leader将增加 HW并且向Producer发送ACK。 </p>
-</li>
+<li>先通过ZooKeeper找到该Partition的Leader ，<code>get /brokers/topics/&lt;topic&gt;/partitions/2/state</code> ，然后无论该Topic的Replication Factor为多 少（也即该Partition有多少个Replica），Producer只将该消息发送到该Partition的Leader。 </li>
+<li>Leader会将该消息写入其本地Log。每个Follower都从Leader pull数据。这种方式上，Follower存储的数据顺序与Leader保持一致。Follower在收到该消息并写入其Log后，向Leader发送ACK。 </li>
+<li>一旦Leader收到了ISR中的所有follower的ACK，该消息就被认为已经commit了，Leader将增加 HW值并且向Producer发送ACK。 </li>
 </ol>
-<p><strong>LEO</strong>：即日志末端位移(log end offffset)，记录了该副本底层日志(log)中下一条消息的位移值。注意是下 一条消息！也就是说，如果LEO=10，那么表示该副本保存了10条消息，位移值范围是[0, 9]。另外， leader LEO和follower LEO的更新是有区别的。</p>
-<p><strong>HW</strong>：即上面提到的水位值（Hight Water）。对于同一个副本对象而言，其HW值不会大于LEO值。小于等于HW值的所有消息都被认为是“已备份”的（replicated）。同理，leader副本和follower副本的 HW更新是有区别的 通过下面这幅图来表达LEO、HW的含义，随着follower副本不断和leader副本进行数据同步，follower 副本的LEO会逐渐后移并且追赶到leader副本，这个追赶上的判断标准是当前副本的LEO是否大于或者 等于leader副本的HW，这个追赶上也会使得被踢出的follower副本重新加入到ISR集合中。 </p>
-<p>另外， 假如说follower副本被踢出ISR集合，也会导致这个分区的HW发生变化。</p>
-<p><strong>初始状态</strong> </p>
-<p>初始状态下，leader和follower的HW和LEO都是0，leader副本会保存remote LEO，表示所有follower LEO，也会被初始化为0，这个时候，producer没有发送消息。follower会不断地个leader发送FETCH请求，但是因为没有数据，这个请求会被leader寄存，当在指定的时间之后会强制完成请求，这个时间配置是：</p>
+<p>此外， 假如某工作不积极的follower副本被踢出ISR集合，也会导致这个分区的HW发生变化，一般是增加</p>
+<h5 id="1、初始状态"><a href="#1、初始状态" class="headerlink" title="1、初始状态"></a>1、初始状态</h5><p>初始状态下，leader和follower的HW和LEO都是0，leader副本会保存remote LEO，表示所有follower LEO，也会被初始化为0，这个时候，producer没有发送消息。follower会不断地个leader发送<strong>FETCH</strong>请求，但是因为没有数据，这个请求会被leader寄存，当在指定的时间之后会强制完成请求，这个时间配置是：</p>
 <p><code>replica.fetch.wait.max.ms</code></p>
 <p>如果在指定时间内producer有消息发送过来，那么kafka会唤醒 fetch请求，让leader继续处理。</p>
 <p>数据的同步处理会分两种情况，这两种情况下处理方式是不一样的 </p>
 <p>第一种是leader处理完producer请求之后，follower发送一个fetch请求过来 </p>
 <p>第二种是follower阻塞在leader指定时间之内，leader副本收到producer的请求。 </p>
 <p>首先要清楚，fetch请求会携带当前follower的LEO，leader响应会携带当前leader的HW</p>
-<p><strong>第一种情况</strong> </p>
-<p><strong>生产者发送一条消息</strong> </p>
+<h5 id="2、第一种情况"><a href="#2、第一种情况" class="headerlink" title="2、第一种情况"></a>2、第一种情况</h5><p><strong>生产者发送一条消息</strong> </p>
 <p>leader处理完producer请求之后，follower发送一个fetch请求过来 。</p>
 <p>leader副本收到请求以后，会做几件事情 </p>
 <ol>
@@ -567,7 +555,7 @@
 </li>
 </ol>
 <p><strong>follower fetch消息</strong></p>
-<p>follower 发送fetch请求，leader副本的处理逻辑是: </p>
+<p>follower 发送第一次fetch请求，leader副本的处理逻辑是: </p>
 <ol>
 <li>读取log数据、更新remote LEO=0(follower还没有写入这条消息，这个值是根据follower的fetch </li>
 </ol>
@@ -586,7 +574,7 @@
 </li>
 </ol>
 <p>第一次交互结束以后，HW仍然还是0，这个值会在下一次follower发起fetch请求时被更新</p>
-<p>follower发第二次fetch请求，leader收到请求以后 </p>
+<p>follower发第二次fetch请求，leader收到请求以后 ：</p>
 <ol>
 <li><p>读取log数据 </p>
 </li>
@@ -601,12 +589,11 @@
 <ol>
 <li><p>如果有数据则写本地日志，并且更新LEO </p>
 </li>
-<li><p>没有数据则更新follower的HW值 </p>
+<li><p>更新follower的HW值为 <code>MIN(本地LEO值，leader响应的HW值)</code></p>
 </li>
 </ol>
 <p>到目前为止，数据的同步就完成了，意味着消费端能够消费offset=1这条消息。 </p>
-<p><strong>第二种情况</strong> </p>
-<p>前面说过，由于leader副本暂时没有数据过来，所以follower的fetch会被阻塞，直到等待超时或者leader接收到新的数据。当leader收到请求以后会唤醒处于阻塞的fetch请求。处理过程基本上和前面说的一致 </p>
+<h5 id="3、第二种情况"><a href="#3、第二种情况" class="headerlink" title="3、第二种情况"></a>3、第二种情况</h5><p>前面说过，由于leader副本暂时没有数据过来，所以follower的fetch会被阻塞，直到等待超时或者leader接收到新的数据。当leader收到请求以后会唤醒处于阻塞的fetch请求。处理过程基本上和前面说的一致 </p>
 <ol>
 <li><p>leader将消息写入本地日志，更新Leader的LEO </p>
 </li>
@@ -615,21 +602,35 @@
 <li><p>更新HW </p>
 </li>
 </ol>
-<p>kafka使用HW和LEO的方式来实现副本数据的同步，本身是一个好的设计，但是在这个地方会存在一个 数据丢失的问题，当然这个丢失只出现在特定的背景下。我们回想一下，HW的值是在新的一轮FETCH 中才会被更新。我们分析下这个过程为什么会出现数据丢失</p>
-<hr>
-<p><strong><em>数据丢失</em></strong></p>
-<p>当<code>ack=-1</code>（所有ISR集合中的副本一起才能确认提交）且<code>min.insync.replicas=1</code>(设定ISR能允许的最小副本数)</p>
+<p>kafka使用HW和LEO的方式来实现副本数据的同步，本身是一个好的设计，但是在这个地方会存在一个数据丢失的问题，当然这个丢失只出现在特定的背景下。我们回想一下，leader的HW值是在下一轮FETCH 中才会被更新。接下来分析下这个过程为什么会出现数据丢失。</p>
+<h4 id="数据丢失"><a href="#数据丢失" class="headerlink" title="数据丢失"></a>数据丢失</h4><p>当<code>ack=-1</code>（所有ISR集合中的副本一起才能确认提交）且<code>min.insync.replicas=1</code>(设定ISR能允许的最小副本数)</p>
 <p>这时候可能会发生数据丢失。</p>
-<hr>
-<p><strong><em>Leader副本的选举过程</em></strong></p>
-<ol>
-<li><p>KafkaController会监听ZooKeeper的/brokers/ids节点路径，一旦发现有broker挂了，执行下面 的逻辑。这里暂时先不考虑KafkaController所在broker挂了的情况，KafkaController挂了，各个 broker会重新leader选举出新的KafkaController </p>
+<p>这种情况下，消息一旦被写入leader就会被认为是“已提交”，而延迟一轮FETCH 更新HW值的设计使得follower HW值是异步延迟更新的，倘若在这个过程中leader发生变更，那么成为新leader的 follower的HW值就有可能是过期的，使得clients端认为是成功提交的消息被删除。</p>
+<p>日志截断：副本重启之后，会将副本的HW值设为当前副本的LEO值。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%9C%BA%E6%99%AF.png" alt></p>
+<p><strong>数据丢失的解决方案</strong></p>
+<p>在kafka0.11.0.0版本之后，引入了一个leader epoch来解决这个问题，所谓的leader epoch实际上是 一对值(epoch，offset)，epoch代表leader的版本号，从0开始递增，当leader发生过变更，epoch 就+1，而offset则是对应这个epoch版本的leader写入第一条消息的offset，比如</p>
+<p>(0,0), (1,50) ,表示第一个leader从offset=0开始写消息，一共写了50条。第二个leader版本号是1，从 offset=50开始写，这个信息会持久化在对应的分区的本地磁盘上，文件名是：</p>
+<p><code>/tmp/kafka-log/topic/leader-epoch-checkpoint</code></p>
+<p> leader broker中会保存这样一个缓存，并且定期写入到checkpoint文件中</p>
+<p>当leader写log时它会尝试更新整个缓存: 如果这个leader首次写消息，则会在缓存中增加一个条目；否则就不做更新。而每次副本重新成为leader时会查询这部分缓存，获取出对应leader版本的offset</p>
+<p>我们基于同样的情况来分析，follower宕机并且恢复之后，有两种情况，如果这个时候leader副本没有挂，也就是意味着没有发生leader选举，那么follower恢复之后并不会去截断自己的日志，而是先发送 一个<strong><code>OffsetsForLeaderEpochRequest</code></strong>请求给到leader副本，leader副本收到请求之后返回当前的 LEO。</p>
+<p>如果follower副本的leaderEpoch和leader副本的epoch相同， leader的LEO只可能大于或者等于 follower副本的LEO值，所以这个时候不会发生截断。</p>
+<p>如果follower副本和leader副本的epoch值不同，那么leader副本会查找follower副本传过来的 epoch+1在本地文件中存储的StartOffset返回给follower副本，也就是新leader副本在成为leader之前写的最后一条数据的offset。这样也可以避免了数据丢失的问题。</p>
+<p>如果leader副本宕机了重新选举新的leader，那么原本的follower副本就会变成leader，意味着epoch 从0变成1，使得原本follower副本中LEO的值的得到了保留。</p>
+<h4 id="Leader副本的选举过程"><a href="#Leader副本的选举过程" class="headerlink" title="Leader副本的选举过程"></a>Leader副本的选举过程</h4><ol>
+<li><p>KafkaController会监听ZooKeeper的<code>/brokers/ids</code>节点路径，一旦发现有broker挂了，执行下面 的逻辑。这里暂时先不考虑KafkaController所在broker挂了的情况，KafkaController挂了，各个 broker会重新leader选举出新的KafkaController </p>
 </li>
 <li><p>leader副本在该broker上的分区就要重新进行leader选举，目前的选举策略是 </p>
-<p>a) 优先从isr列表中选出第一个作为leader副本，这个叫优先副本，理想情况下有限副本就是该分 区的leader副本 </p>
-<p>b) 如果isr列表为空，则查看该topic的<code>unclean.leader.election.enable</code>配置。 </p>
-<p>unclean.leader.election.enable：为true则代表允许选用非isr列表的副本作为leader，那么此 时就意味着数据可能丢失；为 false的话，则表示不允许，直接抛出NoReplicaOnlineException异常，造成leader副本选举失 败。 </p>
-<p>c) 如果上述配置为true，则从其他副本中选出一个作为leader副本，并且isr列表只包含该leader 副本。一旦选举成功，则将选举后的leader和isr和其他副本信息写入到该分区的对应的zk路径上。 </p>
+<ol>
+<li><p>优先从ISR列表中选出第一个作为leader副本，这个叫优先副本，理想情况下有限副本就是该分区的leader副本 </p>
+</li>
+<li><p>如果ISR列表为空，则查看该topic的<code>unclean.leader.election.enable</code>配置。 </p>
+<p> unclean.leader.election.enable：为true则代表允许选用非ISR列表中的副本作为leader，那么此时就意味着数据可能丢失；为 false的话，则表示不允许，直接抛出<code>NoReplicaOnlineException</code>异常，造成leader副本选举失败。 </p>
+</li>
+<li><p>如果上述配置为true，则从其他副本中选出一个作为leader副本，并且isr列表只包含该leader 副本。一旦选举成功，则将选举后的leader和ISR和其他副本信息写入到该分区的对应的zk路径上。 </p>
+</li>
+</ol>
 </li>
 </ol>
 

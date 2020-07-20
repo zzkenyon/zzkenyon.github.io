@@ -3,24 +3,29 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>Mybatis-与spring整合 | 黑风雅过吟</title>
+    <title>rocketmq-分布式事务解决方案 | 黑风雅过吟</title>
     
     
-        <meta name="keywords" content="Mybatis">
+        <meta name="keywords" content="rocketmq">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="在Mybatis原生的API中，有三个对外提供的核心对象  SqlSessionFactory SqlSession getMapper()方法返回的代理对象（包含H对象–MapperProxy）  虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。 Mybatis基于Spring的扩展接口，对">
-<meta name="keywords" content="Mybatis">
+    <meta name="description" content="X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事">
+<meta name="keywords" content="rocketmq">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mybatis-与spring整合">
-<meta property="og:url" content="http://yoursite.com/child/2019/03/15/Mybatis-与spring整合/index.html">
+<meta property="og:title" content="rocketmq-分布式事务解决方案">
+<meta property="og:url" content="http://yoursite.com/child/2019/08/14/MQ-rocketmq分布式事务解决方案/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
-<meta property="og:description" content="在Mybatis原生的API中，有三个对外提供的核心对象  SqlSessionFactory SqlSession getMapper()方法返回的代理对象（包含H对象–MapperProxy）  虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。 Mybatis基于Spring的扩展接口，对">
+<meta property="og:description" content="X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T02:11:35.829Z">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E5%90%8C%E5%BF%97%E6%96%B9%E6%A1%88.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-TCC%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%96%B9%E6%A1%88.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF.png">
+<meta property="og:updated_time" content="2020-07-06T05:32:58.183Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mybatis-与spring整合">
-<meta name="twitter:description" content="在Mybatis原生的API中，有三个对外提供的核心对象  SqlSessionFactory SqlSession getMapper()方法返回的代理对象（包含H对象–MapperProxy）  虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。 Mybatis基于Spring的扩展接口，对">
+<meta name="twitter:title" content="rocketmq-分布式事务解决方案">
+<meta name="twitter:description" content="X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png">
     
 
     
@@ -168,11 +173,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                113
+                116
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                30
+                31
                 <span>标签</span>
             </div>
         </div>
@@ -239,13 +244,13 @@
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
                     </li> 
                     
-                    <li class="directory open">
+                    <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder-open"></i>
+                            <i class="fa fa-folder"></i>
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-插件源码分析/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -329,13 +334,13 @@
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
                     </li> 
                     
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -426,7 +431,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><article id="post-Mybatis-与spring整合" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-MQ-rocketmq分布式事务解决方案" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -436,20 +441,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/rocketmq/">rocketmq</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">
-            <time datetime="2019-03-14T16:00:00.000Z" itemprop="datePublished">2019-03-15</time>
+        <a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">
+            <time datetime="2019-08-13T16:00:00.000Z" itemprop="datePublished">2019-08-14</time>
         </a>
     </div>
 
@@ -464,7 +469,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            Mybatis-与spring整合
+            rocketmq-分布式事务解决方案
         </h1>
     
 
@@ -477,63 +482,115 @@
             
         
         
-            <p>在Mybatis原生的API中，有三个对外提供的核心对象</p>
-<ul>
-<li>SqlSessionFactory</li>
-<li>SqlSession</li>
-<li>getMapper()方法返回的代理对象（包含H对象–MapperProxy）</li>
-</ul>
-<p>虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。</p>
-<p>Mybatis基于Spring的扩展接口，对原生的Api操作进一步进行了简化，所以我们在Spring中使用mybatis时没有再看到这是哪个关键对象在代码中出现的原因。我们只需要吧Mapper接口注入到需要使用的service中，调用她的方法就OK了。</p>
-<p>mybatis与spring整合，要弄清楚的几个关键问题：</p>
+            <p>X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事务编程接口规范-JTA</p>
+<p><strong>标准角色</strong></p>
+<p>在X/OpenDTP事务模型中，定义了三个角色：</p>
 <ol>
-<li>如果使用@Autowired注入一个Mapper接口，调用接口方法就能找到sql语句执行，那么这个接口在IoC容器中也是一个代理对象吗？</li>
-<li>如果是代理对象，还是不是SqlSession用getMapper方法获得的呢？SqlSession又是什么时候创建的？</li>
-<li>每个回话都要产生一个SqlSession，单例的SqlSessionFactory是什么时候创建的？</li>
+<li><p>AP: application, 应用程序，也就是业务层。哪些操作属于一个事务，就是AP定义的</p>
+</li>
+<li><p>RM: Resource Manager，资源管理器。一般是数据库，也可以是其他资源管理器，比如消息队列， 文件系统</p>
+</li>
+<li><p>TM: Transaction Manager ，事务管理器、事务协调者，负责接收来自用户程序(AP)发起的XA事务 指令，并调度和协调参与事务的所有RM(数据库)，确保事务正确完成</p>
+</li>
 </ol>
-<p>Mybatis集成到Spring里面，是为了进一步简化Mybatis的使用，所以只是对mybatis做了一些封装，并没有替换Mybatis的核心对象。也就是说：mybatis jar包中的三个核心对象都会用到，mybatis-spring.jar里面只是做了一些包装或者桥梁的工作 </p>
-<p>只要我们弄明白这三个关键对象是怎么创建的，也就理解了spring集成mybatis的原理，所以本文将分成三部分进行分析：</p>
+<p>在分布式系统中，每一个机器节点虽然都能够明确知道自己在进行事务操作过程中的结果是成功还是失 败，但却无法直接获取到其他分布式节点的操作结果。因此当一个事务操作需要跨越多个分布式节点的 时候，为了保持事务处理的ACID特性，就需要引入一个“协调者”(TM)来统一调度所有分布式节点的 执行逻辑，这些被调度的分布式节点被称为AP。TM负责调度AP的行为，并最终决定这些AP是否要把事 务真正进行提交到(RM)</p>
+<p>XA是X/OpenDTP定义的RM和TM之间的接口规范，TM用它来通知和协调相关RM事务的开始、结束、提交或回滚。目前Oracle、Mysql、DB2都提供了对XA的支持，XA接口是双向的系统接口，在事务管理器TM以及多个RM之间形成同心桥梁，XA不能自动提交</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png" alt></p>
+<p><strong>2PC</strong></p>
+<p>第一阶段：</p>
+<p>RM在第一阶段会做两件事</p>
 <ol>
-<li>SqlSessionFactory是在哪里创建的</li>
-<li>SqlSession是在哪里创建的嗷嗷</li>
-<li>代理Mapper对象是在哪里创建的</li>
+<li>记录事务日志redo、undo</li>
+<li>返回给TM信息ok、error</li>
 </ol>
-<h4 id="1-创建会话工厂SqlSessionFactory"><a href="#1-创建会话工厂SqlSessionFactory" class="headerlink" title="1. 创建会话工厂SqlSessionFactory"></a>1. 创建会话工厂SqlSessionFactory</h4><p>首先去看看Mybatis在spring-boot中的自动配置类配置了一些扫描对象：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">sqlSessionFactory</span><span class="params">(DataSource dataSource)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  SqlSessionFactoryBean factory = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>SqlSessionFactoryBean</code>这个对象看来是spring与mybatis的一个桥梁类了，看看这个类中有哪些内容呢</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SqlSessionFactoryBean</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">FactoryBean</span>&lt;<span class="title">SqlSessionFactory</span>&gt;, <span class="title">InitializingBean</span>, <span class="title">ApplicationListener</span>&lt;<span class="title">ApplicationEvent</span>&gt; </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>实现了三个接口：</p>
+<p>存在问题，如果第一阶段完成后TM宕机或网络出现故障，此时RM会一直阻塞发生死锁。因为没有timeout机制，3pc就针对此问题进行了改造，加入了3pc机制</p>
+<p>第二阶段：</p>
+<p>TM根据第一阶段的返回结果，通知RM执行提交或回滚</p>
+<h4 id="1-CAP理论"><a href="#1-CAP理论" class="headerlink" title="1. CAP理论"></a>1. CAP理论</h4><p>CAP的含义:</p>
 <ul>
-<li>InitializingBean 接口，提供了一个方法<code>afterPropertiesSet()</code>，当这个bean的所有属性初始化完成将执行支个方法，定位过去看看：</li>
+<li><p>C：Consistency 一致性 同一数据的多个副本是否实时相同。</p>
+</li>
+<li><p>A：Availability 可用性 可用性:一定时间内 &amp; 系统返回一个明确的结果 则称为该系统可用。</p>
+</li>
+<li><p>P：Partition tolerance 分区容错性 将同一服务分布在多个系统中，从而保证某一个系统宕机， 仍然有其他系统提供相同的服务。</p>
+</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  ... <span class="comment">// 一些判断检查</span></span><br><span class="line">  <span class="keyword">this</span>.sqlSessionFactory = buildSqlSessionFactory();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>调用了<code>buildSqlSessionFactory()</code>方法实例化一个<code>SqlSessionFactory</code>对象，跟进代码能发现方法里面使用XMLConfigBuilder对全局配置文件进行解析，调用了mybatis的代码逻辑，解析并创建<code>SqlSessionFactory</code>，之前源码分析都分析过，不再贴代码。</p>
+<p>CAP理论告诉我们，在分布式系统中，C、A、P三个条件中我们最多只能选择两个。那么问题来了，究 竟选择哪两个条件较为合适呢?</p>
+<p>对于一个业务系统来说，可用性和分区容错性是必须要满足的两个条件，并且这两者是相辅相成的。业务系统之所以使用分布式系统，主要原因有两个:</p>
 <ul>
-<li>FactoryBean<sqlsessionfactory> 说明这是一个工厂bean，使用getBean方法获取到的是泛型类型的实例对象，主要是通过接口方法getObject生产实例，定位到：</sqlsessionfactory></li>
+<li>提升整体性能 当业务量猛增，单个服务器已经无法满足我们的业务需求的时候，就需要使用分布 式系统，使用多个节点提供相同的功能，从而整体上提升系统的性能，这就是使用分布式系统的第 一个原因。</li>
+<li>实现分区容错性 单一节点 或 多个节点处于相同的网络环境下，那么会存在一定的风险，万一该 机房断电、该地区发生自然灾害，那么业务系统就全面瘫痪了。为了防止这一问题，采用分布式系 统，将多个子系统分布在不同的地域、不同的机房中，从而保证系统高可用性。</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.sqlSessionFactory == <span class="keyword">null</span>) &#123;</span><br><span class="line">    afterPropertiesSet();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.sqlSessionFactory;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>getObject方法获取创建的sqlSessionFactory对象，如果还没有创建，调用afterPropertiesSet方法创建之。</p>
+<p>这说明分区容错性是分布式系统的根本，如果分区容错性不能满足，那使用分布式系统将失去意义。</p>
+<p>此外，可用性对业务系统也尤为重要。在大谈用户体验的今天，如果业务系统时常出现“系统异常”、响 应时间过长等情况，这使得用户对系统的好感度大打折扣，在互联网行业竞争激烈的今天，相同领域的 竞争者不甚枚举，系统的间歇性不可用会立马导致用户流向竞争对手。因此，我们只能通过牺牲一致性 来换取系统的<strong>可用性</strong>和<strong>分区容错</strong></p>
+<h4 id="2-BASE理论"><a href="#2-BASE理论" class="headerlink" title="2. BASE理论"></a>2. BASE理论</h4><p>CAP理论告诉我们一个悲惨但不得不接受的事实——我们只能在C、A、P中选择两个条件。而对于业务 系统而言，我们往往选择牺牲一致性来换取系统的可用性和分区容错性。不过这里要指出的是，所谓 的“牺牲一致性”并不是完全放弃数据一致性，而是牺牲<strong>强一致性</strong>换取<strong>弱一致性</strong></p>
 <ul>
-<li>ApplicationListener 接口 ，说明这个类监听了某个spring-boot的启动事件，找到事件处理方法查看：</li>
+<li><p>BA：Basic Available 基本可用 </p>
+<ul>
+<li>整个系统在某些不可抗力的情况下，仍然能够保证“可用性”，即一定时间内仍然能够返回一个明确的结果。只不过“基本可用”和“高可用”的区别是:<ul>
+<li>“一定时间”可以适当延长 当举行大促时，响应时间可以适当延长 </li>
+<li>给部分用户返回一个降级页面，从而缓解服务器压 力。但要注意，返回降级页面仍然是返回明确结果。</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (failFast &amp;&amp; event <span class="keyword">instanceof</span> ContextRefreshedEvent) &#123;</span><br><span class="line">    <span class="comment">// fail-fast -&gt; check all statements are completed</span></span><br><span class="line">    <span class="keyword">this</span>.sqlSessionFactory.getConfiguration().getMappedStatementNames();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从事件处理中可以看出，监听的是<code>ContextRefreshedEvent</code>事件，当spring上下文refresh结束将发布此事件。此处调用<code>getMappedStatementNames()</code>之后并没有存储结果，我猜想这里只是为了触发<code>buildAllStatements()</code>，目的是为了检查ms是都加载完毕。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Collection&lt;MappedStatement&gt; <span class="title">getMappedStatements</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  buildAllStatements();</span><br><span class="line">  <span class="keyword">return</span> mappedStatements.values();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="2-创建回话SqlSession"><a href="#2-创建回话SqlSession" class="headerlink" title="2. 创建回话SqlSession"></a>2. 创建回话SqlSession</h4><p>通过上面的配置，我们已经可以在容器中取获取一个DefaultSqlSessionFactory，按照编程式的开发过程，接下来就要使用<code>OpenSession()</code>方法创建一个sqlSession的实现类对象。</p>
-<p><strong><em>但是在spring中我们是不能直接使用DefaultSqlSession的，因为它是线程不安全的！</em></strong></p>
-<p>所以在spring里面，我们要保证sqlsession实例的线程安全，必须为每一次请求创建单独的sqlSession。但是每次请求用openSqlSession去创建优惠很麻烦。</p>
-<p>因此在mybatis-spring的包中，提供了一个线程安全的SqlSession的包装类，用来替代SqlSession，这个类就是SqlSessionTemplate。因为他是线程安全的，所以可以在所有的Dao层共享一个实例（容器默认单例）。</p>
-<p>SqlSessionTemplate虽然跟DefaultSqlSession一样定义了操作数据的selectOne()、selectList()、insert()、update()、delete()等所有方法，但是没有自己的实现，全部通过代理模式调用。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">selectOne</span><span class="params">(String statement)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.sqlSessionProxy.selectOne(statement);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那这个代理对象是怎么来的呢</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SqlSessionTemplate</span><span class="params">(SqlSessionFactory sqlSessionFactory, ExecutorType executorType,</span></span></span><br><span class="line"><span class="function"><span class="params">    PersistenceExceptionTranslator exceptionTranslator)</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">this</span>.sqlSessionFactory = sqlSessionFactory;</span><br><span class="line">  <span class="keyword">this</span>.executorType = executorType;</span><br><span class="line">  <span class="keyword">this</span>.exceptionTranslator = exceptionTranslator;</span><br><span class="line">  <span class="keyword">this</span>.sqlSessionProxy = (SqlSession) newProxyInstance(SqlSessionFactory.class.getClassLoader(),</span><br><span class="line">      <span class="keyword">new</span> Class[] &#123; SqlSession.class &#125;, <span class="keyword">new</span> SqlSessionInterceptor());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在构造函数中就创建了这样的一个代理类，那既然是Jdk动态代理，调用代理方法肯定会走到第三个参数的invoke方法，第三个参数<code>SqlSessionInterceptor</code>是<code>SqlSessionTemplate</code>的一个内部类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">SqlSessionInterceptor</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    SqlSession sqlSession = getSqlSession(SqlSessionTemplate.<span class="keyword">this</span>.sqlSessionFactory,</span><br><span class="line">        SqlSessionTemplate.<span class="keyword">this</span>.executorType, SqlSessionTemplate.<span class="keyword">this</span>.exceptionTranslator);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Object result = method.invoke(sqlSession, args);</span><br><span class="line">      <span class="keyword">if</span> (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.<span class="keyword">this</span>.sqlSessionFactory)) &#123;</span><br><span class="line">        sqlSession.commit(<span class="keyword">true</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> result;</span><br><span class="line">    &#125; </span><br><span class="line">    ...  <span class="comment">// 异常处理</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里会先用<code>getSqlSession</code>创建一个sqlSession对象，把<code>sqlSessionFactory</code>、执行器类型、异常解析器传进去</p>
-<p>总结一下：因为<code>DefaultSqlSession</code>自己做不到每次请求产生一个新的实例，所以嘎村创建一个代理类也实现<code>SqlSession</code>，提供跟默认实现一样的方法，在任何一个方法被调用的时候都先创建一个<code>DefaultSqlSession</code>在调用被代理对象的响应方法。</p>
-<p>Mybatis还再自带了一个线程安全的sqlSession实现：<code>SqlSessionManager</code>，实现方式与上面一样，如果不集成到spring中的情况下还要保证线程安全，那么就用<code>SqlSessionManager</code></p>
-<h4 id="3-接口的扫描注册"><a href="#3-接口的扫描注册" class="headerlink" title="3. 接口的扫描注册"></a>3. 接口的扫描注册</h4><p>自动配置代码中医这样一个配置：</p>
-<h4 id="4-接口的注入使用"><a href="#4-接口的注入使用" class="headerlink" title="4. 接口的注入使用"></a>4. 接口的注入使用</h4>
+</li>
+</ul>
+</li>
+<li><p>S：Soft State:柔性状态 同一数据的不同副本的状态，可以不需要实时一致。</p>
+</li>
+<li><p>E：Eventual Consisstency:最终一致性 同一数据的不同副本的状态，可以不需要实时一致，但 一定要保证经过一定时间后仍然是一致的。</p>
+</li>
+</ul>
+<h4 id="3-分布式事务常见解决方案"><a href="#3-分布式事务常见解决方案" class="headerlink" title="3. 分布式事务常见解决方案"></a>3. 分布式事务常见解决方案</h4><h5 id="3-1-最大努力通知方案"><a href="#3-1-最大努力通知方案" class="headerlink" title="3.1 最大努力通知方案"></a>3.1 最大努力通知方案</h5><p>最大努力通知方案主要也是借助MQ消息系统来进行事务控制，这一点与可靠消息最终一致方案一样。它是比较简单的分布式事务方案，它本质上就是通过定期校对，实现数据一致性。</p>
+<p>一、最大努力通知方案的实现</p>
+<ol>
+<li>业务活动的主动方，在完成业务处理之后，向业务活动的被动方发送消息，允许消息丢失。</li>
+<li>主动方可以设置时间阶梯型通知规则，在通知失败后按规则重复通知，直到通知N次后不再通知。</li>
+<li>主动方提供校对查询接口给被动方按需校对查询，用于恢复丢失的业务消息。</li>
+<li>业务活动的被动方如果正常接收了数据，就正常返回响应，并结束事务。</li>
+<li>如果被动方没有正常接收，根据定时策略，向业务活动主动方查询，恢复丢失的业务消息。</li>
+</ol>
+<p>二、最大努力通知方案的特点</p>
+<ol>
+<li>用到的服务模式：可查询操作、幂等操作。</li>
+<li>被动方的处理结果不影响主动方的处理结果；</li>
+<li>适用于对业务最终一致性的时间敏感度低的系统；</li>
+<li>适合跨企业的系统间的操作，或者企业内部比较独立的系统间的操作，比如银行通知、商户通知等</li>
+</ol>
+<p>举例说明：短信服务场景</p>
+<p>在登录、注册、验证场景，业务节点需要通过短信供应商发送验证短信给用户，用户通过短信验证码进行登录。</p>
+<p>在这个场景中，短信服务供应商是业务主动方，服务端业务是被动方，需要等待主动方的通知</p>
+<p>事务体现：服务端的登录和请求短信服务这两个操应该是一组</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E5%90%8C%E5%BF%97%E6%96%B9%E6%A1%88.png" alt></p>
+<h5 id="3-2-TCC两阶段补偿方案"><a href="#3-2-TCC两阶段补偿方案" class="headerlink" title="3.2 TCC两阶段补偿方案"></a>3.2 TCC两阶段补偿方案</h5><p>TCC是Try-Confirm-Cancel， 比如在支付场景中，先冻结一笔资金，再去发起支付。如果支付成功，则将冻结资金进行实际扣除;如果支付失败，则取消资金冻结</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-TCC%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%96%B9%E6%A1%88.png" alt></p>
+<p><strong>Try阶段</strong></p>
+<p> 完成所有业务检查(一致性)，预留业务资源(准隔离性)</p>
+<p><strong>Confirm阶段</strong> </p>
+<p>确认执行业务操作，不做任何业务检查，只使用Try阶段预留的业务资源。</p>
+<p><strong>Cancel阶段</strong></p>
+<p>取消Try阶段预留的业务资源。Try阶段出现异常时，取消所有业务资源预留请求</p>
+<h5 id="3-3-事务消息方案"><a href="#3-3-事务消息方案" class="headerlink" title="3.3 事务消息方案"></a>3.3 事务消息方案</h5><p>RocketMQ的TransactionProducer(事务消息)</p>
+<p>RocketMQ和其他消息中间件最大的一个区别是支持了事务消息，这也是分布式事务里面的基于消息的最终一致性方案</p>
+<h6 id="3-3-1-RocketMQ消息的事务架构设计"><a href="#3-3-1-RocketMQ消息的事务架构设计" class="headerlink" title="3.3.1 RocketMQ消息的事务架构设计"></a>3.3.1 RocketMQ消息的事务架构设计</h6><ol>
+<li>生产者执行本地事务，修改订单支付状态，并且提交事务</li>
+<li>生产者发送事务消息到broker上，消息发送到broker上在没有确认之前，消息对于consumer是不可见状态</li>
+<li>生产者确认事务消息，使得发送到broker上的事务消息对于消费者可见</li>
+<li>消费者获取到消息进行消费，消费完之后执行ack进行确认</li>
+<li>这里可能会存在一个问题，生产者本地事务成功后，发送事务确认消息到broker上失败了怎么办？这个时候意味着消费者无法正常消费到这个消息。所以RocketMQ提供了消息回查机制，如果事务消息一直处于中间状态，broker会发起重试去查询broker上这个事务的处理状态。一旦发现 事务处理成功，则把当前这条消息设置为可见</li>
+</ol>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF.png" alt></p>
+<p><em>注意：本地事务提交之后就不能再回滚了，保证最终一致性的分布式事务中，当下游业务出现异常，要做的不是去回滚上游的业务，而是重试出现异常的业务，直到成功为止，保证业务的最终一致性。</em></p>
+<h6 id="3-3-2-事务消息的实践"><a href="#3-3-2-事务消息的实践" class="headerlink" title="3.3.2 事务消息的实践"></a>3.3.2 事务消息的实践</h6><p>通过一个下单以后扣减库存的数据一致性场景来演示RocketMQ的分布式事务特性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionProducer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> MQClientException, UnsupportedEncodingException, InterruptedException </span>&#123;</span><br><span class="line">        TransactionMQProducer transactionProducer = <span class="keyword">new</span> TransactionMQProducer(<span class="string">"tx_producer_group"</span>);</span><br><span class="line">        transactionProducer.setNamesrvAddr(<span class="string">"10.0.12.76:9876"</span>);</span><br><span class="line">        ExecutorService executorService = Executors.newFixedThreadPool(<span class="number">8</span>);</span><br><span class="line">        transactionProducer.setExecutorService(executorService);</span><br><span class="line">        transactionProducer.setTransactionListener(<span class="keyword">new</span> TransactionListenerLocal());</span><br><span class="line">        transactionProducer.start();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">20</span>;i++) &#123;</span><br><span class="line">            String orderId= UUID.randomUUID().toString();</span><br><span class="line">            String body=<span class="string">"&#123;'operation':'doOrder','orderId':'"</span>+orderId+<span class="string">"'&#125;"</span>;</span><br><span class="line">            Message message = <span class="keyword">new</span> Message(<span class="string">"pay_tx_topic"</span>, <span class="string">"TagA"</span>,orderId,</span><br><span class="line">                    body.getBytes(RemotingHelper.DEFAULT_CHARSET));</span><br><span class="line">            transactionProducer.sendMessageInTransaction(message,</span><br><span class="line">                    orderId+<span class="string">"&amp;"</span>+i);</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionListenerLocal</span> <span class="keyword">implements</span> <span class="title">TransactionListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;String,Boolean&gt; results=<span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 执行本地事务</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LocalTransactionState <span class="title">executeLocalTransaction</span><span class="params">(Message msg, Object arg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">":执行本地事务:"</span>+arg.toString()); String orderId=arg.toString();</span><br><span class="line">        <span class="keyword">boolean</span> rs = saveOrder(orderId);<span class="comment">//模拟数据入库操作</span></span><br><span class="line">        <span class="keyword">return</span> rs ? LocalTransactionState.COMMIT_MESSAGE:LocalTransactionState.UNKNOW;</span><br><span class="line">        <span class="comment">// 这个返回状态表示告诉broker这个事务消息是否被确认，允许给到consumer进行消费</span></span><br><span class="line">        <span class="comment">// LocalTransactionState.ROLLBACK_MESSAGE 回滚</span></span><br><span class="line">        <span class="comment">// LocalTransactionState.UNKNOW 未知</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">saveOrder</span><span class="params">(String orderId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//如果订单取模等于0，表示成功,否则表示失败</span></span><br><span class="line">        <span class="keyword">boolean</span> success=Math.abs(Objects.hash(orderId))%<span class="number">2</span>==<span class="number">0</span>;</span><br><span class="line">        results.put(orderId,success);</span><br><span class="line">        <span class="keyword">return</span> success;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 提供事务执行状态的回查方法，提供给broker回调</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LocalTransactionState <span class="title">checkLocalTransaction</span><span class="params">(MessageExt msg)</span> </span>&#123;</span><br><span class="line">        String orderId=msg.getKeys();</span><br><span class="line">        System.out.println(<span class="string">"执行事务执行状态的回查，orderId:"</span>+orderId);</span><br><span class="line">        <span class="keyword">boolean</span> rs=Boolean.TRUE.equals(results.get(orderId));</span><br><span class="line">        System.out.println(<span class="string">"回调:"</span>+rs);</span><br><span class="line">        <span class="keyword">return</span> rs?LocalTransactionState.COMMIT_MESSAGE: LocalTransactionState.ROLLBACK_MESSAGE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionConsumer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> MQClientException, IOException </span>&#123;</span><br><span class="line">        DefaultMQPushConsumer defaultMQPushConsumer = <span class="keyword">new</span> DefaultMQPushConsumer(<span class="string">"tx_consumer_group"</span>);</span><br><span class="line">        defaultMQPushConsumer.setNamesrvAddr(<span class="string">"10.0.12.76:9876"</span>);</span><br><span class="line">        defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);</span><br><span class="line">        defaultMQPushConsumer.subscribe(<span class="string">"pay_tx_topic"</span>,<span class="string">"*"</span>);</span><br><span class="line">        defaultMQPushConsumer.registerMessageListener((MessageListenerConcurrently)</span><br><span class="line">                (msgs, context) -&gt; &#123;</span><br><span class="line">                    msgs.stream().forEach(messageExt -&gt; &#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            String orderId=messageExt.getKeys();</span><br><span class="line">                            String body=<span class="keyword">new</span> String(messageExt.getBody(),</span><br><span class="line">                                    RemotingHelper.DEFAULT_CHARSET);</span><br><span class="line">                            System.out.println(<span class="string">"收到消息:"</span>+body+<span class="string">"，开始扣减库存:"</span>+orderId);</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125; &#125;);</span><br><span class="line">                    <span class="keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span><br><span class="line">                &#125;);</span><br><span class="line">        defaultMQPushConsumer.start();</span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="3-3-3-RocketMQ事务消息的三种状态"><a href="#3-3-3-RocketMQ事务消息的三种状态" class="headerlink" title="3.3.3 RocketMQ事务消息的三种状态"></a>3.3.3 RocketMQ事务消息的三种状态</h6><ol>
+<li><code>ROLLBACK_MESSAGE</code>：回滚事务</li>
+<li><code>COMMIT_MESSAGE</code>：提交事务</li>
+<li><code>UNKNOW</code>： broker会定时的回查Producer消息状态，直到彻底成功或失败。</li>
+</ol>
+<p>当<code>executeLocalTransaction</code>方法返回<code>ROLLBACK_MESSAGE</code>时，表示直接回滚事务，当返回 <code>COMMIT_MESSAGE</code>提交事务，当返回<code>UNKNOW</code>时，Broker会在一段时间之后回查checkLocalTransaction，根据 checkLocalTransaction返回状态执行事务的操作(回滚或提交)。</p>
+<p>如示例中，当返回<code>ROLLBACK_MESSAGE</code>时消费者不会收到消息，且不会调用回查函数，当返回 <code>COMMIT_MESSAGE</code>时事务提交，消费者收到消息，当返回<code>UNKNOW</code>时，在一段时间之后调用回查函 数，并根据status判断返回提交或回滚状态，返回提交状态的消息将会被消费者消费，所以此时消费者 可以消费部分消息</p>
+
             </div>
         
         <footer class="article-footer">
@@ -545,19 +602,19 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    dubbo-基于SPI的自适应扩展机制
+                    并发编程-常见问题
                 
             </div>
         </a>
     
     
-        <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">Mybatis-源码分析之sql执行</div>
+            <div class="article-nav-title">rocketmq-消息的存储和发送</div>
         </a>
     
 </nav>

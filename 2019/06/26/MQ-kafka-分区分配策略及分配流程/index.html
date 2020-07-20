@@ -19,7 +19,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E6%B6%88%E8%B4%B9%E8%80%85join%E8%BF%87%E7%A8%8B.JPG">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E5%88%86%E5%8C%BA%E5%88%86%E9%85%8D%E5%90%8C%E6%AD%A5%E8%BF%87%E7%A8%8B.JPG">
-<meta property="og:updated_time" content="2020-06-08T01:32:01.263Z">
+<meta property="og:updated_time" content="2020-06-23T09:28:37.232Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kafka-分区分配策略及分配流程">
 <meta name="twitter:description" content="当出现以下几种情况时，kafka会进行一次分区分配操作，也就是kafka consumer的rebalance  同一个consumer group内新增了消费者  消费者离开当前所属的consumer group，比如主动停机或者宕机  topic新增了分区（也就是分区数量发生了变化）   kafka consuemr的rebalance机制规定了一个consumer group下的所有cons">
@@ -171,11 +171,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                113
+                116
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                30
+                31
                 <span>标签</span>
             </div>
         </div>
@@ -248,7 +248,7 @@
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-插件源码分析/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-给源码加中文注释(转)/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -338,7 +338,7 @@
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -489,7 +489,7 @@
 <li><p>topic新增了分区（也就是分区数量发生了变化）</p>
 </li>
 </ol>
-<p>kafka consuemr的rebalance机制规定了一个consumer group下的所有consumer如何达成一致来分配订阅topic的每个分区。</p>
+<p>kafka consuemr的rebalance机制规定了一个consumer group下的所有consumer如何达成一致来分配订阅的topic的每个分区。</p>
 <p>本文涉及到的配置项：</p>
 <p>消费者配置： <code>partition.assignment.strategy</code> </p>
 <h4 id="1-分区分配策略"><a href="#1-分区分配策略" class="headerlink" title="1. 分区分配策略"></a>1. 分区分配策略</h4><p>同一个group中的消费者对于一个topic中的多个partition，存在一定的分区分配策略。在kafka中，存在三种分区分配策略，一种是Range(默认)、 另一种是RoundRobin（轮询）、StickyAssignor(粘性)。 在消费端中的ConsumerConfifig中，通过这个属性来指定分区分配策略</p>
@@ -551,13 +551,13 @@
 <p>也就是说，C0和C2保留了上一次是的分配结果，并且把原来C1的分区分配给了C0和C2。 这种策略的好处是 </p>
 <p>使得分区发生变化时，由于分区的“粘性，减少了不必要的分区移动。</p>
 <h4 id="2-Rebalance"><a href="#2-Rebalance" class="headerlink" title="2. Rebalance"></a>2. Rebalance</h4><p>Kafka提供了一个角色：coordinator来执行对于consumer group的管理，当consumer group的第一个consumer启动的时候，它会去和kafka server确定谁是它们组的coordinator。之后该group内的所有成员都会和该coordinator进行协调通信。</p>
-<p>consumer group如何确定自己的coordinator是谁呢, 消费者（第一个启动的）向kafka集群中的任意一个broker发送一个<code>GroupCoordinatorRequest</code>请求，服务端会返回一个<strong>负载最小</strong>的broker节点的id，并将该broker设置为coordinator。</p>
-<p>在rebalance之前，需要保证coordinator是已经确定好了的，整个rebalance的过程分为两个步骤，<code>Join</code>和<code>Sync</code></p>
-<h5 id="2-1-JoinGroup的过程"><a href="#2-1-JoinGroup的过程" class="headerlink" title="2.1 JoinGroup的过程"></a>2.1 JoinGroup的过程</h5><p><code>join</code>: 表示加入到consumer group中，在这一步中，所有的成员都会向coordinator发送joinGroup的请求。一旦所有成员都发送了joinGroup请求，那么coordinator会选择一个consumer担任leader角色，并把组成员信息和订阅信息发送消费者leader</p>
+<p>consumer group如何确定自己的coordinator是谁呢,，首先启动的消费者向kafka集群中的任意一个broker发送一个<strong><code>GroupCoordinatorRequest</code></strong>请求，请求参数就一个group_id，服务端会返回一个<strong>负载最小</strong>的broker节点的id，并将该broker设置为coordinator，之后只要这个borker不宕机，它永远都是这个消费者组的协调者。</p>
+<p>在rebalance之前，需要保证coordinator已经确定好了，整个rebalance的过程分为两个步骤，<code>Join</code>和<code>Sync</code></p>
+<h5 id="2-1-JoinGroup的过程"><a href="#2-1-JoinGroup的过程" class="headerlink" title="2.1 JoinGroup的过程"></a>2.1 JoinGroup的过程</h5><p><code>join</code>: 表示加入到consumer group中，在这一步中，所有的成员都会向coordinator发送<strong><code>JoinGroupRequest</code></strong>的请求。coordinator会从发送请求的消费者中选择一个担任leader角色，并把组成员信息和组订阅信息发送给消费者leader。</p>
 <p>leader选举算法比较简单，如果消费组内没有leader，那么第一个加入消费组的消费者就是消费者leader，如果这个时候leader消费者退出了消费组，那么重新选举一个leader，这个选举很随意，类似于随机算法</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E6%B6%88%E8%B4%B9%E8%80%85join%E8%BF%87%E7%A8%8B.JPG" alt></p>
 <p>protocol_metadata: 序列化后的消费者的订阅信息</p>
-<p>leader_id： 消费组中的消费者，coordinator会选择一个座位leader，对应的就是member_id</p>
+<p>leader_id： 消费组中的消费者，coordinator会选择一个作为leader，对应的就是member_id</p>
 <p>member_metadata：对应消费者的订阅信息</p>
 <p>members：consumer group中全部的消费者的订阅信息</p>
 <p>generation_id： 年代信息，类似于之前讲解zookeeper的时候的epoch是一样的，对于每一轮rebalance，generation_id都会递增。主要用来保护consumer group。隔离无效的offset提交。也就是上一轮的consumer成员无法提交offset到新的consumer group中。</p>
@@ -568,9 +568,9 @@
 <li>每个消费者需要从候选集里找出一个自己支持的策略，并且为这个策略投票</li>
 <li>最终计算候选集中各个策略的选票数，票数最多的就是当前消费组的分配策略</li>
 </ul>
-<h5 id="2-2-Synchronizing-Group-State阶段"><a href="#2-2-Synchronizing-Group-State阶段" class="headerlink" title="2.2  Synchronizing Group State阶段"></a>2.2  Synchronizing Group State阶段</h5><p>consumer leader完成分区分配之后，就进入了Synchronizing Group State阶段，主要逻辑是向GroupCoordinator发送<code>SyncGroupRequest</code>请求，并且处理SyncGroupResponse响应，简单来说，就是leader将消费者对应的partition分配方案同步给consumer group 中的所有consumer</p>
+<h5 id="2-2-Synchronizing-Group-State阶段"><a href="#2-2-Synchronizing-Group-State阶段" class="headerlink" title="2.2  Synchronizing Group State阶段"></a>2.2  Synchronizing Group State阶段</h5><p>consumer leader完成分区分配之后，就进入了Synchronizing Group State阶段，主要逻辑是所有的消费之向coordinator发送<strong><code>SyncGroupRequest</code></strong>请求，并且处理<code>SyncGroupResponse</code>响应，简单来说，就是leader将消费者对应的partition分配方案同步给consumer group 中的所有consumer</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/kafka%E5%88%86%E5%8C%BA%E5%88%86%E9%85%8D%E5%90%8C%E6%AD%A5%E8%BF%87%E7%A8%8B.JPG" alt></p>
-<p>每个消费者都会向coordinator发送syncgroup请求，不过只有leader节点会发送分配方案，此时其他消费者只是打打酱油而已。当leader把方案发给coordinator以后，coordinator会把结果设置到<code>SyncGroupResponse</code>中响应给所有消费者。这样所有成员都知道自己应该消费哪个分区。</p>
+<p>注意是每个消费者都会向coordinator发送syncgroup请求，不过只有leader节点会发送分配方案，此时其他消费者只是打打酱油而已。当leader把方案发给coordinator以后，coordinator会把结果设置到<code>SyncGroupResponse</code>中响应给所有消费者。这样所有成员都知道自己应该消费哪个分区。</p>
 <p> consumer group的分区分配方案是在客户端执行的！Kafka将这个权利下放给客户端主要是因为这样做可以有更好的灵活性</p>
 <h4 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h4><ul>
 <li>消费者可以通过配置<code>“partition.assignment.strategy”</code>来选择分区的分配策略，有三种策略：range、roundRobin、strick</li>

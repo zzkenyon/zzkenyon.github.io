@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>Mybatis-与spring整合 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="Mybatis">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="在Mybatis原生的API中，有三个对外提供的核心对象  SqlSessionFactory SqlSession getMapper()方法返回的代理对象（包含H对象–MapperProxy）  虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。 Mybatis基于Spring的扩展接口，对">
+<meta name="keywords" content="Mybatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis-与spring整合">
+<meta property="og:url" content="http://yoursite.com/child/2019/03/15/Mybatis-源码分析之与spring整合/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="在Mybatis原生的API中，有三个对外提供的核心对象  SqlSessionFactory SqlSession getMapper()方法返回的代理对象（包含H对象–MapperProxy）  虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。 Mybatis基于Spring的扩展接口，对">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-17T03:30:09.031Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mybatis-与spring整合">
+<meta name="twitter:description" content="在Mybatis原生的API中，有三个对外提供的核心对象  SqlSessionFactory SqlSession getMapper()方法返回的代理对象（包含H对象–MapperProxy）  虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。 Mybatis基于Spring的扩展接口，对">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                116
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                31
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-Mybatis-源码分析之与spring整合" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">
+            <time datetime="2019-03-14T16:00:00.000Z" itemprop="datePublished">2019-03-15</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Mybatis-与spring整合
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>在Mybatis原生的API中，有三个对外提供的核心对象</p>
+<ul>
+<li>SqlSessionFactory</li>
+<li>SqlSession</li>
+<li>getMapper()方法返回的代理对象（包含H对象–MapperProxy）</li>
+</ul>
+<p>虽然Mybatis对Jdbc封装置后，已经大大的简化了我们对于数据库的操作，但是在我们的业务代码中不断的创建释放SqlSession也是一件很麻烦的事情。</p>
+<p>Mybatis基于Spring的扩展接口，对原生的Api操作进一步进行了简化，所以我们在Spring中使用mybatis时没有再看到这是哪个关键对象在代码中出现的原因。我们只需要吧Mapper接口注入到需要使用的service中，调用她的方法就OK了。</p>
+<p>mybatis与spring整合，要弄清楚的几个关键问题：</p>
+<ol>
+<li>如果使用@Autowired注入一个Mapper接口，调用接口方法就能找到sql语句执行，那么这个接口在IoC容器中也是一个代理对象吗？</li>
+<li>如果是代理对象，还是不是SqlSession用getMapper方法获得的呢？SqlSession又是什么时候创建的？</li>
+<li>每个会话都要产生一个SqlSession，单例的SqlSessionFactory是什么时候创建的？</li>
+</ol>
+<p>Mybatis集成到Spring里面，是为了进一步简化Mybatis的使用，所以只是对mybatis做了一些封装，并没有替换Mybatis的核心对象。也就是说：mybatis jar包中的三个核心对象都会用到，mybatis-spring.jar里面只是做了一些包装或者桥梁的工作 </p>
+<p>只要我们弄明白这三个关键对象是怎么创建的，也就理解了spring集成mybatis的原理，所以本文将分成三部分进行分析：</p>
+<ol>
+<li>SqlSessionFactory是在哪里创建的</li>
+<li>SqlSession是在哪里创建的</li>
+<li>代理Mapper对象是在哪里载入到ioc中的</li>
+</ol>
+<h4 id="1-创建会话工厂SqlSessionFactory"><a href="#1-创建会话工厂SqlSessionFactory" class="headerlink" title="1. 创建会话工厂SqlSessionFactory"></a>1. 创建会话工厂SqlSessionFactory</h4><p>首先去看看Mybatis在spring-boot中的自动配置类配置了一些扫描对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MybatisAutoConfiguration</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">sqlSessionFactory</span><span class="params">(DataSource dataSource)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  SqlSessionFactoryBean factory = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>SqlSessionFactoryBean</code>这个对象看来是spring与mybatis的一个桥梁类了，看看这个类中有哪些内容呢</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SqlSessionFactoryBean</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">FactoryBean</span>&lt;<span class="title">SqlSessionFactory</span>&gt;, <span class="title">InitializingBean</span>, <span class="title">ApplicationListener</span>&lt;<span class="title">ApplicationEvent</span>&gt; </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>实现了三个接口：</p>
+<ul>
+<li>InitializingBean 接口，提供了一个方法<code>afterPropertiesSet()</code>，当这个bean的所有属性初始化完成将执行这个方法，定位过去看看：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  ... <span class="comment">// 一些判断检查</span></span><br><span class="line">  <span class="keyword">this</span>.sqlSessionFactory = buildSqlSessionFactory();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用了<code>buildSqlSessionFactory()</code>方法实例化一个<code>SqlSessionFactory</code>对象，跟进代码能发现方法里面使用XMLConfigBuilder对全局配置文件进行解析，调用了mybatis的代码逻辑，解析并创建<code>SqlSessionFactory</code>，之前源码分析都分析过，不再贴代码。</p>
+<ul>
+<li>FactoryBean<sqlsessionfactory> 说明这是一个工厂bean，使用getBean方法获取到的是泛型类型的实例对象，主要是通过接口方法getObject生产实例，定位到：</sqlsessionfactory></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.sqlSessionFactory == <span class="keyword">null</span>) &#123;</span><br><span class="line">    afterPropertiesSet();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.sqlSessionFactory;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>getObject方法获取创建的sqlSessionFactory对象，如果还没有创建，调用afterPropertiesSet方法创建之。</p>
+<ul>
+<li>ApplicationListener 接口 ，说明这个类监听了某个spring-boot的启动事件，找到事件处理方法查看：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (failFast &amp;&amp; event <span class="keyword">instanceof</span> ContextRefreshedEvent) &#123;</span><br><span class="line">    <span class="comment">// fail-fast -&gt; check all statements are completed</span></span><br><span class="line">    <span class="keyword">this</span>.sqlSessionFactory.getConfiguration().getMappedStatementNames();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从事件处理中可以看出，监听的是<code>ContextRefreshedEvent</code>事件，当spring上下文refresh结束将发布此事件。此处调用<code>getMappedStatementNames()</code>之后并没有存储结果，我猜想这里只是为了触发<code>buildAllStatements()</code>，解析缓存中所有未处理的语句节点。建议在添加了所有映射器后调用此方法，因为它提供了快速失败的语句验证。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Collection&lt;MappedStatement&gt; <span class="title">getMappedStatements</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  buildAllStatements();</span><br><span class="line">  <span class="keyword">return</span> mappedStatements.values();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-创建会话SqlSession"><a href="#2-创建会话SqlSession" class="headerlink" title="2. 创建会话SqlSession"></a>2. 创建会话SqlSession</h4><p>通过上面的配置，我们已经可以在容器中取获取一个<code>DefaultSqlSessionFactory</code>，按照编程式的开发过程，接下来就要使用<code>OpenSession()</code>方法创建一个sqlSession的实现类对象。</p>
+<p><strong><em>但是在spring中我们是不能直接使用DefaultSqlSession的，因为它是线程不安全的！</em></strong></p>
+<p>所以在spring里面，我们要保证sqlsession实例的线程安全，必须为每一次请求创建单独的sqlSession。但是每次请求用openSqlSession去创建很麻烦。</p>
+<p>因此在mybatis-spring的包中，提供了一个线程安全的SqlSession的包装类，用来替代SqlSession，这个类就是SqlSessionTemplate。因为他是线程安全的，所以可以在所有的Dao层共享一个实例（容器默认单例）。</p>
+<p>SqlSessionTemplate虽然跟DefaultSqlSession一样定义了操作数据的selectOne()、selectList()、insert()、update()、delete()等所有方法，但是没有自己的实现，全部通过代理模式调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">selectOne</span><span class="params">(String statement)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.sqlSessionProxy.selectOne(statement);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那这个代理对象是怎么来的呢</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SqlSessionTemplate</span><span class="params">(SqlSessionFactory sqlSessionFactory, ExecutorType executorType,</span></span></span><br><span class="line"><span class="function"><span class="params">    PersistenceExceptionTranslator exceptionTranslator)</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">this</span>.sqlSessionFactory = sqlSessionFactory;</span><br><span class="line">  <span class="keyword">this</span>.executorType = executorType;</span><br><span class="line">  <span class="keyword">this</span>.exceptionTranslator = exceptionTranslator;</span><br><span class="line">  <span class="keyword">this</span>.sqlSessionProxy = (SqlSession) newProxyInstance(SqlSessionFactory.class.getClassLoader(),</span><br><span class="line">      <span class="keyword">new</span> Class[] &#123; SqlSession.class &#125;, <span class="keyword">new</span> SqlSessionInterceptor());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在构造函数中就创建了这样的一个代理对象，那既然是Jdk动态代理，调用代理方法肯定会走到第三个参数h对象的invoke方法，h对象是<code>SqlSessionInterceptor</code>类型实例，它是<code>SqlSessionTemplate</code>的一个内部类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">SqlSessionInterceptor</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    SqlSession sqlSession = getSqlSession(SqlSessionTemplate.<span class="keyword">this</span>.sqlSessionFactory,</span><br><span class="line">        SqlSessionTemplate.<span class="keyword">this</span>.executorType, SqlSessionTemplate.<span class="keyword">this</span>.exceptionTranslator);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Object result = method.invoke(sqlSession, args);</span><br><span class="line">      <span class="keyword">if</span> (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.<span class="keyword">this</span>.sqlSessionFactory)) &#123;</span><br><span class="line">        sqlSession.commit(<span class="keyword">true</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> result;</span><br><span class="line">    &#125; </span><br><span class="line">    ...  <span class="comment">// 异常处理</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里会先用<code>getSqlSession</code>创建一个sqlSession对象，把<code>sqlSessionFactory</code>、执行器类型、异常解析器传进去</p>
+<p>总结一下：因为<code>DefaultSqlSession</code>自己做不到每次请求产生一个新的实例，所以 创建一个代理类也实现<code>SqlSession</code>，提供跟默认实现一样的方法，在任何一个方法被调用的时候都先创建一个<code>DefaultSqlSession</code>在调用被代理对象的响应方法。</p>
+<p>Mybatis还再自带了一个线程安全的sqlSession实现：<code>SqlSessionManager</code>，实现方式与上面一样，如果不集成到spring中的情况下还要保证线程安全，那么就用<code>SqlSessionManager</code>。</p>
+<p>与JdbcTemplate、RedisTemplate一样，SqlSessionTe可以简化Mybatis在spring中的使用，也是spring与mybaits整合中最关键的一个类。</p>
+<h5 id="2-2-如何加载一个SqlSessionTemplate到ioc容器"><a href="#2-2-如何加载一个SqlSessionTemplate到ioc容器" class="headerlink" title="2.2 如何加载一个SqlSessionTemplate到ioc容器"></a>2.2 如何加载一个SqlSessionTemplate到ioc容器</h5><p>因为SqlSessionTemplate是线程安全的，那么在Dao层如何拿到一个SqlSessionTemplate呢？</p>
+<p>在spring中，Mybatis中提供了一个抽象的支持类SqlSessionDaoSupport，该类中持有一个SqlSessionTemplate对象，并且提供了一个getSqlSession()方法，让我们获取SqlSessionTemplate。</p>
+<p>那么我们让Dao层的实现类继承抽象类SqlSessionDaoSupport，就能获取到SqlSessionTemplate对象了。</p>
+<p>在spring-boot中，自动配置类也为我们自动装配了一个SqlSessionTemplate：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span>  <span class="comment">// MybatisAutoConfiguration</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionTemplate <span class="title">sqlSessionTemplate</span><span class="params">(SqlSessionFactory sqlSessionFactory)</span> </span>&#123;</span><br><span class="line">  ExecutorType executorType = <span class="keyword">this</span>.properties.getExecutorType();</span><br><span class="line">  <span class="keyword">if</span> (executorType != <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> SqlSessionTemplate(sqlSessionFactory, executorType);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> SqlSessionTemplate(sqlSessionFactory);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-接口的扫描注册"><a href="#3-接口的扫描注册" class="headerlink" title="3. 接口的扫描注册"></a>3. 接口的扫描注册</h4><p>自动配置代码中有这样一个配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import</span>(AutoConfiguredMapperScannerRegistrar.class)</span><br></pre></td></tr></table></figure>
+<p>导入了一个动态装载类<code>AutoConfiguredMapperScannerRegistrar</code>，该类实现了<code>ImportBeanDefinitionRegistrar</code>接口，在应用启动时会调用到接口方法<code>registerBeanDefinitions</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span>  <span class="comment">// AutoConfiguredMapperScannerRegistrar</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line">	... </span><br><span class="line">  BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);</span><br><span class="line">  ...</span><br><span class="line">  registry.registerBeanDefinition(MapperScannerConfigurer.class.getName(), builder.getBeanDefinition());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法向Ioc容器中注册了一个配置类<code>MapperScannerConfigurer</code>，这个配置类就是用来扫描Mapper接口的。</p>
+<p><code>MapperScannerConfigurer</code>实现了<code>BeanDefinitionRegistryPostProcessor</code>接口，该接口是<code>BeanFactoryPostProcessor</code>接口的子接口，定义了方法<code>postProcessBeanDefinitionRegistry()</code></p>
+<p>实现这个接口，就可以Spring创建Bean之前，修改某些BeanDefinition的属性。</p>
+<p>那么<code>MapperScannerConfigurer</code>重写该方法要做什么呢？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.processPropertyPlaceHolders) &#123;</span><br><span class="line">    processPropertyPlaceHolders();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ClassPathMapperScanner scanner = <span class="keyword">new</span> ClassPathMapperScanner(registry);</span><br><span class="line">  scanner.setAddToConfig(<span class="keyword">this</span>.addToConfig);</span><br><span class="line">  scanner.setAnnotationClass(<span class="keyword">this</span>.annotationClass);</span><br><span class="line">  scanner.setMarkerInterface(<span class="keyword">this</span>.markerInterface);</span><br><span class="line">  scanner.setSqlSessionFactory(<span class="keyword">this</span>.sqlSessionFactory);</span><br><span class="line">  scanner.setSqlSessionTemplate(<span class="keyword">this</span>.sqlSessionTemplate);</span><br><span class="line">  scanner.setSqlSessionFactoryBeanName(<span class="keyword">this</span>.sqlSessionFactoryBeanName);</span><br><span class="line">  scanner.setSqlSessionTemplateBeanName(<span class="keyword">this</span>.sqlSessionTemplateBeanName);</span><br><span class="line">  scanner.setResourceLoader(<span class="keyword">this</span>.applicationContext);</span><br><span class="line">  scanner.setBeanNameGenerator(<span class="keyword">this</span>.nameGenerator);</span><br><span class="line">  scanner.setMapperFactoryBeanClass(<span class="keyword">this</span>.mapperFactoryBeanClass);</span><br><span class="line">  <span class="keyword">if</span> (StringUtils.hasText(lazyInitialization)) &#123;</span><br><span class="line">    scanner.setLazyInitialization(Boolean.valueOf(lazyInitialization));</span><br><span class="line">  &#125;</span><br><span class="line">  scanner.registerFilters();</span><br><span class="line">  scanner.scan(</span><br><span class="line">      StringUtils.tokenizeToStringArray(<span class="keyword">this</span>.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建了一个<code>ClassPathMapperScanner</code>扫描器，经过一番配置之后，执行扫描器的scan操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// `ClassPathMapperScanner`</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">scan</span><span class="params">(String... basePackages)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">int</span> beanCountAtScanStart = <span class="keyword">this</span>.registry.getBeanDefinitionCount();</span><br><span class="line">   doScan(basePackages); <span class="comment">// 调用重载的doscan</span></span><br><span class="line">   <span class="comment">// Register annotation config processors, if necessary.</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.includeAnnotationConfig) &#123;</span><br><span class="line">      AnnotationConfigUtils.registerAnnotationConfigProcessors(<span class="keyword">this</span>.registry);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> (<span class="keyword">this</span>.registry.getBeanDefinitionCount() - beanCountAtScanStart);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先调用的doscan是<code>ClassPathMapperScanner</code>重载父类的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Set&lt;BeanDefinitionHolder&gt; <span class="title">doScan</span><span class="params">(String... basePackages)</span> </span>&#123;</span><br><span class="line">  Set&lt;BeanDefinitionHolder&gt; beanDefinitions = <span class="keyword">super</span>.doScan(basePackages);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (beanDefinitions.isEmpty()) &#123;</span><br><span class="line">    logger.warn(<span class="string">"No MyBatis mapper was found in '"</span> + Arrays.toString(basePackages) + <span class="string">"' package. Please check your configuration."</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    processBeanDefinitions(beanDefinitions);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> beanDefinitions;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着会调用它的父类的doscan方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// </span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Set&lt;BeanDefinitionHolder&gt; <span class="title">doScan</span><span class="params">(String... basePackages)</span> </span>&#123;</span><br><span class="line">   Assert.notEmpty(basePackages, <span class="string">"At least one base package must be specified"</span>);</span><br><span class="line">   Set&lt;BeanDefinitionHolder&gt; beanDefinitions = <span class="keyword">new</span> LinkedHashSet&lt;&gt;();</span><br><span class="line">   <span class="keyword">for</span> (String basePackage : basePackages) &#123;</span><br><span class="line">      Set&lt;BeanDefinition&gt; candidates = findCandidateComponents(basePackage);</span><br><span class="line">      <span class="keyword">for</span> (BeanDefinition candidate : candidates) &#123;</span><br><span class="line">         ScopeMetadata scopeMetadata = <span class="keyword">this</span>.scopeMetadataResolver.resolveScopeMetadata(candidate);</span><br><span class="line">         candidate.setScope(scopeMetadata.getScopeName());</span><br><span class="line">         String beanName = <span class="keyword">this</span>.beanNameGenerator.generateBeanName(candidate, <span class="keyword">this</span>.registry);</span><br><span class="line">         <span class="keyword">if</span> (candidate <span class="keyword">instanceof</span> AbstractBeanDefinition) &#123;</span><br><span class="line">            postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">if</span> (candidate <span class="keyword">instanceof</span> AnnotatedBeanDefinition) &#123;</span><br><span class="line">            AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">if</span> (checkCandidate(beanName, candidate)) &#123;</span><br><span class="line">            BeanDefinitionHolder definitionHolder = <span class="keyword">new</span> BeanDefinitionHolder(candidate, beanName);</span><br><span class="line">            definitionHolder =</span><br><span class="line">                  AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, <span class="keyword">this</span>.registry);</span><br><span class="line">            beanDefinitions.add(definitionHolder);</span><br><span class="line">            registerBeanDefinition(definitionHolder, <span class="keyword">this</span>.registry);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> beanDefinitions;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>回到子类ClassPathMapperScanner的doscan方法，扫描完之后执行processBeanDefinitions方法，在该方法中，Mapper的beanDefinition中的BeanClass被改为了MapperFactoryean</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processBeanDefinitions</span><span class="params">(Set&lt;BeanDefinitionHolder&gt; beanDefinitions)</span> </span>&#123;</span><br><span class="line">  GenericBeanDefinition definition;</span><br><span class="line">  <span class="keyword">for</span> (BeanDefinitionHolder holder : beanDefinitions) &#123;</span><br><span class="line">    definition = (GenericBeanDefinition) holder.getBeanDefinition();</span><br><span class="line">    ...</span><br><span class="line">    definition.getConstructorArgumentValues()</span><br><span class="line">      .addGenericArgumentValue(definition.getBeanClassName()); </span><br><span class="line">    definition.setBeanClass(<span class="keyword">this</span>.mapperFactoryBean.getClass());</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是说所有的Mapper接口，在容器里面逗比注册成了一个支持泛型的<code>MapperFactoryBean</code>了。为什么要这样做了，进去看看这个类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperFactoryBean</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">SqlSessionDaoSupport</span> <span class="keyword">implements</span> <span class="title">FactoryBean</span>&lt;<span class="title">T</span>&gt; </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+<p>这个类继承了抽象类SqlSessionDaoSupport，这不就解决了之前的问题，现在每一个注入Mapper的地方，都可以拿到SqlSessionTemplate。</p>
+<p>分析到这里，只剩下最后一个问题，有没有用到MapperProxy？如果注册时MapperFactoryBean，难道注入使用的也是MapperFactoryBean吗，这个类并不是代理类啊</p>
+<h4 id="4-接口的注入使用"><a href="#4-接口的注入使用" class="headerlink" title="4. 接口的注入使用"></a>4. 接口的注入使用</h4><p>所以注入的到底是一个什么对象，注意看MaperactoryBean也实现了FactoryBean，我们已经见过一次，它可以在getObject方法中修改获取Bean实例的行为。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">// MapperFactoryBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> T <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> getSqlSession().getMapper(<span class="keyword">this</span>.mapperInterface);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以最终还是回到了mybatis的api中，getMapper方法获取到就是一个代理对象。MapperProxy就是该代理对象的h参数</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    dubbo-基于SPI的自适应扩展机制
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Mybatis-源码分析之sql执行</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
