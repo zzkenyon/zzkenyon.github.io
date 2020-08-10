@@ -3,26 +3,19 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>SpringCloud-服务熔断器Hystrix | 黑风雅过吟</title>
+    <title>标签: SpringCloud | 黑风雅过吟</title>
     
     
-        <meta name="keywords" content="SpringCloud">
+        <meta name="keywords" content="黑风雅过吟">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="写在最前面：  为了避免单点服务故障造成服务雪崩，需要引入服务熔断功能  Hystrix是在服务调用者中使用，所以调用链最底层的服务无需使用  虽然Eureka-client包中貌似已经依赖了netflix-hystrix，但是要正常使用断路器功能还需单独引入依赖 Feign 默认是关闭服务熔断功能的，需要在yml中修改配置 feign.hystrix.enable: true  1. 如何使用服">
-<meta name="keywords" content="SpringCloud">
-<meta property="og:type" content="article">
-<meta property="og:title" content="SpringCloud-服务熔断器Hystrix">
-<meta property="og:url" content="http://yoursite.com/child/2019/01/07/SpringCloud-服务熔断器Hystrix/index.html">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="黑风雅过吟">
+<meta property="og:url" content="http://yoursite.com/child/tags/SpringCloud/page/2/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
-<meta property="og:description" content="写在最前面：  为了避免单点服务故障造成服务雪崩，需要引入服务熔断功能  Hystrix是在服务调用者中使用，所以调用链最底层的服务无需使用  虽然Eureka-client包中貌似已经依赖了netflix-hystrix，但是要正常使用断路器功能还需单独引入依赖 Feign 默认是关闭服务熔断功能的，需要在yml中修改配置 feign.hystrix.enable: true  1. 如何使用服">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/spring-cloud-hystric%E4%BB%AA%E8%A1%A8%E7%9B%98.png">
-<meta property="og:updated_time" content="2020-05-28T11:20:11.374Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SpringCloud-服务熔断器Hystrix">
-<meta name="twitter:description" content="写在最前面：  为了避免单点服务故障造成服务雪崩，需要引入服务熔断功能  Hystrix是在服务调用者中使用，所以调用链最底层的服务无需使用  虽然Eureka-client包中貌似已经依赖了netflix-hystrix，但是要正常使用断路器功能还需单独引入依赖 Feign 默认是关闭服务熔断功能的，需要在yml中修改配置 feign.hystrix.enable: true  1. 如何使用服">
-<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/spring-cloud-hystric%E4%BB%AA%E8%A1%A8%E7%9B%98.png">
+<meta name="twitter:title" content="黑风雅过吟">
     
 
     
@@ -170,11 +163,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                116
+                126
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                31
+                33
                 <span>标签</span>
             </div>
         </div>
@@ -268,13 +261,13 @@
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
                     </li> 
                     
-                    <li class="directory open">
+                    <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder-open"></i>
+                            <i class="fa fa-folder"></i>
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -284,6 +277,15 @@
                             noSql
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -311,6 +313,15 @@
                             分布式架构技术
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -428,168 +439,54 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><article id="post-SpringCloud-服务熔断器Hystrix" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
+            <section id="main">
+<div class="timeline timeline-wrap">
+    <div class="timeline-row timeline-row-major">
+        <span class="node"><i class="fa fa-tag"></i></span>
+        <h1 class="title">#SpringCloud</h1>
+    </div>
+    
+        <div class="timeline-row">
+            <span class="node"></span>
+            <div class="content">
                 
-                    <div class="article-meta">
-                        
+    
+        <h1 itemprop="name">
+            <a class="timeline-article-title" href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a>
+        </h1>
+    
+
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">
+            <time datetime="2018-10-31T16:00:00.000Z" itemprop="datePublished">2018-11-01</time>
+        </a>
+    </div>
+
+
+                    
     <div class="article-category">
     	<i class="fa fa-folder"></i>
         <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringCloud/">SpringCloud</a>
     </div>
 
-                        
+                    
     <div class="article-tag">
         <i class="fa fa-tag"></i>
         <a class="tag-link" href="/zzkenyon.github.io/tags/SpringCloud/">SpringCloud</a>
     </div>
 
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">
-            <time datetime="2019-01-06T16:00:00.000Z" itemprop="datePublished">2019-01-07</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 class="article-title" itemprop="name">
-            SpringCloud-服务熔断器Hystrix
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-        
-        
-            <p>写在最前面：</p>
-<ul>
-<li><p>为了避免单点服务故障造成服务雪崩，需要引入服务熔断功能</p>
-</li>
-<li><p>Hystrix是在服务调用者中使用，所以调用链最底层的服务无需使用</p>
-</li>
-<li>虽然Eureka-client包中貌似已经依赖了netflix-hystrix，但是要正常使用断路器功能还需单独引入依赖</li>
-<li>Feign 默认是关闭服务熔断功能的，需要在yml中修改配置 feign.hystrix.enable: true</li>
-</ul>
-<h4 id="1-如何使用"><a href="#1-如何使用" class="headerlink" title="1. 如何使用"></a>1. 如何使用</h4><p>服务调用服务，在微服务系统内部一般使用ribbon和feign两种负载方式调用，针对这两种调用方式，开启服务熔断的方式也不相同。</p>
-<p>无论使用哪种方式调用底层服务，需要使用断路器都需要增加依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-hystrix<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h5 id="1-2-ribbon"><a href="#1-2-ribbon" class="headerlink" title="1.2 ribbon"></a>1.2 ribbon</h5><ol>
-<li>在主类上注解@EnableCircuitBreaker开启熔断器</li>
-<li>在需要熔断的服务接口方法上注解@HystrixCommand，该注解只能用于方法。如下所示</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@HystrixCommand</span>(fallbackMethod = <span class="string">"getUserFallback"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//调用远程服务 http请求</span></span><br><span class="line">    String url = URL_PREFIX+<span class="string">"/user/"</span>+id;</span><br><span class="line">    <span class="keyword">return</span> restTemplate.getForObject(url,User.class);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>该注解中指明了服务不可用时该调用的方法名称，因此在该服务类中，还需要添加fallback方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">getUserFallback</span><span class="params">(Long id)</span></span>&#123;    </span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> User(<span class="number">0L</span>,<span class="string">"null"</span>,<span class="string">"null"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所以当底层服务不可用时，底层服务会返回一个字段都为空的User对象。</p>
-<h5 id="1-3-feign"><a href="#1-3-feign" class="headerlink" title="1.3 feign"></a>1.3 feign</h5><ol>
-<li>使用Feign作为负载调用，主类无需注解@EnableCircuitBreaker，看源码：</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//源码路径：org.springframework.cloud.openfeign.FeignClientsConfiguration</span></span><br><span class="line"><span class="meta">@Configuration</span>(proxyBeanMethods = <span class="keyword">false</span>)</span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(&#123; HystrixCommand.class, HystrixFeign.class &#125;)</span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixFeignConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Scope</span>(<span class="string">"prototype"</span>)</span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="meta">@ConditionalOnProperty</span>(name = <span class="string">"feign.hystrix.enabled"</span>)</span><br><span class="line">    <span class="keyword">public</span> Feign.<span class="function">Builder <span class="title">feignHystrixBuilder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> HystrixFeign.builder();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上是feign的配置类，当我们在yml中对 feign.hystrix.enabled 配置为true时，feign将自动为我们引入断路器功能。</p>
-<ol start="2">
-<li>feign不使用service方法调用底层服务，所以@HystrixCommand也无法使用。</li>
-<li>@FeignClient注解中加一个属性，如下:</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(value = <span class="string">"user-provider"</span>,fallback = UserServiceFallBack.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserServiceFeignClient</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@GetMapping</span>(value = <span class="string">"/user/&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function">User <span class="title">getUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span>Long id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>此外还需要创建UserServiceFallBack类(要实现上面的接口)，写入接口中所有方法的fallBack方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceFallBack</span> <span class="keyword">implements</span> <span class="title">UserServiceFeignClient</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User(<span class="number">0L</span>,<span class="string">"null"</span>,<span class="string">"null"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上就是在feign调用中使用断路器的方法，值得注意的是，一定要手动开启：</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">feign:</span></span><br><span class="line"><span class="attr">  hystrix:</span></span><br><span class="line"><span class="attr">    enable:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
-<h4 id="2-使用hystrix仪表盘"><a href="#2-使用hystrix仪表盘" class="headerlink" title="2. 使用hystrix仪表盘"></a>2. 使用hystrix仪表盘</h4><h5 id="2-1-配置dashboard工程"><a href="#2-1-配置dashboard工程" class="headerlink" title="2.1 配置dashboard工程"></a>2.1 配置dashboard工程</h5><ol>
-<li><p>创建单独的工程hystrix-dashboard</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line"><span class="attr">  port:</span> <span class="number">12345</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  application:</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">hystrix-dashboard</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>依赖如下，只有一个：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-hystrix-dashboard<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>主类如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableHystrixDashboard</span> <span class="comment">//开启dashboard</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DashBoardApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(DashBoardApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h5 id="2-2-配置熔断器所在工程"><a href="#2-2-配置熔断器所在工程" class="headerlink" title="2.2 配置熔断器所在工程"></a>2.2 配置熔断器所在工程</h5><ol>
-<li><p>由于调用者的底层服务调用信息是通过actuator获取，所以需要添加依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改配置，暴露hystrix自定义的 actuator-endpoint</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">management:</span></span><br><span class="line"><span class="attr">  endpoints:</span></span><br><span class="line"><span class="attr">    web:</span></span><br><span class="line"><span class="attr">      exposure:</span></span><br><span class="line"><span class="attr">        include:</span> <span class="string">"*,hystrix.stream"</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h5 id="2-3-启动"><a href="#2-3-启动" class="headerlink" title="2.3 启动"></a>2.3 启动</h5><ol>
-<li>启动eureka-sever</li>
-<li>启动底层服务</li>
-<li>启动服务调用者（断路器）</li>
-<li><p>启动hystrix-dashboard</p>
-</li>
-<li><p>访问：localhost:12345/hyxtrix</p>
-</li>
-<li><p>页面中输入：<a href="http://localhost:9002/actuator/hystrix.stream" target="_blank" rel="noopener">http://localhost:9002/actuator/hystrix.stream</a>, 点击Monitor stream，进入单机监控页面</p>
-<p>注意：此处不能使用https，因为在本地没有证书，会导致连接不上9002端口的服务</p>
-</li>
-<li><p>请求9002端口的服务，就会产生相应的仪表数据</p>
-</li>
-</ol>
-<h5 id="附录："><a href="#附录：" class="headerlink" title="附录："></a>附录：</h5><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/spring-cloud-hystric%E4%BB%AA%E8%A1%A8%E7%9B%98.png" alt="仪表盘数据解析"></p>
-
+                </div>
             </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
+        </div>
     
-<nav id="article-nav">
-    
-        <a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/" id="article-nav-newer" class="article-nav-link-wrap">
-            <strong class="article-nav-caption">上一篇</strong>
-            <div class="article-nav-title">
-                
-                    虚拟机-vagrantfile简析
-                
-            </div>
-        </a>
-    
-    
-        <a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/" id="article-nav-older" class="article-nav-link-wrap">
-            <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">SpringCloud-服务网关zuul</div>
-        </a>
-    
-</nav>
+</div>
 
-
-
-
-
-    
-    
-
-
-
-
-<!-- baidu url auto push script -->
-<script type="text/javascript">
-    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
-</script>     
+    <nav id="page-nav">
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/tags/SpringCloud/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/tags/SpringCloud/">1</a><span class="page-number current">2</span>
+    </nav>
 </section>
         </div>
         <footer id="footer">

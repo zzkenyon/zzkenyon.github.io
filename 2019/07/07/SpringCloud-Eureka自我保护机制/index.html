@@ -3,24 +3,24 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>SpringCloud-服务注册、调用以及负载均衡 | 黑风雅过吟</title>
+    <title>SpringCloud-Eureka自我保护机制 | 黑风雅过吟</title>
     
     
         <meta name="keywords" content="SpringCloud">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="传统java编程中如果想要在程序中发起http请求有哪些做法？开源的http工具包有很多，OkHttp、HttpClient、jdk自带的等等，使用这些工具并不方便，需要程序员手动封装一些请求参数，构造请求，手动调用发送请求，处理响应。。。 因此在spring对这些工具类进行了封装，对外只提供RestTemplate类，开发人员使用RestTemplate可以很方便的发送http请求，只需要指定h">
+    <meta name="description" content="常用的注册中解决方案：  Eureka   非持久化存储、ap模型、去中心化集群模式 Zookeeper zab协议 Consul Nacos Redis Etcd  服务信息发生变化，消费者如何感知  等待注册中心push 优点：实时性高 缺点：注册中心需要维护所有活动消费者的信息才能完成推送   主动pull 优点：没有以上的缺点 缺点：服务信息更新的延迟时间可能会导致请求发送到实效节点">
 <meta name="keywords" content="SpringCloud">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SpringCloud-服务注册、调用以及负载均衡">
-<meta property="og:url" content="http://yoursite.com/child/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/index.html">
+<meta property="og:title" content="SpringCloud-Eureka自我保护机制">
+<meta property="og:url" content="http://yoursite.com/child/2019/07/07/SpringCloud-Eureka自我保护机制/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
-<meta property="og:description" content="传统java编程中如果想要在程序中发起http请求有哪些做法？开源的http工具包有很多，OkHttp、HttpClient、jdk自带的等等，使用这些工具并不方便，需要程序员手动封装一些请求参数，构造请求，手动调用发送请求，处理响应。。。 因此在spring对这些工具类进行了封装，对外只提供RestTemplate类，开发人员使用RestTemplate可以很方便的发送http请求，只需要指定h">
+<meta property="og:description" content="常用的注册中解决方案：  Eureka   非持久化存储、ap模型、去中心化集群模式 Zookeeper zab协议 Consul Nacos Redis Etcd  服务信息发生变化，消费者如何感知  等待注册中心push 优点：实时性高 缺点：注册中心需要维护所有活动消费者的信息才能完成推送   主动pull 优点：没有以上的缺点 缺点：服务信息更新的延迟时间可能会导致请求发送到实效节点">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-08T03:22:22.143Z">
+<meta property="og:updated_time" content="2020-07-20T02:54:43.838Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SpringCloud-服务注册、调用以及负载均衡">
-<meta name="twitter:description" content="传统java编程中如果想要在程序中发起http请求有哪些做法？开源的http工具包有很多，OkHttp、HttpClient、jdk自带的等等，使用这些工具并不方便，需要程序员手动封装一些请求参数，构造请求，手动调用发送请求，处理响应。。。 因此在spring对这些工具类进行了封装，对外只提供RestTemplate类，开发人员使用RestTemplate可以很方便的发送http请求，只需要指定h">
+<meta name="twitter:title" content="SpringCloud-Eureka自我保护机制">
+<meta name="twitter:description" content="常用的注册中解决方案：  Eureka   非持久化存储、ap模型、去中心化集群模式 Zookeeper zab协议 Consul Nacos Redis Etcd  服务信息发生变化，消费者如何感知  等待注册中心push 优点：实时性高 缺点：注册中心需要维护所有活动消费者的信息才能完成推送   主动pull 优点：没有以上的缺点 缺点：服务信息更新的延迟时间可能会导致请求发送到实效节点">
     
 
     
@@ -168,11 +168,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                116
+                126
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                31
+                33
                 <span>标签</span>
             </div>
         </div>
@@ -272,7 +272,7 @@
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file active"><a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-服务注册、调用以及负载均衡</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-服务熔断器Hystrix/">SpringCloud-服务熔断器Hystrix</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -282,6 +282,15 @@
                             noSql
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -309,6 +318,15 @@
                             分布式架构技术
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -426,7 +444,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><article id="post-SpringCloud-服务注册、调用以及负载均衡" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-SpringCloud-Eureka自我保护机制" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -448,8 +466,8 @@
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/01/01/SpringCloud-服务注册、调用以及负载均衡/">
-            <time datetime="2018-12-31T16:00:00.000Z" itemprop="datePublished">2019-01-01</time>
+        <a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">
+            <time datetime="2019-07-06T16:00:00.000Z" itemprop="datePublished">2019-07-07</time>
         </a>
     </div>
 
@@ -464,7 +482,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            SpringCloud-服务注册、调用以及负载均衡
+            SpringCloud-Eureka自我保护机制
         </h1>
     
 
@@ -477,48 +495,84 @@
             
         
         
-            <p>传统java编程中如果想要在程序中发起http请求有哪些做法？开源的http工具包有很多，OkHttp、HttpClient、jdk自带的等等，使用这些工具并不方便，需要程序员手动封装一些请求参数，构造请求，手动调用发送请求，处理响应。。。</p>
-<p>因此在spring对这些工具类进行了封装，对外只提供<code>RestTemplate</code>类，开发人员使用<code>RestTemplate</code>可以很方便的发送http请求，只需要指定http请求的服务器地址及端口号。</p>
-<h4 id="父项目依赖配置："><a href="#父项目依赖配置：" class="headerlink" title="父项目依赖配置："></a>父项目依赖配置：</h4><p>父项目pom配置：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spring.boot.version</span>&gt;</span>2.2.0.RELEASE<span class="tag">&lt;/<span class="name">spring.boot.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spring.cloud.version</span>&gt;</span>Hoxton.RELEASE<span class="tag">&lt;/<span class="name">spring.cloud.version</span>&gt;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring.boot.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring.cloud.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>boot版本号 2.2.x.RELEASE 应当使用的cloud版本序列为Hoxton.RELEASE</p>
-<p>父pom中这样配置，子模块中引入boot和cloud的依赖不再需要填写版本号信息，统一了系统的依赖版本</p>
-<h4 id="服务器配置："><a href="#服务器配置：" class="headerlink" title="服务器配置："></a>服务器配置：</h4><p>主类上注解@EnableEurekaServer，表示是服务器</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr"> application:</span></span><br><span class="line"><span class="attr">   name:</span> <span class="string">eureka-server</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line"><span class="attr">  instance:</span></span><br><span class="line"><span class="attr">    hostname:</span> <span class="string">localhost</span></span><br><span class="line"><span class="attr">  client:</span></span><br><span class="line"><span class="attr">    registerWithEureka:</span> <span class="literal">false</span> <span class="comment">#是否要注册到eureka</span></span><br><span class="line"><span class="attr">    fetchRegistry:</span> <span class="literal">false</span> <span class="comment">#表示是否从Eureka Server获取注册信息</span></span><br><span class="line"><span class="attr">    serviceUrl:</span></span><br><span class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;/eureka/</span> <span class="comment">#单机配置</span></span><br></pre></td></tr></table></figure>
-<p>eureka服务器不需要注册注册中心让别人发线，所以配置registerWithEureka为false </p>
-<p>也不需要获取其他服务的注册信息所以registerWithEureka 也为false</p>
-<p><strong>安全访问</strong></p>
-<p>eureka服务器可以配置安全访问，需要引入依赖spring-boot-stater-security，并配置user和password</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr"> security:</span></span><br><span class="line"><span class="attr">   user:</span></span><br><span class="line"><span class="attr">     name:</span> <span class="string">admin</span></span><br><span class="line"><span class="attr">     password:</span> <span class="number">123456</span></span><br></pre></td></tr></table></figure>
-<p>所有的客户端对的client.serviceUrl.defaultZone 都需要使用user:passwod@host 的形式进行配置</p>
-<p>eg:  <a href="http://admin:123456@localhost:8761/erueka/" target="_blank" rel="noopener">http://admin:123456@localhost:8761/erueka/</a></p>
-<h4 id="注册服务"><a href="#注册服务" class="headerlink" title="注册服务"></a>注册服务</h4><p>主类注解@EnableEurekaClient，表示是客户端</p>
-<p>基本配置：</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  application:</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">user-provider</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line"><span class="attr">  client:</span></span><br><span class="line"><span class="attr">    healthcheck:</span></span><br><span class="line"><span class="attr">      enabled:</span> <span class="literal">true</span> <span class="comment">#开启健康检查，需要引入actuator依赖</span></span><br><span class="line"><span class="attr">    service-url:</span></span><br><span class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://localhost:8761/eureka/</span> <span class="comment">#告诉服务提供者要把服务注册到哪儿</span></span><br><span class="line"><span class="attr">  instance:</span></span><br><span class="line"><span class="attr">      prefer-ip-address:</span> <span class="literal">true</span> <span class="comment">#显示客户端真实ip</span></span><br></pre></td></tr></table></figure>
-<p>如果是eureka服务器集群，defaultZone可以写个url，用“,”隔开</p>
-<p>若同一个服务需要部署多个实例，配置文件中服务名称srping.application.name需要一致</p>
-<h4 id="调用服务"><a href="#调用服务" class="headerlink" title="调用服务"></a>调用服务</h4><p>服务调用方也需要引入eureka-client依赖，但需设置不注册到服务中心</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eureka:</span></span><br><span class="line"><span class="attr">  client:</span></span><br><span class="line"><span class="attr">    register-with-eureka:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
-<p>服务调用可以使用ribbon或者feign进行负载均衡</p>
-<p><strong>使用ribbon：</strong></p>
-<p>eureka-client包中已经引入了netflix-ribbon，所以不用单独添加依赖。</p>
-<p>注册一个RestTemplate Bean</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConsumerApp</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">		SpringApplication.run(ConsumerApp.class);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@LoadBalanced</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> RestTemplater <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>根据服务名称调用服务：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span>  <span class="title">UserController</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span>  <span class="keyword">final</span> String URL_PREFIX = <span class="string">"http://USER-PROVIDER"</span>;</span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRestTemplate</span><span class="params">(RestTemplate template)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.restTemplate = template;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/user/&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span>Long id)</span>&#123;</span><br><span class="line">        <span class="comment">//调用远程服务 http请求</span></span><br><span class="line">        String url = URL_PREFIX+<span class="string">"/provider/user/"</span>+id;</span><br><span class="line">        <span class="keyword">return</span> restTemplate.getForObject(url,User.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>缺点是需要拼接字符串。</p>
-<p><strong>使用feign</strong></p>
-<p>feign底层也是使用的ribbon</p>
-<p>主类添加注解@EnableEurekaClient表示服务消费者是Eurrka客户端</p>
-<p>主类添加注解@EnableFeignClients表示使用Fegin进行负载</p>
-<p>首先定义fegint访问接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(value=<span class="string">"user-provider"</span>)<span class="comment">//需要调用的服务名称</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserServiceFeignClient</span></span>&#123;</span><br><span class="line">    <span class="comment">//此处为服务提供者提供的url</span></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"provider/user/&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span>Long id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在Controller中访问</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span></span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserServiceFeignClient client;</span><br><span class="line">    <span class="comment">//此处为服务消费者提供的url</span></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/user/&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span> Long id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> client.getUser(id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>比直接使用ribbon优雅多了</p>
-<p>这样使用Feign还有一个问题，开发者需要了解服务提供者提供的所有rest接口并编写FeignClient接口来调用服务，还是会产生一些模块间的耦合问题，有什么方法可以解决这个问题吗？</p>
-<p>如果FeignClient接口由服务提供者来编写，并打成jar包发布到仓库中，服务调用者只需要依赖提供者提供的api jar包，就能直接调用远程服务了。</p>
-<p>下面演示一下具体用法：</p>
+            <p>常用的注册中解决方案：</p>
+<ul>
+<li>Eureka   非持久化存储、ap模型、去中心化集群模式</li>
+<li>Zookeeper zab协议</li>
+<li>Consul</li>
+<li>Nacos</li>
+<li>Redis</li>
+<li>Etcd</li>
+</ul>
+<p>服务信息发生变化，消费者如何感知</p>
+<ul>
+<li>等待注册中心push<ul>
+<li>优点：实时性高</li>
+<li>缺点：注册中心需要维护所有活动消费者的信息才能完成推送</li>
+</ul>
+</li>
+<li>主动pull<ul>
+<li>优点：没有以上的缺点</li>
+<li>缺点：服务信息更新的延迟时间可能会导致请求发送到实效节点</li>
+</ul>
+</li>
+<li>long polling</li>
+</ul>
+<h4 id="Eureka的自我保护机制"><a href="#Eureka的自我保护机制" class="headerlink" title="Eureka的自我保护机制"></a>Eureka的自我保护机制</h4><p>Eureka Server在运行期间会去统计心跳成功的比例在15分钟之内是否低于85% , 如果低于85%， Eureka Server会认为当前实例的客户端与自己的心跳连接出现了网络故障，那么Eureka Server会把这 些实例保护起来，让这些实例不会过期导致实例剔除。</p>
+<p>这样做的目的是<strong><em>为了减少网络不稳定或者网络分区的情况下，Eureka Server将健康服务剔除下线的问题</em></strong>。 使用自我保护机制可以使得Eureka 集群更加健壮和稳定的运行。</p>
+<p>进入自我保护状态后，会出现以下几种情况：</p>
+<ul>
+<li>Eureka Server不再从注册列表中移除因为长时间没有收到心跳而应该剔除的过期服务</li>
+<li>Eureka Server仍然能够接受新服务的注册和查询请求，但是不会被同步到其他节点上，保证当前节点依然可用。</li>
+</ul>
+<h5 id="开启自我保护"><a href="#开启自我保护" class="headerlink" title="开启自我保护"></a>开启自我保护</h5><p>为了演示效果，我们通过如下配置，将判定时间改为10s，接着启动Eureka Server，等待10s之 后，就会出现以上提示信息，表示自我保护被激活了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#设置 eureka server同步失败的等待时间默认5分</span><br><span class="line">#在这期间，它不向客户端提供服务注册信息 </span><br><span class="line">eureka.server.wait-time-in-ms-when-sync-empty=10000</span><br></pre></td></tr></table></figure>
+<h5 id="两个变量"><a href="#两个变量" class="headerlink" title="两个变量"></a>两个变量</h5><p>在Eureka的自我保护机制中，有两个很重要的变量，Eureka的自我保护机制，都是围绕这两个变量来 实现的，在AbstractInstanceRegistry这个类中定义的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//每分钟最小续约数量</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="keyword">int</span> numberOfRenewsPerMinThreshold; </span><br><span class="line"><span class="comment">//预期每分钟收到续约的 客户端数量，取决于注册到eureka server上的服务数量</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="keyword">int</span> expectedNumberOfClientsSendingRenews;</span><br></pre></td></tr></table></figure>
+<p><code>numberOfRenewsPerMinThreshold</code> 表示每分钟的最小续约数量，它表示什么意思呢?就是Eureka Server期望每分钟收到客户端实例续约的总数的阈值。如果小于这个阈值，就会触发自我保护机制。</p>
+<p>它是在以下代码中赋值的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">updateRenewsPerMinThreshold</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.numberOfRenewsPerMinThreshold = (<span class="keyword">int</span>)(<span class="keyword">this</span>.expectedNumberOfClientsSendingRenews </span><br><span class="line">			* (<span class="number">60.0</span> / serverConfig.getExpectedClientRenewalIntervalSeconds())</span><br><span class="line">			* serverConfig.getRenewalPercentThreshold());</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//自我保护阀值 = 服务总数 * 每分钟续约数(60S/客户端续约间隔) * 自我保护续约百分比阀值因子</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>getExpectedClientRenewalIntervalSeconds，客户端的续约间隔，默认为30s </li>
+<li>getRenewalPercentThreshold，自我保护续约百分比阈值因子，默认0.85。 也就是说每分钟的续 约数量要大于85%</li>
+</ul>
+<h5 id="这两个变量的更新"><a href="#这两个变量的更新" class="headerlink" title="这两个变量的更新"></a>这两个变量的更新</h5><p>需要注意的是，这两个变量是动态更新的，有四个地方来更新这两个值</p>
+<ol>
+<li><strong>Eureka-Server的初始化</strong></li>
+</ol>
+<p>在EurekaBootstrap这个类中，有一个 initEurekaServerContext 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initEurekaServerContext</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    EurekaServerConfig eurekaServerConfig = <span class="keyword">new</span> DefaultEurekaServerConfig();</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">    registry.openForTraffic(applicationInfoManager, registryCount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PeerAwareInstanceRegistryImpl.openForTraffic</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">openForTraffic</span><span class="params">(ApplicationInfoManager applicationInfoManager, <span class="keyword">int</span></span></span></span><br><span class="line"><span class="function"><span class="params">count)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">this</span>.expectedNumberOfClientsSendingRenews = count; <span class="comment">//初始化</span></span><br><span class="line">   updateRenewsPerMinThreshold(); <span class="comment">//更新numberOfRenewsPerMinThreshold </span></span><br><span class="line">   logger.info(<span class="string">"Got &#123;&#125; instances from neighboring DS node"</span>, count); </span><br><span class="line">   logger.info(<span class="string">"Renew threshold is: &#123;&#125;"</span>, numberOfRenewsPerMinThreshold); <span class="keyword">this</span>.startupTime = System.currentTimeMillis();</span><br><span class="line">   <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">     <span class="keyword">this</span>.peerInstancesTransferEmptyOnStartup = <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   DataCenterInfo.Name selfName =applicationInfoManager.getInfo().getDataCenterInfo().getName();</span><br><span class="line">   <span class="keyword">boolean</span> isAws = Name.Amazon == selfName;</span><br><span class="line">   <span class="keyword">if</span> (isAws &amp;&amp; serverConfig.shouldPrimeAwsReplicaConnections()) &#123;</span><br><span class="line">     logger.info(<span class="string">"Priming AWS connections for all replicas.."</span>);</span><br><span class="line">     primeAwsReplicas(applicationInfoManager);</span><br><span class="line">   &#125;</span><br><span class="line">   logger.info(<span class="string">"Changing status to UP"</span>);</span><br><span class="line">   applicationInfoManager.setInstanceStatus(InstanceStatus.UP);</span><br><span class="line">   <span class="keyword">super</span>.postInit();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li><strong>PeerAwareInstanceRegistryImpl.cancel</strong></li>
+</ol>
+<p>当服务提供者主动下线时，表示这个时候Eureka-Server要剔除这个服务提供者的地址，同时也代表这 这个心跳续约的阈值要发生变化。所以在 PeerAwareInstanceRegistryImpl.cancel 中可以看到数据 的更新</p>
+<p>调用路径 PeerAwareInstanceRegistryImpl.cancel -&gt; AbstractInstanceRegistry.cancel- &gt;internalCancel</p>
+<p>服务下线之后，意味着需要发送续约的客户端数量递减了，所以在这里进行修改</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">internalCancel</span><span class="params">(String appName, String id, <span class="keyword">boolean</span></span></span></span><br><span class="line"><span class="function"><span class="params">isReplication)</span> </span>&#123;</span><br><span class="line">  <span class="comment">//....</span></span><br><span class="line">  <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">this</span>.expectedNumberOfClientsSendingRenews &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// Since the client wants to cancel it, reduce the number of clientsto send renews.</span></span><br><span class="line">       	<span class="keyword">this</span>.expectedNumberOfClientsSendingRenews =<span class="keyword">this</span>.expectedNumberOfClientsSendingRenews - <span class="number">1</span>;</span><br><span class="line">         updateRenewsPerMinThreshold();</span><br><span class="line">      &#125; </span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li><strong>PeerAwareInstanceRegistryImpl.register</strong></li>
+</ol>
+<p>当有新的服务提供者注册到eureka-server上时，需要增加续约的客户端数量，所以在register方法中会 进行处理</p>
+<p>register -&gt;super.register(AbstractInstanceRegistry)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(InstanceInfo registrant, <span class="keyword">int</span> leaseDuration, booleanisReplication)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// The lease does not exist and hence it is a new registration</span></span><br><span class="line">   <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.expectedNumberOfClientsSendingRenews &gt; <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="keyword">this</span>.expectedNumberOfClientsSendingRenews =<span class="keyword">this</span>.expectedNumberOfClientsSendingRenews + <span class="number">1</span>;</span><br><span class="line">         updateRenewsPerMinThreshold();</span><br><span class="line">			&#125; </span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li><strong>PeerAwareInstanceRegistryImpl.scheduleRenewalThreshold UpdateTask</strong></li>
+</ol>
+<p>15分钟运行一次，判断在15分钟之内心跳失败比例是否低于85%。在</p>
+<p>DefaultEurekaServerContext 》@PostConstruct修饰的initialize()方法》init()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scheduleRenewalThresholdUpdateTask</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  timer.schedule(<span class="keyword">new</span> TimerTask() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      updateRenewalThreshold();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, serverConfig.getRenewalThresholdUpdateIntervalMs(),</span><br><span class="line">                 serverConfig.getRenewalThresholdUpdateIntervalMs());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateRenewalThreshold</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Applications apps = eurekaClient.getApplications();</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (Application app : apps.getRegisteredApplications()) &#123;</span><br><span class="line">            <span class="keyword">for</span> (InstanceInfo instance : app.getInstances()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">this</span>.isRegisterable(instance)) &#123;</span><br><span class="line">										++count; </span><br><span class="line">                &#125;</span><br><span class="line">						&#125; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">            <span class="comment">// Update threshold only if the threshold is greater than the</span></span><br><span class="line">            <span class="comment">// current expected threshold or if self preservation is disabled.</span></span><br><span class="line">            <span class="keyword">if</span> ((count) &gt; (serverConfig.getRenewalPercentThreshold() *</span><br><span class="line">expectedNumberOfClientsSendingRenews)</span><br><span class="line">                || (!<span class="keyword">this</span>.isSelfPreservationModeEnabled())) &#123;</span><br><span class="line">                <span class="keyword">this</span>.expectedNumberOfClientsSendingRenews = count;</span><br><span class="line">                updateRenewsPerMinThreshold();</span><br><span class="line">            &#125;</span><br><span class="line">				&#125;</span><br><span class="line">        logger.info(<span class="string">"Current renewal threshold is : &#123;&#125;"</span>,numberOfRenewsPerMinThreshold);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        logger.error(<span class="string">"Cannot update renewal threshold"</span>, e);</span><br><span class="line">		&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="自我保护机制触发任务"><a href="#自我保护机制触发任务" class="headerlink" title="自我保护机制触发任务"></a>自我保护机制触发任务</h4><p>在AbstractInstanceRegistry的postInit方法中，会开启一个EvictionTask的任务，这个任务用来检测是 否需要开启自我保护机制。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postInit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   renewsLastMin.start();</span><br><span class="line">   <span class="keyword">if</span> (evictionTaskRef.get() != <span class="keyword">null</span>) &#123;</span><br><span class="line">       evictionTaskRef.get().cancel();</span><br><span class="line">   &#125;</span><br><span class="line">   evictionTaskRef.set(<span class="keyword">new</span> EvictionTask());</span><br><span class="line">   evictionTimer.schedule(evictionTaskRef.get(),</span><br><span class="line">                          serverConfig.getEvictionIntervalTimerInMs(),</span><br><span class="line">                          serverConfig.getEvictionIntervalTimerInMs());</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>其中，EvictionTask表示最终执行的任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">private</span> <span class="keyword">final</span> AtomicLong lastExecutionNanosRef = <span class="keyword">new</span> AtomicLong(<span class="number">0l</span>);</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">long</span> compensationTimeMs = getCompensationTimeMs();</span><br><span class="line">        logger.info(<span class="string">"Running the evict task with compensationTime &#123;&#125;ms"</span>,compensationTimeMs);</span><br><span class="line">        evict(compensationTimeMs);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        logger.error(<span class="string">"Could not run the evict task"</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">evict</span><span class="params">(<span class="keyword">long</span> additionalLeaseMs)</span> </span>&#123;</span><br><span class="line">    logger.debug(<span class="string">"Running the evict task"</span>);</span><br><span class="line">	<span class="comment">// 是否需要开启自我保护机制，如果需要，那么直接RETURE， 不需要继续往下执行了 </span></span><br><span class="line">   <span class="keyword">if</span> (!isLeaseExpirationEnabled()) &#123;</span><br><span class="line">      logger.debug(<span class="string">"DS: lease expiration is currently disabled."</span>);</span><br><span class="line">      <span class="keyword">return</span>; </span><br><span class="line"> 		&#125;</span><br><span class="line"><span class="comment">//这下面主要是做服务自动下线的操作的 </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>isLeaseExpirationEnabled</strong></p>
+<ul>
+<li>是否开启了自我保护机制，如果没有，则跳过，默认是开启 </li>
+<li>计算是否需要开启自我保护，判断最后一分钟收到的续约数量是否大于 numberOfRenewsPerMinThreshold</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isLeaseExpirationEnabled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!isSelfPreservationModeEnabled()) &#123;</span><br><span class="line">        <span class="comment">// The self preservation mode is disabled, hence allowing the instancesto expire.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> numberOfRenewsPerMinThreshold &gt; <span class="number">0</span> &amp;&amp; </span><br><span class="line">      getNumOfRenewsInLastMin() &gt;numberOfRenewsPerMinThreshold;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
             </div>
         
@@ -531,19 +585,19 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    SpringCloud-服务网关zuul
+                    rabbitmq-消息的可靠性投递
                 
             </div>
         </a>
     
     
-        <a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">协议-http和https</div>
+            <div class="article-nav-title">kafka-消息的存储</div>
         </a>
     
 </nav>

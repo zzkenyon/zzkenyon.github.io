@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>SpringCloud-Gateway网关 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="SpringCloud">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="在微服务架构中，每个服务都是一个可以独立开发和运行的组件，而一个完整的微服务架构由一系列独 立运行的微服务组成。其中每个服务都只会完成特定领域的功能，比如订单服务提供与订单业务场景有 关的功能、商品服务提供商品展示功能等。各个微服务之间通过轻量级通信机制 REST API 或者 RPC 完 成通信。 微服务之后在某些层面会带来一定的影响，比如，一个用户查看一个商品的详情，对于客户端 来说，可能需要">
+<meta name="keywords" content="SpringCloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloud-Gateway网关">
+<meta property="og:url" content="http://yoursite.com/child/2019/07/20/SpringCloud-Gateway网关/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="在微服务架构中，每个服务都是一个可以独立开发和运行的组件，而一个完整的微服务架构由一系列独 立运行的微服务组成。其中每个服务都只会完成特定领域的功能，比如订单服务提供与订单业务场景有 关的功能、商品服务提供商品展示功能等。各个微服务之间通过轻量级通信机制 REST API 或者 RPC 完 成通信。 微服务之后在某些层面会带来一定的影响，比如，一个用户查看一个商品的详情，对于客户端 来说，可能需要">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/cloud/spring_cloud_gateway_diagram.png">
+<meta property="og:updated_time" content="2020-07-31T01:09:02.864Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringCloud-Gateway网关">
+<meta name="twitter:description" content="在微服务架构中，每个服务都是一个可以独立开发和运行的组件，而一个完整的微服务架构由一系列独 立运行的微服务组成。其中每个服务都只会完成特定领域的功能，比如订单服务提供与订单业务场景有 关的功能、商品服务提供商品展示功能等。各个微服务之间通过轻量级通信机制 REST API 或者 RPC 完 成通信。 微服务之后在某些层面会带来一定的影响，比如，一个用户查看一个商品的详情，对于客户端 来说，可能需要">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/cloud/spring_cloud_gateway_diagram.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                126
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                33
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-SpringCloud-Gateway网关" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">
+            <time datetime="2019-07-19T16:00:00.000Z" itemprop="datePublished">2019-07-20</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            SpringCloud-Gateway网关
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>在微服务架构中，每个服务都是一个可以独立开发和运行的组件，而一个完整的微服务架构由一系列独 立运行的微服务组成。其中每个服务都只会完成特定领域的功能，比如订单服务提供与订单业务场景有 关的功能、商品服务提供商品展示功能等。各个微服务之间通过轻量级通信机制 REST API 或者 RPC 完 成通信。 微服务之后在某些层面会带来一定的影响，比如，一个用户查看一个商品的详情，对于客户端 来说，可能需要调用商品服务、评论服务、库存服务、营销服务等多个服务来完成数据的渲染</p>
+<p>在这个场景中，客户端虽然能通过调用多个服务实现数据的获取，但是会存在一 些问题，比如:</p>
+<ul>
+<li>客户端需要发起多次请求，增加了网络通信的成本及客户端处理的复杂性。 </li>
+<li>服务的鉴权会分布在每个微服务中处理，客户端对于每个服务的调用都需要重复鉴权。</li>
+<li>在后端的微服务架构中，可能不同的服务采用的协议不同，比如有 HTTP、RPC 等。客户端如果需要调用多个服务，需要对不同协议进行适配</li>
+</ul>
+<p>所以，我们可以在微服务之前增加一个前置节点，这个节点就是网关，</p>
+<p>什么是网关呢? 大家都知道，从一个房间走到另一个房间，必然要经过一扇门，同样，从一个网络向另一个网络发送信息，也必须经过一道关口，顾名思义，网关就是一个网络连接到另一个网络的“关口”。 也就是网络。</p>
+<p>而在微服务架构中，它不仅仅只是一个网络互连的一个关口，还有更多的作用，以前面分析的这个场景 为例，增加网关之后。</p>
+<p>对于商品详情展示的场景来说，增加了 API 网关之后，在 API 网关层可以把后端的多个服务进行整合，然后提供一个唯一的业务接口，客户端只需要调用这个接口即可完成数据的获取及展示。在网关中会再去消费后端的多个微服务进行统一的整合，给客户端返回一个唯一的响应。</p>
+<p>当然，网关不仅只是做一个请求转发以及服务整合，有了网关这个统一的入口之后，它还能提供</p>
+<ul>
+<li>针对所有请求进行统一鉴权、限流、熔断、日志。 </li>
+<li><p>协议转化。针对后端多种不同的协议，在网关层统一处理后以 HTTP 协议对外提供服务。</p>
+</li>
+<li><p>用过 Dubbo 框架应该知道，针对 Dubbo 服务还需要提供一个 Web 应用来进行协议 转 化。</p>
+</li>
+<li><p>统一错误码处理。</p>
+</li>
+<li><p>请求转发，并且可以基于网关实现内外网隔离</p>
+</li>
+</ul>
+<h4 id="1-网关的作用以及要求"><a href="#1-网关的作用以及要求" class="headerlink" title="1. 网关的作用以及要求"></a>1. 网关的作用以及要求</h4><p>作用：</p>
+<ol>
+<li>性能:API高可用，负载均衡，容错机制。 </li>
+<li>安全:权限身份认证、脱敏，流量清洗，后端签名(保证全链路可信调用),黑名单(非法调用的限制)。 </li>
+<li><p>日志:日志记录(spainid,traceid)一旦涉及分布式，全链路跟踪必不可少。 缓存:数据缓存。</p>
+</li>
+<li><p>监控:记录请求响应数据，api耗时分析，性能监控。 限流:流量控制，错峰流控，可以定义多种限流规则。 </p>
+</li>
+<li><p>灰度:线上灰度部署，可以减小风险。</p>
+</li>
+<li><p>路由:动态路由规则。</p>
+</li>
+</ol>
+<p>要求：</p>
+<p>网关成了所有流量的入口，那么对于这样一个角色来说，它需要在某些方面 有很高的要求。</p>
+<ul>
+<li><p>稳定性，</p>
+</li>
+<li><p>安全性，防止恶意请求，以及保障数据传输的安全性 </p>
+</li>
+<li><p>高性能、可用性，</p>
+<ul>
+<li>网关作为所有流量的入口，那么对于性能这块的要求就非常高了，因为一旦网关的性能出现 瓶颈，几遍后端的服务性能再高，意义也不大 </li>
+<li>网关必须要支持集群部署，这个是分布式架构的基本要求。否则网关服务挂掉就会导致整个 系统不可用</li>
+</ul>
+</li>
+<li><p>扩展性，可维护性，对于定制化需求方面，如何实现可扩展;</p>
+</li>
+</ul>
+<h4 id="2-常见的网关解决方案以及选型"><a href="#2-常见的网关解决方案以及选型" class="headerlink" title="2. 常见的网关解决方案以及选型"></a>2. 常见的网关解决方案以及选型</h4><ol>
+<li>OpenResty(Nginx+lua)</li>
+<li><p>Kong，是基于openresty之上的一个封装，提供了更简单的配置方式。 它还提供了付费的商业插 件</p>
+</li>
+<li><p>Tyk(开源、轻量级)，Tyk 是一个开源的、轻量级的、快速可伸缩的 API 网关，支持配额和速度 限制，支持认证和数据分析，支持多用户多组织，提供全 RESTful API。它是基于go语言开发的组 件。</p>
+</li>
+<li><p>Zuul，是spring cloud生态下提供的一个网关服务，性能相对来说不是很高</p>
+</li>
+<li><p>Spring Cloud Gateway，是Spring团队开发的高性能网关</p>
+</li>
+</ol>
+<p>网关选型主要关注几个方面</p>
+<ul>
+<li><p>部署和维护成本</p>
+</li>
+<li><p>开源还是闭源</p>
+</li>
+<li><p>是否私有化部署</p>
+</li>
+<li><p>功能是否满足当前需求</p>
+</li>
+<li><p>社区资料的完善以及版本迭代和功能维护</p>
+</li>
+</ul>
+<h4 id="3-Spring-Cloud-Gateway的核心概念"><a href="#3-Spring-Cloud-Gateway的核心概念" class="headerlink" title="3. Spring Cloud Gateway的核心概念"></a>3. Spring Cloud Gateway的核心概念</h4><ol>
+<li>Route 路由，它是网关的基础元素，包含ID、目标URI、断言、过滤器组成，当前请求到达网关 时，会通过Gateway Handler Mapping，基于断言进行路由匹配，当断言为true时，匹配到路由 进行转发 </li>
+<li>Predicate，断言，学过java8的同学应该知道这个函数，它可以允许开发人员去匹配HTTP请求中 的元素，一旦匹配为true，则表示匹配到合适的路由进行转发</li>
+<li>Filter，过滤器，可以在请求发出的前后进行一些业务上的处理，比如授权、埋点、限流等。</li>
+</ol>
+<p>它的整体工作原理如下。 其中，predicate就是我们的匹配条件；而filter，就可以理解为一个无所不能的拦截器。有了这两个元素，再加上目标uri，就可以实现一个具体的路由了。</p>
+<p> 客户端向 Spring Cloud Gateway 发出请求，如果请求与网关程序定义的路由匹配，则该请求就会被发送到网关 Web 处理程序，此时处理程序运行特定的请求过滤器链。</p>
+<p>过滤器之间用虚线分开的原因是过滤器可能会在发送代理请求的前后执行逻辑。所有 pre 过滤器逻辑先 执行，然后执行代理请求;代理请求完成后，执行 post 过滤器逻辑</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/cloud/spring_cloud_gateway_diagram.png" alt="gateway执行流程图（来源官网）"></p>
+<p>路由规则示例：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  application:</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">gateway-server</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">lb_route</span>  <span class="comment"># 指定id，用户自定义</span></span><br><span class="line"><span class="attr">          pridicates:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">Path=/lb/**</span> <span class="comment"># 断言，请求网关的请求uri要满足此要求，还有其他断言类型</span></span><br><span class="line"><span class="attr">          filters:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">StripPrefix=1</span> <span class="comment"># 过滤器，跳过url第一个前缀</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">lb://order-service</span> <span class="comment"># 目标uri，lb是负载均衡协议，需要配置注册中心客户端</span></span><br></pre></td></tr></table></figure>
+<h5 id="3-1-断言"><a href="#3-1-断言" class="headerlink" title="3.1 断言"></a>3.1 断言</h5><p>gateway为我们定义了14种断言工厂，在包<code>org.springframework.cloud.gateway.handler.predicate</code>中。</p>
+<p>示例中配置的断言<code>Path=/lb/**</code>实际用到的是<code>PathRoutePredicateFactory</code>工厂类，配置时只需要使用工厂类的前缀path。</p>
+<ul>
+<li><code>AfterRoutePredicateFactory</code>    接收一个时间参数，当前时间在此时间之后，返回true</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">after_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">After=2017-01-20T17:42:47.789-07:</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>BeforeRoutePredicateFactory</code>    接收一个时间参数，当前时间在此时间之前，返回true</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">before_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Before=2017-01-20T17:42:47.789-07:00[America/Denver]</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>BetweenRoutePredicateFactory</code>    接收两个时间参数，当前时间在两时间之内，返回true</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">between_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Between=2017-01-20T17:42:47.789-07:00[America/Denver],</span> <span class="number">2017</span><span class="bullet">-01</span><span class="bullet">-21</span><span class="attr">T17:42:47.789-07:00[America/Denver]</span></span><br></pre></td></tr></table></figure>
+<p>此路由匹配在2017年1月20日17点42分(丹佛)之后和2017年1月21日17点42分(丹佛)之前发出的请求。这对于维护窗口非常有用。</p>
+<ul>
+<li><code>CookieRoutePredicateFactory</code> 工厂接受两个参数，Cookie名称和regexp(一个Java正则表达式)。此断言匹配具有给定名称且其值与正则表达式匹配的cookie。下面的示例配置了一个cookie路由谓词工厂:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span>  </span><br><span class="line">	<span class="attr">cloud:</span>    </span><br><span class="line">		<span class="attr">gateway:</span>      </span><br><span class="line">			<span class="attr">routes:</span>      </span><br><span class="line"><span class="attr">        - id:</span> <span class="string">cookie_route</span>        </span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span>        </span><br><span class="line"><span class="attr">          predicates:</span>        </span><br><span class="line"><span class="bullet">            -</span> <span class="string">Cookie=chocolate,</span> <span class="string">ch.p</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>HeaderRoutePredicateFactory</code> 消息头路由工厂接受两个参数，消息头名称和regexp(一个Java正则表达式)。此谓词与具有给定名称的头匹配，该头的值与正则表达式匹配。下面的示例配置了一个头路由谓词:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">header_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Header=X-Request-Id,</span> <span class="string">\d+</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>HostRoutePredicateFactory</code>主机路由工厂接受一个参数:主机名模式列表。该模式是一个ant样式的模式。作为分隔符。此谓词匹配与模式匹配的主机头。下面的示例配置了一个主机路由谓词:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">host_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line"><span class="bullet">           -</span> <span class="string">Host=**.somehost.org,**.anotherhost.org</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>MethodRoutePredicateFactory 方法路由工厂接受一个方法参数，该参数是一个或多个参数:要匹配的HTTP方法。下面的示例配置了一个方法路由谓词:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">method_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Method=GET,POST</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>PathRoutePredicateFactory  路径路由工厂接受两个参数:Spring PathMatcher模式列表和一个称为matchOptionalTrailingSeparator的可选标志。下面的示例配置了一个路径路由谓词:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">path_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Path=/red/&#123;segment&#125;,/</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>QueryRoutePredicateFactory   查询路由工厂接受两个参数:一个必需的param和一个可选的regexp(一个Java正则表达式)。下面的示例配置了一个查询路由谓词:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">query_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Query=green</span></span><br></pre></td></tr></table></figure>
+<p>如果请求包含<code>green</code>查询参数，则匹配成功。</p>
+<ul>
+<li>RemoteAddrRoutePredicateFactory 匹配请求源的ip地址</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">remoteaddr_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">RemoteAddr=192.168.1.1/24</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>WeightRoutePredicateFactory  权重路由工厂有两个参数:group和weight(int)。权重按组计算。下面的示例配置了一个权重路由谓词:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">weight_high</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://weighthigh.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Weight=group1,</span> <span class="number">8</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">weight_low</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://weightlow.org</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">         	 	<span class="bullet">-</span> <span class="string">Weight=group1,</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>这路由配置将把~80%的流量转发到weighthigh.org，并将~20%的流量转发到weighlow.org</p>
+<p><strong><em>注意：一个router中可以配置多个predicate，他们之间是&amp;关系，即所有的条件都满足才会进入filter</em></strong></p>
+<p>自定义断言</p>
+<h5 id="3-2-过滤器"><a href="#3-2-过滤器" class="headerlink" title="3.2 过滤器"></a>3.2 过滤器</h5><p>gateway为我们定义了30种过滤器工厂，在包<code>org.springframework.cloud.gateway.filter.factory</code>中。</p>
+<p>示例中配置的<code>StripPrefix=1</code>实际使用的是<code>StripPrefixGatewayFilterFactory</code>工厂，配置时只需要使用工厂类的前缀<code>StripPrefix</code>。</p>
+<ul>
+<li>AddRequestHeaderGatewayFilterFactory </li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">add_request_header_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          filters:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">AddRequestHeader=X-Request-red,</span> <span class="string">blue</span></span><br></pre></td></tr></table></figure>
+<p>该过滤器向请求头中添加参数 <code>X-Request-red = blue</code>  ，参数的值可以动态指定：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">      - id:</span> <span class="string">add_request_header_route</span></span><br><span class="line"><span class="attr">        uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">        predicates:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">Path=/red/&#123;segment&#125;</span>  <span class="comment"># 请求uri中传入segment</span></span><br><span class="line"><span class="attr">        filters:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">AddRequestHeader=X-Request-Red,</span> <span class="string">Blue-&#123;segment&#125;</span>   <span class="comment">#将segment添加到请求头中</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>AddRequestParameterGatewayFilterFactory 添加请求参数</li>
+<li><p>AddResponseHeaderGatewayFilterFactory  添加响应头</p>
+</li>
+<li><p>RemoveRequestHeaderGatewayFilterFactory 移除</p>
+</li>
+<li>RemoveRequestParameterGatewayFilterFactory 移除</li>
+<li>RemoveResponseHeaderGatewayFilterFactory  移除 </li>
+<li>SetRequestHeaderGatewayFilterFactory 修改</li>
+<li>SetResponseHeaderGatewayFilterFactory 修改</li>
+</ul>
+<ul>
+<li>DedupeResponseHeaderGatewayFilterFactory </li>
+</ul>
+<p>DedupeResponseHeader网关过滤器工厂接受一个name参数和一个可选的策略参数。name可以包含一个以空格分隔的标题名称列表。下面的示例配置了DedupeResponseHeader网关过滤器:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">dedupe_response_header_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">          filters:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">DedupeResponseHeader=Access-Control-Allow-Credentials</span> <span class="string">Access-Control-Allow-Origin</span></span><br></pre></td></tr></table></figure>
+<p>当网关CORS逻辑和下游逻辑都添加<code>Access-Control-Allow-Credentials</code>和访<code>Access-Control-Allow-Origin</code>响应头时，这将删除它们的重复值。</p>
+<p>DedupeResponseHeader过滤器还接受一个可选的策略参数。接受的值是<code>RETAIN_FIRST</code>(默认)、<code>RETAIN_LAST</code>和<code>RETAIN_UNIQUE</code>。</p>
+<ul>
+<li>HystrixGatewayFilterFactory</li>
+</ul>
+<p>该工厂需要一个<code>name</code>参数，它是<code>HystrixCommand</code>的名称。以下示例配置<code>HystrixGatewayFilter</code>：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">      - id:</span> <span class="string">hystrix_route</span></span><br><span class="line"><span class="attr">        uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">        filters:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">Hystrix=myCommandName</span></span><br></pre></td></tr></table></figure>
+<p>这会将其余过滤器(配置在它之后的过滤器)包装<code>HystrixCommand</code>，并命名为<code>myCommandName</code>。</p>
+<p>Hystrix过滤器也可以接受可选<code>fallbackUri</code>参数。当前，仅支持<code>forward:</code>格式的URI。</p>
+<p>如果调用了fallback，则请求将转发到与URI匹配的控制器。以下示例配置了这种后备：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">- id:</span> <span class="string">hystrix_route</span></span><br><span class="line">	<span class="attr">uri:</span> <span class="attr">lb://backing-service:8088</span></span><br><span class="line">	<span class="attr">predicates:</span></span><br><span class="line">		<span class="bullet">-</span> <span class="string">Path=/consumingserviceendpoint</span></span><br><span class="line">	<span class="attr">filters:</span></span><br><span class="line">		<span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Hystrix</span></span><br><span class="line">		<span class="attr">args:</span></span><br><span class="line">			<span class="attr">name:</span> <span class="string">fallbackcmd</span></span><br><span class="line">			<span class="attr">fallbackUri:</span> <span class="attr">forward:/incaseoffailureusethis</span></span><br><span class="line">		<span class="bullet">-</span> <span class="string">RewritePath=/consumingservic</span></span><br></pre></td></tr></table></figure>
+<p>调用Hystrix  fallback时将转发到URI<code>/incaseoffailureusethis</code>。请注意，此示例还演示了（可选）Spring Cloud Netflix Ribbon负载平衡（<code>lb</code>在目标URI上定义了前缀）。</p>
+<p>主要方案是通过<code>fallbackUri</code>跳转到网关应用程序中的内部控制器或处理程序。但是，您还可以将请求重新路由到外部应用程序中的控制器或处理程序，如下所示：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">- id:</span> <span class="string">ingredients</span></span><br><span class="line"><span class="attr">   uri:</span> <span class="attr">lb://ingredients</span></span><br><span class="line"><span class="attr">   predicates:</span></span><br><span class="line"><span class="bullet">   -</span> <span class="string">Path=//ingredients/**</span></span><br><span class="line"><span class="attr">   filters:</span></span><br><span class="line"><span class="attr">   - name:</span> <span class="string">Hystrix</span></span><br><span class="line"><span class="attr">     args:</span></span><br><span class="line"><span class="attr">       name:</span> <span class="string">fetchIngredients</span></span><br><span class="line"><span class="attr">       fallbackUri:</span> <span class="attr">forward:/fallback</span></span><br><span class="line"><span class="attr"> - id:</span> <span class="string">ingredients-fallback</span></span><br><span class="line"><span class="attr">   uri:</span> <span class="attr">http://localhost:9994</span></span><br><span class="line"><span class="attr">   predicates:</span></span><br><span class="line"><span class="bullet">   -</span> <span class="string">Path=/fallback</span></span><br></pre></td></tr></table></figure>
+<p>在此示例中，网管服务中没有定义fallback处理程序，而是将fallback转发到了<a href="http://localhost:9994上" target="_blank" rel="noopener">http://localhost:9994上</a></p>
+<p>万一请求转发给fallback，则Hystrix网关过滤器还会提供引起fallback的<code>Throwable</code>详细信息。它作为<code>ServerWebExchangeUtils.HYSTRIX_EXECUTION_EXCEPTION_ATTR</code>属性添加到<code>ServerWebExchange</code>中，可以在处理网关应用程序中的fallback时使用该属性。</p>
+<p>对于外部控制器/处理程序方案，您可以添加带有异常详细信息的标头。详见下面的<code>FallbackHeadersGatewayFilterFactory</code>介绍</p>
+<p>您可以使用使用全局默认值或逐条路由配置Hystrix设置（例如超时）来hystrix的配置。</p>
+<p>要为前面显示的示例路由设置五秒钟的超时时间，可以使用以下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hystrix.command.fallbackcmd.execution.isolation.thread.timeoutInMilliseconds: 5000</span><br></pre></td></tr></table></figure>
+<ul>
+<li>FallbackHeadersGatewayFilterFactory </li>
+</ul>
+<p>通过<code>FallbackHeaders</code>工厂，可以将Hystrix或Spring Cloud CircuitBreaker执行异常的详细信息添加到<code>fallbackUri</code>指定请求头中，如以下情况：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">ingredients</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">lb://ingredients</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="string">Path=//ingredients/**</span></span><br><span class="line"><span class="attr">          filters:</span></span><br><span class="line"><span class="attr">            - name:</span> <span class="string">CircuitBreaker</span></span><br><span class="line"><span class="attr">              args:</span></span><br><span class="line"><span class="attr">                name:</span> <span class="string">fetchIngredients</span></span><br><span class="line"><span class="attr">                fallbackUri:</span> <span class="attr">forward:/fallback</span>  <span class="comment"># 发生熔断转发到  /fallback</span></span><br><span class="line">               </span><br><span class="line"><span class="attr">        - id:</span> <span class="string">ingredients-fallback</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">http://localhost:9994</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line">         	 <span class="bullet">-</span> <span class="string">Path=/fallback</span>  <span class="comment"># fallback 路由到http://localhost:9994，且转发请求投中添加熔断详细信息</span></span><br><span class="line"><span class="attr">          filters:</span></span><br><span class="line">          	<span class="bullet">-</span> <span class="attr">name:</span> <span class="string">FallbackHeaders</span></span><br><span class="line">            	<span class="attr">args:</span></span><br><span class="line">              	<span class="attr">executionExceptionTypeHeaderName:</span> <span class="string">Test-Header</span></span><br></pre></td></tr></table></figure>
+<p>在此示例中，在运行断路器时发生执行异常后，该请求将转发到在上<code>fallback</code>运行的应用程序中的端点或处理程序<code>localhost:9994</code>。<code>FallbackHeaders</code>过滤器会将具有异常类型，消息和（如果有）根本原因异常类型和消息的标头添加到该请求。</p>
+<p>您可以通过设置以下参数的值（以其默认值显示）来覆盖配置中标头的名称：</p>
+<p><code>executionExceptionTypeHeaderName</code>（<code>&quot;Execution-Exception-Type&quot;</code>）</p>
+<p><code>executionExceptionMessageHeaderName</code>（<code>&quot;Execution-Exception-Message&quot;</code>）</p>
+<p><code>rootCauseExceptionTypeHeaderName</code>（<code>&quot;Root-Cause-Exception-Type&quot;</code>）</p>
+<p><code>rootCauseExceptionMessageHeaderName</code>（<code>&quot;Root-Cause-Exception-Message&quot;</code>）</p>
+<ul>
+<li>SpringCloudCircuitBreakerFilterFactory</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">      - id:</span> <span class="string">circuitbreaker_route</span></span><br><span class="line"><span class="attr">        uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">        filters:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">CircuitBreaker=myCircuitBreaker</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">      - id:</span> <span class="string">circuitbreaker_route</span></span><br><span class="line"><span class="attr">        uri:</span> <span class="attr">lb://backing-service:8088</span></span><br><span class="line"><span class="attr">        predicates:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">Path=/consumingServiceEndpoint</span></span><br><span class="line"><span class="attr">        filters:</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">CircuitBreaker</span></span><br><span class="line"><span class="attr">          args:</span></span><br><span class="line"><span class="attr">            name:</span> <span class="string">myCircuitBreaker</span></span><br><span class="line"><span class="attr">            fallbackUri:</span> <span class="attr">forward:/inCaseOfFailureUseThis</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">RewritePath=/consumingServiceEndpoint,</span> <span class="string">/backingServiceEndpoint</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RouteLocator <span class="title">routes</span><span class="params">(RouteLocatorBuilder builder)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> builder.routes()</span><br><span class="line">        .route(<span class="string">"circuitbreaker_route"</span>, r -&gt; r.path(<span class="string">"/consumingServiceEndpoint"</span>)</span><br><span class="line">            .filters(f -&gt; f.circuitBreaker(c -&gt; c.name(<span class="string">"myCircuitBreaker"</span>).fallbackUri(<span class="string">"forward:/inCaseOfFailureUseThis"</span>))</span><br><span class="line">                .rewritePath(<span class="string">"/consumingServiceEndpoint"</span>, <span class="string">"/backingServiceEndpoint"</span>)).uri(<span class="string">"lb://backing-service:8088"</span>)</span><br><span class="line">        .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>MapRequestHeaderGatewayFilterFactory </li>
+<li>PrefixPathGatewayFilterFactory  对网关请求的uri添加前缀</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">pring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">      - id:</span> <span class="string">prefixpath_route</span></span><br><span class="line"><span class="attr">        uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">        filters:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">PrefixPath=/mypath</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>PreserveHostHeaderGatewayFilterFactory  此过滤器设置一个请求属性，对该属性进行检查，以确定是否应该发送原始host 头，而不是由HTTP客户机确定的host头</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">      - id:</span> <span class="string">preserve_host_route</span></span><br><span class="line"><span class="attr">        uri:</span> <span class="attr">https://example.org</span></span><br><span class="line"><span class="attr">        filters:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">PreserveHostHeader</span></span><br></pre></td></tr></table></figure>
+<p><code>Host</code> 是 HTTP 1.1 协议中新增的一个请求头，主要用来实现虚拟主机技术。一台主机内使用端口号区分不同的应用进程，在一台部署了很多虚拟机的主机上，使用host头来决定请求发往哪一台虚拟机。</p>
+<p>举个栗子，有一台 ip 地址为 <code>61.135.169.125</code> 的服务器，在这台服务器上使用虚拟主机部署着谷歌、百度、淘宝的网站。为什么我们访问 <code>https://www.google.com</code> 时，看到的是 Google 的首页而不是百度或者淘宝的首页？原因就是 <code>Host</code> 请求头决定着访问哪个虚拟主机。</p>
+<ul>
+<li><p>RedirectToGatewayFilterFactory </p>
+</li>
+<li><p>RequestHeaderSizeGatewayFilterFactory</p>
+</li>
+<li><p>RequestHeaderToRequestUriGatewayFilterFactory</p>
+</li>
+<li><p>RequestRateLimiterGatewayFilterFactory  该过滤器使用一个RateLimiter的实现来决定当前的请求是否能发送出去，如果不能访问，返回429（too many request）</p>
+<p>该过滤器有一个可选的参数keyResolver用于指定RateLimiter限制的内容，默认是用户名，即一个用户在一定的时间内访问次数是受限制的，可以自定义keyResolver，例如设置成IP地址，用<code>keyResolver: &#39;#{@ipAddressKeyResolver}&#39;</code>的方式配置进去，@符号后面是beanName</p>
+</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">- id:</span> <span class="string">ratelimiter_route</span></span><br><span class="line"><span class="attr">  predicates:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">Path=/ratelimiter/**</span></span><br><span class="line"><span class="attr">  filters:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">StripPrefix=1</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">RequestRateLimiter</span></span><br><span class="line"><span class="attr">      args:</span></span><br><span class="line"><span class="attr">        deny-empty-key:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">        keyResolver:</span> <span class="string">'#&#123;@ipAddressKeyResolver&#125;'</span></span><br><span class="line">        <span class="string">redis-rate-limiter.replenishRate:</span> <span class="number">1</span></span><br><span class="line">        <span class="string">redis-rate-limiter.burstCapacity:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">  uri:</span> <span class="attr">lb://order-service</span></span><br></pre></td></tr></table></figure>
+<p>基于redis的流量限制策略：</p>
+<p>参数说明：</p>
+<ol>
+<li><code>redis-rate-limiter.replenishRate</code>希望用户每秒可以执行多少请求，而不需要丢弃任何请求。这是令牌桶被填充的速率。</li>
+<li><code>redis-rate-limiter.burstCapacity</code>一个用户在一秒内允许执行的最大请求数。这是令牌桶可以容纳的令牌的数量。将此值设置为零将阻止所有请求。</li>
+<li><code>redis-rate-limiter.requestedTokens</code>一个请求需要多少开销。这是每个请求从桶中取出的令牌的数量，默认值为1。</li>
+</ol>
+<ul>
+<li>RequestSizeGatewayFilterFactory</li>
+<li>RetryGatewayFilterFactory</li>
+<li>RewriteLocationResponseHeaderGatewayFilterFactory</li>
+<li>RewritePathGatewayFilterFactory</li>
+<li>RewriteResponseHeaderGatewayFilterFactory</li>
+<li>SaveSessionGatewayFilterFactory</li>
+<li>SecureHeadersGatewayFilterFactory</li>
+<li>SetPathGatewayFilterFactory</li>
+<li>SetStatusGatewayFilterFactory</li>
+<li>SpringCloudCircuitBreakerHystrixFilterFactory</li>
+<li>SpringCloudCircuitBreakerResilience4JFilterFactory</li>
+<li>StripPrefixGatewayFilterFactory</li>
+</ul>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    SpringCloud-配置中心源码分析
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">SpringCloud-Hystrix源码分析</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

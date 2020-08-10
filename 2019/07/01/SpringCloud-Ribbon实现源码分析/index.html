@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>SpringCloud-Ribbon实现源码分析 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="SpringCloud">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="流程总结： 从getObject方法开始流程，执行到doExcute()方法中，该方法创建一个Http请求发送请求 创建http请求是InterceptingClientHttpRequest，表示正在被拦截的客户端http请求，ribbon负载均衡就是基于拦截器实现的 InterceptingClientHttpRequest有方法excute()，此方法对请求执行拦截处理，最后发送出去。 在e">
+<meta name="keywords" content="SpringCloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloud-Ribbon实现源码分析">
+<meta property="og:url" content="http://yoursite.com/child/2019/07/01/SpringCloud-Ribbon实现源码分析/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="流程总结： 从getObject方法开始流程，执行到doExcute()方法中，该方法创建一个Http请求发送请求 创建http请求是InterceptingClientHttpRequest，表示正在被拦截的客户端http请求，ribbon负载均衡就是基于拦截器实现的 InterceptingClientHttpRequest有方法excute()，此方法对请求执行拦截处理，最后发送出去。 在e">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-20T02:58:50.075Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringCloud-Ribbon实现源码分析">
+<meta name="twitter:description" content="流程总结： 从getObject方法开始流程，执行到doExcute()方法中，该方法创建一个Http请求发送请求 创建http请求是InterceptingClientHttpRequest，表示正在被拦截的客户端http请求，ribbon负载均衡就是基于拦截器实现的 InterceptingClientHttpRequest有方法excute()，此方法对请求执行拦截处理，最后发送出去。 在e">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                126
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                33
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-SpringCloud-Ribbon实现源码分析" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">
+            <time datetime="2019-06-30T16:00:00.000Z" itemprop="datePublished">2019-07-01</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            SpringCloud-Ribbon实现源码分析
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <h4 id="流程总结："><a href="#流程总结：" class="headerlink" title="流程总结："></a>流程总结：</h4><ul>
+<li>从getObject方法开始流程，执行到doExcute()方法中，该方法创建一个Http请求发送请求</li>
+<li>创建http请求是<code>InterceptingClientHttpRequest</code>，表示正在被拦截的客户端http请求，ribbon负载均衡就是基于拦截器实现的</li>
+<li>InterceptingClientHttpRequest有方法excute()，此方法对请求执行拦截处理，最后发送出去。</li>
+<li>在excute方法中，获取到<code>LoadBalancerInterceptor</code>即负载均衡拦截器，执行该拦截器的intercept()方法进行拦截处理。该拦截器有两个成员LoadBalancerClient以及LoadBalancerRequestFactory，负载均衡客户端主要用于执行负载均衡请求，Ribbon中的实现类是<code>RibbonLoadBalanceClient</code>。负载均衡请求工厂用于构建负载均衡请求。</li>
+<li>RibbonLoadBalanceClient的核心逻辑就是执行负载均衡算法，获取负载均衡器，在使用负载均衡器获取真正的服务器地址，再使用服务器信息创建一个RibbonServer，执行负载均衡请求的apply方法</li>
+<li>负载均衡请求<code>LoadBalancerRequest</code>只有一个方法apply()，该方法主要负责递归执行InterceptingClientHttpRequest的execute方法，执行所有拦截器拦截。ribbon只在一个匿名类中定义了apply方法，主要逻辑就是创建了一个<code>ServiceRequestWrapper</code>，即请求包装类对象，执行拦截。</li>
+<li>最后使用<code>SimpleClientHttpRequestFactory</code>创建一个标准的http请求发送出去</li>
+</ul>
+<hr>
+<p>采用ribbon做客户端负载，一般会搭配<code>RestTemplate</code>一起使用，在<code>RestTemplate</code>上注解<code>@LoadBalanced</code>，则调用</p>
+<p><code>RestTemplate</code>方法时，ribbon会自动生效实现客户端的负载均衡。</p>
+<p>配置负载均衡的<code>RestTemplate</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@LoadBalanced</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RestTemplate <span class="title">getRestTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用<code>RestTemplate</code>进行远程服务访问：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">		<span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line">        String url = <span class="string">"http://USER-PROVIDER"</span>+<span class="string">"/user/"</span>+id;</span><br><span class="line">        <span class="keyword">return</span> restTemplate.getForObject(url,User.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码使用服务名称访问远程主机，因此肯定有一个服务名称解析的过程，可以大致猜测执行流程：</p>
+<ol>
+<li>通过服务名称USER-PROVIDER从注册中心拿到该服务的主机列表；</li>
+<li>根据配置的负载均衡策略选择一个主机；</li>
+<li>重构一个http请求，发送给指定的主机，接收响应数据。</li>
+</ol>
+<p>到底是不是这样，下面我将从源代码中找到答案。</p>
+<h4 id="1-注解-LoadBalanced"><a href="#1-注解-LoadBalanced" class="headerlink" title="1. 注解@LoadBalanced"></a>1. 注解@LoadBalanced</h4><p>要使用ribbon实现负载均衡，就需要使用到该注解，那么这个注解的是在什么地方进行处理的呢？</p>
+<p>定位到自动配置类：<code>LoadBalancerAutoConfiguration</code>，在该类中也有一个成员变量注解了<code>@LoadBalanced</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@LoadBalanced</span></span><br><span class="line"><span class="meta">@Autowired</span>(required = <span class="keyword">false</span>)</span><br><span class="line"><span class="keyword">private</span> List&lt;RestTemplate&gt; restTemplates = Collections.emptyList();</span><br></pre></td></tr></table></figure>
+<p>看@LoadBalanced注解的声明类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123; ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD &#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Qualifier</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> LoadBalanced &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注解类中没有定义属性，且类上有一个@Qualifier注解，因此该注解实质上就是一个标志，并不需要注解处理类。在spring中，注解<code>@Qualifier</code>用于在自动注入时指定一个bean（在同一个类存在不止一个bean的情况下）。<code>@Qualifier</code>还有一种用法就是，在一个列表上注解<code>@Qualifier</code>，那么凡是注解了<code>@Qualifier</code>的此类bean都会被注入到该列表中。</p>
+<p>所以，<code>@LoadBalanced</code>实质是是一个<code>@Qualifier</code>，在负载均衡场景中换了个名字而已。所以<code>LoadBalancerAutoConfiguration</code>的成员<code>restTemplates</code>将自动注入所有注解了<code>@LoadBalanced</code>的<code>RestTemplate</code>类型的bean。</p>
+<h4 id="2-自动装配"><a href="#2-自动装配" class="headerlink" title="2. 自动装配"></a>2. 自动装配</h4><p>ribbon实现负载均衡是基于一种拦截器的设计，ribbon对需要实现负载均衡的请求进行拦截，并做负载均衡处理</p>
+<p>在上面的例子中，<code>RestTemplate.getForObject(...)</code>发起rest请求，所以这里是本文源码分析的入口，具体的执行流程在下文分析，此处要分析的是ribbon的自动装配流程，在rest请求过程中，会调用到<code>RibbonLoadBalancerClient.execute()</code>方法，那么我们要找到<code>RibbonLoadBalancerClient</code>在哪里实例化的</p>
+<p>Ribbon的自动配置类中，对其进行了实例化：</p>
+<h4 id="3-执行流程"><a href="#3-执行流程" class="headerlink" title="3. 执行流程"></a>3. 执行流程</h4><p>我们直接进入到RestTemplate这个类的doExecute方法，因为前面部分的代码都比较简单没有太多逻 辑。</p>
+<p>这段代码中有一个很重要的逻辑，就是<code>createRequest</code>，这个是构建客户端请求的一个方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//RestTemplate</span></span><br><span class="line"><span class="keyword">protected</span> &lt;T&gt; <span class="function">T <span class="title">doExecute</span><span class="params">(URI url, @Nullable HttpMethod method, </span></span></span><br><span class="line"><span class="function"><span class="params">                          @Nullable RequestCallback requestCallback,</span></span></span><br><span class="line"><span class="function"><span class="params">                          @Nullable ResponseExtractor&lt;T&gt; responseExtractor)</span> </span></span><br><span class="line"><span class="function">  <span class="keyword">throws</span> RestClientException </span>&#123;</span><br><span class="line">   ...</span><br><span class="line">   ClientHttpResponse response = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      ClientHttpRequest request = createRequest(url, method);</span><br><span class="line">      <span class="keyword">if</span> (requestCallback != <span class="keyword">null</span>) &#123;</span><br><span class="line">         requestCallback.doWithRequest(request);</span><br><span class="line">      &#125;</span><br><span class="line">      response = request.execute();</span><br><span class="line">      handleResponse(url, method, response);</span><br><span class="line">      <span class="keyword">return</span> (responseExtractor != <span class="keyword">null</span> ? responseExtractor.extractData(response) : <span class="keyword">null</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>createRequest()</strong></p>
+<p>这里个方法是用来创建一个请求对象，其中<code>getRequestFactory()</code>，调用的是<code>InterceptingHttpAccessor</code> 中的<code>getRequestFactory</code>方法，因为<code>InterceptingHttpAccessor</code>继承了<code>HttpAccessor</code>这个类，重写了 <code>getRequestFactory</code>方法，而<code>RestTemplate</code>是<code>InterceptingHttpAccessor</code>的子类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//`HttpAccessor`</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> ClientHttpRequest <span class="title">createRequest</span><span class="params">(URI url, HttpMethod method)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">   ClientHttpRequest request = getRequestFactory().createRequest(url, method);</span><br><span class="line">   initialize(request);</span><br><span class="line">   ...</span><br><span class="line">   <span class="keyword">return</span> request;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//`InterceptingHttpAccessor`</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ClientHttpRequestFactory <span class="title">getRequestFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="comment">// 获取该客户端请求所有的拦截器，虽然是列表，此处之有LoadBalancerInterceptor</span></span><br><span class="line">   List&lt;ClientHttpRequestInterceptor&gt; interceptors = getInterceptors();</span><br><span class="line">   <span class="keyword">if</span> (!CollectionUtils.isEmpty(interceptors)) &#123;</span><br><span class="line">      ClientHttpRequestFactory factory = <span class="keyword">this</span>.interceptingRequestFactory;</span><br><span class="line">      <span class="keyword">if</span> (factory == <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="comment">// 构建一个拦截的http请求工厂，将拦截器传入</span></span><br><span class="line">         factory = <span class="keyword">new</span> InterceptingClientHttpRequestFactory(<span class="keyword">super</span>.getRequestFactory(), interceptors);</span><br><span class="line">         <span class="keyword">this</span>.interceptingRequestFactory = factory;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> factory;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">super</span>.getRequestFactory();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>getInterceptors()</strong></p>
+<p>这个方法中返回的拦截器列表，是从<code>InterceptingHttpAccessor.setInterceptors()</code>方法来设置的，而这 个<code>setInterceptors()</code>调用的地方正好是在 <code>LoadBalancerAutoConfiguration</code>中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LoadBalancerAutoConfiguration.LoadBalancerInterceptorConfig</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RestTemplateCustomizer <span class="title">restTemplateCustomizer</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> LoadBalancerInterceptor loadBalancerInterceptor)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">return</span> restTemplate -&gt; &#123;</span><br><span class="line">      List&lt;ClientHttpRequestInterceptor&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(</span><br><span class="line">            restTemplate.getInterceptors());</span><br><span class="line">      list.add(loadBalancerInterceptor);</span><br><span class="line">      restTemplate.setInterceptors(list);</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此处调用了<code>restTemplate.setInterceptors</code>这个方法设置拦截器，其中<code>RestTemplate</code>又继承了 <code>InterceptingHttpAccessor</code>。</p>
+<p>所以<code>InterceptingHttpAccessor</code>可以直接获取到负载均衡拦截器。</p>
+<p>再回到<code>createRequest</code>方法中，<code>getRequestFactory()</code>方法返回的是 <code>InterceptingClientHttpRequestFactory</code>，而<code>createRequest()</code>方法，最终返回的是 <code>InterceptingClientHttpRequest</code>这个类。</p>
+<p>继续跳回到RestTemplate.doExecute方法，最终会调用request.execute。那么这个时候，request.execute调用谁呢？于是我们看一下<code>InterceptingClientHttpRequest</code>的类关系图，我们发现它有两个父类。这是一种模版方法的设计。</p>
+<p>最终，我们进入到InterceptingClientHttpRequest.executeInternal方法 <code>InterceptingClientHttpRequest.execute()</code></p>
+<p>在InterceptingClientHttpRequest.execute方法中，有两个处理逻辑 如果有配置多个客户端拦截器，则调用拦截器方法，对请求进行拦截</p>
+<p>否则，按照正常的处理逻辑进行远程调用。 而在当前的场景中，自然是调用LoadBalancerInterceptor.intercept方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//InterceptingClientHttpRequest</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ClientHttpResponse <span class="title">execute</span><span class="params">(HttpRequest request, <span class="keyword">byte</span>[] body)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.iterator.hasNext()) &#123;</span><br><span class="line">         <span class="comment">// 获取拦截器执行拦截操作</span></span><br><span class="line">         ClientHttpRequestInterceptor nextInterceptor = <span class="keyword">this</span>.iterator.next();</span><br><span class="line">         <span class="keyword">return</span> nextInterceptor.intercept(request, body, <span class="keyword">this</span>); <span class="comment">// 进入LoadBalancerInterceptor &gt;&gt; </span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">         HttpMethod method = request.getMethod();</span><br><span class="line">         Assert.state(method != <span class="keyword">null</span>, <span class="string">"No standard HTTP method"</span>);</span><br><span class="line">         ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);</span><br><span class="line">         request.getHeaders().forEach((key, value) -&gt; delegate.getHeaders().addAll(key, value));</span><br><span class="line">         <span class="keyword">if</span> (body.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (delegate <span class="keyword">instanceof</span> StreamingHttpOutputMessage) &#123;</span><br><span class="line">               StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) delegate;</span><br><span class="line">               streamingOutputMessage.setBody(outputStream -&gt; StreamUtils.copy(body, outputStream));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">               StreamUtils.copy(body, delegate.getBody());</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span> delegate.execute();</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>进入<code>LoadBalancerInterceptor.intercept()</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LoadBalancerInterceptor</span></span><br><span class="line"><span class="keyword">private</span> LoadBalancerClient loadBalancer;</span><br><span class="line"><span class="keyword">private</span> LoadBalancerRequestFactory requestFactory;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> ClientHttpResponse <span class="title">intercept</span><span class="params">(<span class="keyword">final</span> HttpRequest request, <span class="keyword">final</span> <span class="keyword">byte</span>[] body,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> ClientHttpRequestExecution execution)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">   <span class="keyword">final</span> URI originalUri = request.getURI(); <span class="comment">// 此处获取到还是未经处理的url</span></span><br><span class="line">   String serviceName = originalUri.getHost(); <span class="comment">// 服务名称</span></span><br><span class="line">   Assert.state(serviceName != <span class="keyword">null</span>,</span><br><span class="line">         <span class="string">"Request URI does not contain a valid hostname: "</span> + originalUri);</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">this</span>.loadBalancer.execute(serviceName,</span><br><span class="line">         <span class="keyword">this</span>.requestFactory.createRequest(request, body, execution));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>this.loadBalancer</code>就是<code>RibbonLoadBalanceClient</code>实例，此实例在自动装配阶段被实例化。</p>
+<p>先看<code>createRequest(request, body, execution))</code>方法：</p>
+<ul>
+<li><p>参数request是<code>InterceptingClientHttpRequest</code>实例，顾名思义就是正在被拦截的客户端http请求。</p>
+</li>
+<li><p>参数body是请求体，get方法请求此参数为空数组</p>
+</li>
+<li><p>参数execution是<code>InterceptingClientHttpRequest</code>的内部类<code>InterceptingRequestExecution</code>的实例，该类封装了拦截器列表以及执行所有拦截器操作的执行逻辑。</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LoadBalancerRequestFactory</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LoadBalancerRequest&lt;ClientHttpResponse&gt; <span class="title">createRequest</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> HttpRequest request, <span class="keyword">final</span> <span class="keyword">byte</span>[] body,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> ClientHttpRequestExecution execution)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">return</span> instance -&gt; &#123;</span><br><span class="line">      HttpRequest serviceRequest = <span class="keyword">new</span> ServiceRequestWrapper(request, instance,</span><br><span class="line">            <span class="keyword">this</span>.loadBalancer);</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.transformers != <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="keyword">for</span> (LoadBalancerRequestTransformer transformer : <span class="keyword">this</span>.transformers) &#123;</span><br><span class="line">            serviceRequest = transformer.transformRequest(serviceRequest,</span><br><span class="line">                  instance);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> execution.execute(serviceRequest, body);</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回了一个负载均衡请求，此处是匿名类实现，注意此时此处的instance并没有实例化，这里的拉姆达表达式只是创建了一个匿名类的对象，还没到执行对象方法的时候，在之后被执行，往下看；</p>
+<p>创建了LoadBalance请求之后，接着执行<code>this.loadBalancer.execute(..)</code>方法，参数有服务名称serviceName和上面创建的LoadBalance请求对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//RibbonLoadBalancerClient</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">execute</span><span class="params">(String serviceId, LoadBalancerRequest&lt;T&gt; request, Object hint)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">   <span class="comment">//获取负载均衡器</span></span><br><span class="line">   ILoadBalancer loadBalancer = getLoadBalancer(serviceId);</span><br><span class="line">   Server server = getServer(loadBalancer, hint); <span class="comment">// 使用负载均衡器获取服务器</span></span><br><span class="line">   <span class="keyword">if</span> (server == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"No instances available for "</span> + serviceId);</span><br><span class="line">   &#125;</span><br><span class="line">  <span class="comment">// ribbonServer就是上面LoadBalance请求中apply方法的instance参数</span></span><br><span class="line">   RibbonServer ribbonServer = <span class="keyword">new</span> RibbonServer(serviceId, server,</span><br><span class="line">         isSecure(server, serviceId),</span><br><span class="line">         serverIntrospector(serviceId).getMetadata(server));</span><br><span class="line">	 <span class="comment">// 执行</span></span><br><span class="line">   <span class="keyword">return</span> execute(serviceId, ribbonServer, request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>getLoadBalancer(serviceId)</strong>可以深入分析，此处使用serviceId将不用的服务进行了上下文的隔离，设计方法值得借鉴。</p>
+<p><strong>getServer()</strong> 根据负载均衡算法选择一个服务器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//RibbonLoadBalancerClient</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Server <span class="title">getServer</span><span class="params">(ILoadBalancer loadBalancer, Object hint)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (loadBalancer == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> loadBalancer.chooseServer(hint != <span class="keyword">null</span> ? hint : <span class="string">"default"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>loadBalancer是<code>ZoneAwareLoadBalancer</code>实例，进入方法，这里只有一个zone所以执行父类的逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//`ZoneAwareLoadBalancer`</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Server <span class="title">chooseServer</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!ENABLED.get() || getLoadBalancerStats().getAvailableZones().size() &lt;= <span class="number">1</span>) &#123;</span><br><span class="line">        logger.debug(<span class="string">"Zone aware logic disabled or there is only one zone"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.chooseServer(key);</span><br><span class="line">    &#125;</span><br><span class="line">  	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//BaseLoadBalancer</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Server <span class="title">chooseServer</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (counter == <span class="keyword">null</span>) &#123;</span><br><span class="line">        counter = createCounter();</span><br><span class="line">    &#125;</span><br><span class="line">    counter.increment();</span><br><span class="line">    <span class="keyword">if</span> (rule == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> rule.choose(key);  <span class="comment">// 执行到rule的选择方法</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            logger.warn(<span class="string">"LoadBalancer [&#123;&#125;]:  Error choosing server for key &#123;&#125;"</span>, name, key, e);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此处的rule默认是<code>RoundRobinRule</code>，即轮询策略。</p>
+<p>此处是一个扩展点，<strong><em>rule可以在配置文件中进行配置，也可以配置自定义的rule</em></strong></p>
+<p>再回到execut方法，选定服务器之后，创建一个RibbonServer实例，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RibbonServer ribbonServer = <span class="keyword">new</span> RibbonServer(serviceId, server,</span><br><span class="line">      isSecure(server, serviceId),</span><br><span class="line">      serverIntrospector(serviceId).getMetadata(server));</span><br></pre></td></tr></table></figure>
+<p><strong>isSecure(server, serviceId)</strong>由于使用http协议，这里是false</p>
+<p><strong>serverIntrospector(serviceId).getMetadata(server)</strong>返回一个map，只有一对值：“manage.port-&gt;8001”</p>
+<p>创建好RibbonServer之后，执行<code>execute(serviceId, ribbonServer, request)</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">execute</span><span class="params">(String serviceId,  </span></span></span><br><span class="line"><span class="function"><span class="params">                     ServiceInstance serviceInstance,  // RibbonServer实例</span></span></span><br><span class="line"><span class="function"><span class="params">                     LoadBalancerRequest&lt;T&gt; request)</span>   <span class="comment">// 负载均衡请求，执行负载均衡</span></span></span><br><span class="line"><span class="function">   <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">   Server server = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">if</span> (serviceInstance <span class="keyword">instanceof</span> RibbonServer) &#123;</span><br><span class="line">      server = ((RibbonServer) serviceInstance).getServer();</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (server == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"No instances available for "</span> + serviceId);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   RibbonLoadBalancerContext context = <span class="keyword">this</span>.clientFactory</span><br><span class="line">         .getLoadBalancerContext(serviceId);</span><br><span class="line">   RibbonStatsRecorder statsRecorder = <span class="keyword">new</span> RibbonStatsRecorder(context, server);</span><br><span class="line">   <span class="keyword">try</span> &#123; <span class="comment">// 主要逻辑</span></span><br><span class="line">      T returnVal = request.apply(serviceInstance);  <span class="comment">// 此处执行apply方法</span></span><br><span class="line">      statsRecorder.recordStats(returnVal);</span><br><span class="line">      <span class="keyword">return</span> returnVal;</span><br><span class="line">   &#125;</span><br><span class="line">   ...</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行负载均衡请求的apply方法，负载均衡请求是之前创建的，这里再贴一遍代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LoadBalancerRequestFactory</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LoadBalancerRequest&lt;ClientHttpResponse&gt; <span class="title">createRequest</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> HttpRequest request, <span class="keyword">final</span> <span class="keyword">byte</span>[] body,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> ClientHttpRequestExecution execution)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">return</span> instance -&gt; &#123;</span><br><span class="line">      HttpRequest serviceRequest = <span class="keyword">new</span> ServiceRequestWrapper(request, instance,</span><br><span class="line">            <span class="keyword">this</span>.loadBalancer);</span><br><span class="line">      ...</span><br><span class="line">      <span class="keyword">return</span> execution.execute(serviceRequest, body);</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>appliy方法中new 了一个<code>ServiceRequestWrapper</code>对象，该对象提供了重构请求url的方法，然后再进入<code>InterceptingRequestExecution</code>类的<code>execute()</code>方法，再贴一遍代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//InterceptingClientHttpRequest</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ClientHttpResponse <span class="title">execute</span><span class="params">(HttpRequest request, <span class="keyword">byte</span>[] body)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.iterator.hasNext()) &#123;</span><br><span class="line">         ClientHttpRequestInterceptor nextInterceptor = <span class="keyword">this</span>.iterator.next();</span><br><span class="line">         <span class="keyword">return</span> nextInterceptor.intercept(request, body, <span class="keyword">this</span>); <span class="comment">// 进入LoadBalancerInterceptor &gt;&gt; </span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123; <span class="comment">// 此次进入else分支</span></span><br><span class="line">         HttpMethod method = request.getMethod();</span><br><span class="line">         Assert.state(method != <span class="keyword">null</span>, <span class="string">"No standard HTTP method"</span>);</span><br><span class="line">         ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);</span><br><span class="line">         request.getHeaders().forEach((key, value) -&gt; delegate.getHeaders().addAll(key, value));</span><br><span class="line">         <span class="keyword">if</span> (body.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (delegate <span class="keyword">instanceof</span> StreamingHttpOutputMessage) &#123;</span><br><span class="line">               StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) delegate;</span><br><span class="line">               streamingOutputMessage.setBody(outputStream -&gt; StreamUtils.copy(body, outputStream));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">               StreamUtils.copy(body, delegate.getBody());</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span> delegate.execute();</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于拦截器链表中没有未执行了拦截器了，所以这次进入else分支，注意看else第三行代码，创建delegate请求，url的重构就是在这里执行的，<code>request.getURI()</code>，request是上一步new出来的<code>ServiceRequestWrapper</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> URI <span class="title">getURI</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="comment">// 这里重构了url</span></span><br><span class="line">   URI uri = <span class="keyword">this</span>.loadBalancer.reconstructURI(<span class="keyword">this</span>.instance, getRequest().getURI());</span><br><span class="line">   <span class="keyword">return</span> uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>else分支执行完之后，就完成了请求。</p>
+<h4 id="4-服务列表刷新"><a href="#4-服务列表刷新" class="headerlink" title="4. 服务列表刷新"></a>4. 服务列表刷新</h4><p>服务注册中心里注册的服务会发生变化，宕机或主动下线或添加服务器，这时候ribbon客户端需要更新本地的服务器列表，默认是30秒<strong>被动刷新</strong>一次。刷新过之后30秒请求服务不会调用刷新线程，两次调用之间间隔超过30秒则第二次请求之前会刷新服务器列表</p>
+<h4 id="5-ping"><a href="#5-ping" class="headerlink" title="5. ping"></a>5. ping</h4><p>服务注册到注册中心之后，注册中心会通过发送心跳来check服务的存活状态，ribbon从服务中心获取服务器列表，默认是30s刷新一次，当某台服务器宕机，注册中心需要在一段时间之后才能发现其不在线，ribbon最多需要30秒才能刷新掉不在线的服务器，这个时间延迟有点大了</p>
+<p>那么ribbon为了解决这个问题，加入了ping功能，即ribbon客户端自己发送心跳给服务器列表中的服务器，默认是10秒发送一次，一旦发现ping不通，直接剔除该服务器</p>
+<p>这里的心跳机制可以借鉴。</p>
+<p>此处又是另外的一个扩展点，可以自定义Ping的实现（使用指定的协议），配置到ribbon中</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    kafka-提交offset存储
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">kafka-副本机制</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
