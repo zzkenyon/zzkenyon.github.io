@@ -18,7 +18,7 @@
 <meta property="og:description" content="nio非阻塞牛逼在哪里？ 要解答这个问题首先要清楚bio的痛点在哪里。 假如我们的服务使用bio模型，服务器启动之后需要一条线程一直监听端口上是否有连接请求发过来，如果没有请求，这条线程就一直等着； 等了好久好久终于来了一个请求连接，连接建立成功后，又要开始等业务请求，由于网络慢或者其他原因又等了一千年； 终于拿到了请求，电光火石间处理完拿到响应数据，准备响应出去，这时候发现由于不明原因，一千五百">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/epoll%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86.png">
-<meta property="og:updated_time" content="2020-06-08T03:05:50.661Z">
+<meta property="og:updated_time" content="2020-09-07T01:53:19.111Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="epoll高效运行的原理">
 <meta name="twitter:description" content="nio非阻塞牛逼在哪里？ 要解答这个问题首先要清楚bio的痛点在哪里。 假如我们的服务使用bio模型，服务器启动之后需要一条线程一直监听端口上是否有连接请求发过来，如果没有请求，这条线程就一直等着； 等了好久好久终于来了一个请求连接，连接建立成功后，又要开始等业务请求，由于网络慢或者其他原因又等了一千年； 终于拿到了请求，电光火石间处理完拿到响应数据，准备响应出去，这时候发现由于不明原因，一千五百">
@@ -170,7 +170,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                126
+                131
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -238,7 +238,7 @@
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -256,7 +256,7 @@
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -519,7 +519,10 @@
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/epoll%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86.png" alt="epoll"></p>
 <p><strong>1. int epoll_create(int size);</strong><br>创建一个epoll对象，返回对象的句柄，后面两个操作都以句柄为核心。</p>
 <p>参数size用来表示要监听的fd数量的最大值，之后版本的Linux已弃用该参数。</p>
-<p><strong>2.int epoll_ctl(int epfd, int op, int fd, struct epoll_event* event);</strong><br>epoll的事件注册接口，负责将被监听的描述符添加到红黑树或从红黑树中删除或者对监听事件进行修改。<br>参数 epfd 表示epoll对象句柄；<br>参数 op 表示动作，用三个宏来表示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Selector selector = Selector.open();</span><br></pre></td></tr></table></figure>
+<p>java nio中，执行以上代码，就会在底层调用epoll_create方法创建一个epoll对象</p>
+<p><strong>2.int epoll_ctl(int epfd, int op, int fd, struct epoll_event* event);</strong></p>
+<p>epoll的事件注册接口，负责将被监听的描述符添加到红黑树或从红黑树中删除或者对监听事件进行修改。<br>参数 epfd 表示epoll对象句柄；<br>参数 op 表示动作，用三个宏来表示：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EPOLL_CTL_ADD <span class="comment">//注册新的fd到epfd中；</span></span><br><span class="line">EPOLL_CTL_MOD <span class="comment">//修改已经注册的fd的监听事件；</span></span><br><span class="line">EPOLL_CTL_DEL <span class="comment">//从epfd中删除一个fd；</span></span><br></pre></td></tr></table></figure>
 <p>参数 fd 是需要监听的fd</p>
 <p>参数 event 表示此次注册的事件，struct epoll_event结构如下：</p>
@@ -528,6 +531,26 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">表示某个fd上某事件被触发了</span></span><br><span class="line"><span class="comment">**/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> &#123;</span></span><br><span class="line">    <span class="keyword">__uint32_t</span> events; <span class="comment">// 在被监测的文件描述符上实际发生的事件。</span></span><br><span class="line">    <span class="keyword">epoll_data_t</span> data; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line">    <span class="keyword">void</span> *ptr; <span class="comment">// 指向用户自定义数据 </span></span><br><span class="line">    <span class="keyword">int</span> fd; <span class="comment">//注册的文件描述符</span></span><br><span class="line">    <span class="keyword">__uint32_t</span> u32; <span class="comment">//32-bit integer</span></span><br><span class="line">    <span class="keyword">__uint64_t</span> u64; <span class="comment">//64-bit integer</span></span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br></pre></td></tr></table></figure>
 <p>常用的epoll事件</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">EPOLLIN <span class="comment">//表示对应的文件描述符可以读（包括对端SOCKET正常关闭）</span></span><br><span class="line">EPOLLOUT <span class="comment">//表示对应的文件描述符可以写</span></span><br><span class="line">EPOLLET <span class="comment">//将 EPOLL设为边缘触发</span></span><br><span class="line">EPOLLONESHOT <span class="comment">//第一次进行通知，之后不再监测</span></span><br><span class="line">EPOLLPRI <span class="comment">//由带外数据触发</span></span><br><span class="line">EPOLLERR <span class="comment">//描述符产生错误时触发，默认检测事件</span></span><br><span class="line">EPOLLHUP <span class="comment">//本端描述符产生一个挂断事件，默认监测事件</span></span><br><span class="line">EPOLLRDHUP <span class="comment">//对端描述符产生一个挂断事件</span></span><br></pre></td></tr></table></figure>
+<p>在java nio中执行事件注册的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SelectionKey key = channel.register(selector,Selectionkey.OP_READ);</span><br></pre></td></tr></table></figure>
+<p> channel就是fd在jdk中的包装对象，selector可以认为是epoll对象，这一句的含义是将一个fd注册到epoll对象上，且监听的事件是OP_READ</p>
+<p><strong>3、int epoll_wait(int epfd， struct epoll_event *events， int maxevents， int timeout);</strong></p>
+<p>功能：阻塞等待事件的发生，返回事件数目，并将触发的事件写入参数events数组中</p>
+<p>参数：events: 用来记录被触发的events，其大小应该和maxevents一致</p>
+<p>​            maxevents: 返回的events的最大个数</p>
+<p>处于ready状态的那些FD会被复制进ready list中，epoll_wait 用于向用户进程返回这个list，events和maxevents两个参数描述一个由用户分配的struct epoll event数组，调用返回时，内核将ready list复制到这个数组中，并将实际复制的个数作为返回值。注意，如果ready list比maxevents长，则只能复制前maxevents个成员；反之，则能够完全复制ready list。</p>
+<p>参数timeout描述在函数调用中阻塞时间上限，单位是ms：</p>
+<ul>
+<li><p>timeout = -1表示调用将一直阻塞，直到有文件描述符进入ready状态或者捕获到信号才返回；</p>
+</li>
+<li><p>timeout = 0用于非阻塞检测是否有描述符处于ready状态，不管结果怎么样，调用都立即返回；</p>
+</li>
+<li><p>timeout &gt; 0表示调用将最多持续timeout时间，如果期间有检测对象变为ready状态或者捕获到信号则返回，否则直到超时。</p>
+</li>
+</ul>
+<p>java nio 中，Selector类有以下方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">()</span> <span class="comment">//阻塞方法，阻塞到至少有一个通道在注册的事件上就绪。 timeout = -1</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">long</span> timeout)</span> <span class="comment">//超时返回的阻塞方法  timeout &gt; 0</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">selectNow</span><span class="params">()</span> <span class="comment">//非阻塞方法，不管是否有通道就绪，立即返回。  timeout = 0</span></span></span><br></pre></td></tr></table></figure>
+<p>这句就是查找就绪fd，底层将调用epoll_wait方法。</p>
 <h4 id="epoll的两种触发方式"><a href="#epoll的两种触发方式" class="headerlink" title="epoll的两种触发方式"></a>epoll的两种触发方式</h4><p>epoll监控多个文件描述符的I/O事件。epoll支持边缘触发(edge trigger，ET)或水平触发（level trigger，LT)，通过epoll_wait等待I/O事件，如果当前没有可用的事件则阻塞调用线程。</p>
 <p>select和poll只支持LT工作模式，epoll的默认的工作模式是LT模式。</p>
 <p><strong>1.水平触发的时机</strong></p>
@@ -583,7 +606,10 @@
 <li>epoll：无需重新构建红黑树，直接沿用已存在的即可。</li>
 </ul>
 <h4 id="epoll更高效的原因"><a href="#epoll更高效的原因" class="headerlink" title="epoll更高效的原因"></a><strong>epoll更高效的原因</strong></h4><p>select和poll的动作基本一致，只是poll采用链表来进行文件描述符的存储，而select采用fd标注位来存放，所以select会受到最大连接数的限制，而poll不会。</p>
-<p>select、poll、epoll虽然都会返回就绪的文件描述符数量。但是select和poll并不会明确指出是哪些文件描述符就绪，而epoll会。造成的区别就是，系统调用返回后，调用select和poll的程序需要遍历监听的整个文件描述符找到是谁处于就绪，而epoll则直接处理即可。select、poll都需要将有关文件描述符的数据结构拷贝进内核，最后再拷贝出来。而epoll创建的有关文件描述符的数据结构本身就存于内核态中，系统调用返回时利用mmap()文件映射内存加速与内核空间的消息传递：即epoll使用mmap减少复制开销。select、poll采用轮询的方式来检查文件描述符是否处于就绪态，而epoll采用回调机制。造成的结果就是，随着fd的增加，select和poll的效率会线性降低，而epoll不会受到太大影响，除非活跃的socket很多。epoll的边缘触发模式效率高，系统不会充斥大量不关心的就绪文件描述符虽然epoll的性能最好，但是在连接数少并且连接都十分活跃的情况下，select和poll的性能可能比epoll好，毕竟epoll的通知机制需要很多函数回调。</p>
+<p>select、poll、epoll虽然都会返回就绪的文件描述符数量。但是select和poll并不会明确指出是哪些文件描述符就绪，而epoll会。造成的区别就是，系统调用返回后，调用select和poll的程序需要遍历监听的整个文件描述符找到是谁处于就绪，而epoll则直接处理即可。</p>
+<p>select、poll都需要将有关文件描述符的数据结构拷贝进内核，最后再拷贝出来。而epoll创建的有关文件描述符的数据结构本身就存于内核态中，系统调用返回时利用mmap()文件映射内存加速与内核空间的消息传递：即epoll使用mmap减少复制开销。</p>
+<p>select、poll采用轮询的方式来检查文件描述符是否处于就绪态，而epoll采用回调机制。造成的结果就是，随着fd的增加，select和poll的效率会线性降低，而epoll不会受到太大影响，除非活跃的socket很多。</p>
+<p>epoll的边缘触发模式效率高，系统不会充斥大量不关心的就绪文件描述符虽然epoll的性能最好，但是在连接数少并且连接都十分活跃的情况下，select和poll的性能可能比epoll好，毕竟epoll的通知机制需要很多函数回调。</p>
 
             </div>
         
@@ -596,11 +622,11 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    netty源码分析之线程模型
+                    netty源码分析之定时任务的的优化
                 
             </div>
         </a>

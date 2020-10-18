@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                126
+                131
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -231,7 +231,7 @@
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -249,7 +249,7 @@
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -440,6 +440,194 @@
 </aside>
             
             <section id="main">
+        <article id="post-MQ-kafka-集群搭建" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">
+            <time datetime="2019-06-21T16:00:00.000Z" itemprop="datePublished">2019-06-22</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>每台主机都需要安装jdk 本文版本jdk-1.8.0_231</p>
+<p>需要搭建好的zookeeper集群</p>
+<p>本文zookeeper环境：<code>192.168.2.112:2181,192.168.2.113:2181,192.168.2.114:2181</code></p>
+<p>本文将Kafka搭建在部署zookeeper集群的三台主机上，当然也可以另外准备三台主机。</p>
+<h4 id="在每台主机上执行下面步骤："><a href="#在每台主机上执行下面步骤：" class="headerlink" title="在每台主机上执行下面步骤："></a>在每台主机上执行下面步骤：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">将安装包移到/usr/<span class="built_in">local</span>目录下</span></span><br><span class="line">mv kafka_2.11-2.0.0 .tgz /usr/local</span><br><span class="line"><span class="meta">#</span><span class="bash">解压文件</span></span><br><span class="line">tar -zxvf kafka_2.11-2.0.0 .tgz</span><br><span class="line"><span class="meta">#</span><span class="bash">重命名文件夹为kafka</span></span><br><span class="line">mv kafka_2.11-2.0.0 kafka</span><br><span class="line"><span class="meta">#</span><span class="bash">配置kafka环境变量，首先打开profile文件</span></span><br><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash">进入编辑模式，在文件末尾添加kafka环境变量</span></span><br><span class="line">export KAFKA_HOME=/usr/local/apache/kafka</span><br><span class="line">PATH=$&#123;KAFKA_HOME&#125;/bin:$PATH</span><br><span class="line"><span class="meta">#</span><span class="bash">保存文件后，让该环境变量生效</span></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-MQ-kafka-架构介绍" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/消息中间件/">消息中间件</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/kafka/">kafka</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">
+            <time datetime="2019-06-20T16:00:00.000Z" itemprop="datePublished">2019-06-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h3 id="1-消息队列通信的模式"><a href="#1-消息队列通信的模式" class="headerlink" title="1. 消息队列通信的模式"></a>1. 消息队列通信的模式</h3><p>通过上面的例子我们引出了消息中间件，并且介绍了消息队列出现后的好处，这里就需要介绍消息队列通信的两种模式了：</p>
+<h4 id="1-1-点对点模式"><a href="#1-1-点对点模式" class="headerlink" title="1.1 点对点模式"></a>1.1 点对点模式</h4><p>如图所示  </p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/mq%E9%80%9A%E4%BF%A1-%E7%82%B9%E5%AF%B9%E7%82%B9%E6%A8%A1%E5%BC%8F.jpg" alt="点对点"></p>
+<p>点对点模式通常是基于拉取或者轮询的消息传送模型，这个模型的特点是发送到队列的消息被一个且只有一个消费者进行处理。生产者将消息放入消息队列后，由消费者主动的去拉取消息进行消费。点对点模型的的优点是消费者拉取消息的频率可以由自己控制。但是消息队列是否有消息需要消费，在消费者端无法感知，所以在消费者端需要额外的线程去监控。</p>
+<h4 id="1-2-发布订阅模式"><a href="#1-2-发布订阅模式" class="headerlink" title="1.2 发布订阅模式"></a>1.2 发布订阅模式</h4><p>如图所示  </p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-nio-jdk中nio编程的三大件" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -910,6 +1098,100 @@
 
 
     
+        <article id="post-dubbo-服务消费" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/RPC框架Dubbo/">RPC框架Dubbo</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/dubbo/">dubbo</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">
+            <time datetime="2019-04-29T16:00:00.000Z" itemprop="datePublished">2019-04-30</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><h3 id="1、设计思想"><a href="#1、设计思想" class="headerlink" title="1、设计思想"></a>1、设计思想</h3><p>要实现服务消费，需要考虑以下问题：</p>
+<ul>
+<li>生成远程服务的代理</li>
+<li>获得目标服务的url地址</li>
+<li>实现远程通信</li>
+<p>
+                
+            
+        
+        
+            </p></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-dubbo-配置中心" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -1098,290 +1380,8 @@
 
 
     
-        <article id="post-dubbo-基于SPI的自适应扩展机制" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/RPC框架Dubbo/">RPC框架Dubbo</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/dubbo/">dubbo</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">
-            <time datetime="2019-04-20T16:00:00.000Z" itemprop="datePublished">2019-04-21</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>源码分析入口：</p>
-<p>获取扩展类实例的调用语句如下</p>
-<p><code>ExtensionLoader.getExtensionLoader(Protocol.class).getExtension(&quot;myProtocol&quot;)</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ExtensionLoader.class</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ConcurrentMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt; EXTENSION_LOADERS = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">64</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">ExtensionLoader&lt;T&gt; <span class="title">getExtensionLoader</span><span class="params">(Class&lt;T&gt; type)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (type == <span class="keyword">null</span>) &#123;  <span class="comment">//传入的接口类型为null 抛异常</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Extension type == null"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!type.isInterface()) &#123;<span class="comment">// 传入的类型不是接口，抛异常</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Extension type ("</span> + type + <span class="string">") is not an interface!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!withExtensionAnnotation(type)) &#123;<span class="comment">// 传入的接口没有注解@SPI，抛异常</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Extension type ("</span> + type +</span><br><span class="line">                <span class="string">") is not an extension, because it is NOT annotated with @"</span> + SPI.class.getSimpleName() + <span class="string">"!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">		</span><br><span class="line">    ExtensionLoader&lt;T&gt; loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">    <span class="keyword">if</span> (loader == <span class="keyword">null</span>) &#123;</span><br><span class="line">        EXTENSION_LOADERS.putIfAbsent(type, <span class="keyword">new</span> ExtensionLoader&lt;T&gt;(type));</span><br><span class="line">        loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> loader;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到dubbo将所有的接口的ExtensionLoader都存到了一个hashmap中，获取Loader时先尝试从map中获取，没有获取到在创建一个存入map中并返回。</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-Mybatis-源码分析之与spring整合" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">
-            <time datetime="2019-03-14T16:00:00.000Z" itemprop="datePublished">2019-03-15</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>在Mybatis原生的API中，有三个对外提供的核心对象</p>
-<ul>
-<li>SqlSessionFactory</li>
-<li>SqlSession</li>
-<li>getMapper()方法返回的代理对象（包含H对象–MapperProxy）</li>
-<p>
-                
-            
-        
-        
-            </p></ul></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
-        <article id="post-Mybatis-源码分析之sql执行" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/ORM框架/">ORM框架</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/Mybatis/">Mybatis</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">
-            <time datetime="2019-03-13T16:00:00.000Z" itemprop="datePublished">2019-03-14</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>经过解析阶段，我们获得了一个填充完整的<code>Configuration</code>对象，对象中有一个名为<code>mappedStatements</code>的<code>Map&lt;String, MappedStatement&gt;</code> 用于存放解析好的sql配置，还有一个<code>MapperRegistry</code>记录mapper接口与其代理类工厂的映射关系。</p>
-<p>执行一条查询之前，首先要获得执行查询的SqlSession对象，在此之前要拿到工厂类<code>SqlSessionFactory</code>的实例。</p>
-<h4 id="1、-获取SqlSession"><a href="#1、-获取SqlSession" class="headerlink" title="1、 获取SqlSession"></a>1、 获取SqlSession</h4><p>使用配置对象创建出一个<code>SqlSessionFactory</code>，这里创建的是默认的实现类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SqlSessionFactoryBuilder.class</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">build</span><span class="params">(Configuration config)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> DefaultSqlSessionFactory(config);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>用户代码获取<code>SqlSession</code></p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
         <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/5/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/4/">4</a><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/zzkenyon.github.io/page/7/">7</a><a class="page-number" href="/zzkenyon.github.io/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/13/">13</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/7/">下一页 &raquo;</a>
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/5/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/4/">4</a><a class="page-number" href="/zzkenyon.github.io/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/zzkenyon.github.io/page/7/">7</a><a class="page-number" href="/zzkenyon.github.io/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/14/">14</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/7/">下一页 &raquo;</a>
         </nav>
     
 </section>

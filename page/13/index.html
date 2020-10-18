@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                126
+                131
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -231,7 +231,7 @@
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -249,7 +249,7 @@
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -440,6 +440,451 @@
 </aside>
             
             <section id="main">
+        <article id="post-linux命令-nohup" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/linux命令/">linux命令</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">
+            <time datetime="2017-04-23T07:39:40.000Z" itemprop="datePublished">2017-04-23</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>nohup 是 no hang up 的缩写，就是不挂断的意思。  </p>
+<p>nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以   使用nohup命令,该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。</p>
+<p>在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。nohup 命令运行由 Command参数和任何相关的Arg参数指定的命令，忽略所有挂断（SIGHUP）信号。在注销后使用 nohup 命令运行后台中的程序。要运行后台中的 nohup 命令，添加 &amp; （表示“and”的符号）到命令的尾部。  </p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><h5 id="1-nohup-command-gt-myout-file-2-gt-amp-1-amp"><a href="#1-nohup-command-gt-myout-file-2-gt-amp-1-amp" class="headerlink" title="1. nohup command &gt; myout.file 2&gt;&amp;1 &amp;"></a>1. nohup command &gt; myout.file 2&gt;&amp;1 &amp;</h5><p>在上面的例子中，0 – stdin (standard input)，1 – stdout (standard output)，2 – stderr (standard error) ；<br>2&gt;&amp;1是将标准错误（2）重定向到标准输出（&amp;1），标准输出（&amp;1）再被重定向输入到myout.file文件中。</p>
+<h5 id="2-0-22-usr-bin-python-home-pu-download-pdf-download-dfcf-pdf-to-oss-py-gt-home-pu-download-pdf-download-dfcf-pdf-to-oss-log-2-gt-amp-1"><a href="#2-0-22-usr-bin-python-home-pu-download-pdf-download-dfcf-pdf-to-oss-py-gt-home-pu-download-pdf-download-dfcf-pdf-to-oss-log-2-gt-amp-1" class="headerlink" title="2. 0 22   * /usr/bin/python /home/pu/download_pdf/download_dfcf_pdf_to_oss.py &gt; /home/pu/download_pdf/download_dfcf_pdf_to_oss.log 2&gt;&amp;1"></a>2. 0 22 <em> </em> * /usr/bin/python /home/pu/download_pdf/download_dfcf_pdf_to_oss.py &gt; /home/pu/download_pdf/download_dfcf_pdf_to_oss.log 2&gt;&amp;1</h5><p>这是放在crontab中的定时任务，晚上22点时候怕这个任务，启动这个python的脚本，并把日志写在download_dfcf_pdf_to_oss.log文件中</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-数据库-postgreSQL-让主键自增" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/数据库技术/">数据库技术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/postgreSQL/">postgreSQL</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">
+            <time datetime="2017-03-21T01:48:56.000Z" itemprop="datePublished">2017-03-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+            
+        
+        
+            <h4 id="1-建表时创建"><a href="#1-建表时创建" class="headerlink" title="1.建表时创建"></a>1.建表时创建</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">test</span></span><br><span class="line">(  </span><br><span class="line">  test_id <span class="built_in">SERIAL</span> primary <span class="keyword">key</span> ,  </span><br><span class="line">  test_name <span class="built_in">character</span> <span class="built_in">varying</span>,  </span><br><span class="line">  contactname <span class="built_in">character</span> <span class="built_in">varying</span>,  </span><br><span class="line">  phone <span class="built_in">character</span> <span class="built_in">varying</span>,  </span><br><span class="line">  country <span class="built_in">character</span> <span class="built_in">varying</span>  </span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h4 id="2-在已建表的情况下创建"><a href="#2-在已建表的情况下创建" class="headerlink" title="2.在已建表的情况下创建"></a>2.在已建表的情况下创建</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CREATE SEQUENCE test_id_seq  </span><br><span class="line">START WITH 1  </span><br><span class="line">INCREMENT BY 1  </span><br><span class="line">NO MINVALUE  </span><br><span class="line">NO MAXVALUE  </span><br><span class="line">CACHE 1;  </span><br><span class="line">  </span><br><span class="line">alter table test alter column id set default nextval(&apos;test_id_seq&apos;);</span><br></pre></td></tr></table></figure>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-Java编程-移位操作符" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/java/">java</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">
+            <time datetime="2016-12-23T13:00:45.000Z" itemprop="datePublished">2016-12-23</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>在java代码优化时一般会遵循一个原则， 尽量使用移位来代替’a/b’和’a*b’的操作，这两个操作代价很高，使用移位操作将会更快更有效。</p>
+<h3 id="1、三种移位操作"><a href="#1、三种移位操作" class="headerlink" title="1、三种移位操作"></a>1、三种移位操作</h3><ul>
+<li>“&lt;&lt;” 不带符号左移，符号位不动，低位补0，高位丢失</li>
+<li>“&gt;&gt;” 不带符号右移，符号位不动，正数高位补0，负数高位补1(机器数为补码)，低位丢失</li>
+<li>“&gt;&gt;&gt;” 带符号右移，高位补0，低位丢失</li>
+<p>
+                
+            
+        
+        
+            </p></ul></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-设计模式之代理模式" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/源码中的设计模式/">源码中的设计模式</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/设计模式/">设计模式</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">
+            <time datetime="2016-08-19T13:23:12.000Z" itemprop="datePublished">2016-08-19</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>代理模式提供了目标对象另外的访问方式，在不修改目标类型的基础上对目标类型进行扩展，符合设计模式中遵循的开闭原则，对扩展开放，对修改关闭。</p>
+<h3 id="1-静态代理"><a href="#1-静态代理" class="headerlink" title="1. 静态代理"></a>1. 静态代理</h3><p>静态代理在使用时需要定义接口或者超类，被代理对象与代理对象一起实现同一个接口或者是继承同一个超类。</p>
+<p>下面举个例子说明：<br>我们在购买火车票时可以到火车站购买，也可到各个代售点购买，火车站就是目标对象，代售点即是代理对象，他们都能完成购票，最主要的是代售点使用的售票接口就是车站官方的售票接口。</p>
+<p>票务接口 TicketService.java<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TicketService</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">buyTicket</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">refund</span><span class="params">()</span></span>;<span class="comment">//退票</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>目标对象车站 Station.java<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Station</span> <span class="title">implement</span> <span class="title">TicketService</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">buyTicket</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"----买票-----"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refund</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"----退票----"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-设计模式之单例模式" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/源码中的设计模式/">源码中的设计模式</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/设计模式/">设计模式</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">
+            <time datetime="2016-08-04T07:15:31.000Z" itemprop="datePublished">2016-08-04</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。比如在某个服务器程序中，该服务器的配置信息存放在一个文件中，这些配置数据由一个单例对象统一读取，然后服务进程中的其他对象再通过这个单例对象获取这些配置信息。这种方式简化了在复杂环境下的配置管理。</p>
+<h3 id="1、什么是单例"><a href="#1、什么是单例" class="headerlink" title="1、什么是单例"></a>1、什么是单例</h3><h4 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h4><p>单例模式，也叫单子模式，是一种常用的软件设计模式。在应用这个模式时，单例对象的类必须保证只有一个实例存在。</p>
+<h4 id="1-2-实现思路"><a href="#1-2-实现思路" class="headerlink" title="1.2 实现思路"></a>1.2 实现思路</h4><p>面向对象编程中，我们通过类的构造器生成对象，只要内存足够就可以构造出很多个实例，所以要限制某个类型只有唯一的一个实例对象，那就要从构造函数着手。  </p>
+<ol>
+<li>需要声明一个能返回对象的引用，定义一个获得该对象引用的方法（必须是静态方法，通常使用getInstance这个名称)  </li>
+<p>
+                
+            
+        
+        
+            </p></ol></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-日志框架-logback配置详解" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -895,102 +1340,8 @@
 
 
     
-        <article id="post-mysql-5-7-windows下安装" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/数据库技术/">数据库技术</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/mysql/">mysql</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">
-            <time datetime="2016-05-10T02:56:23.000Z" itemprop="datePublished">2016-05-10</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><h4 id="1-下载"><a href="#1-下载" class="headerlink" title="1. 下载"></a>1. 下载</h4><p>选择zip格式的压缩包，解压到指定盘中D:\mysql-5.7</p>
-<h4 id="2-配置环境变量"><a href="#2-配置环境变量" class="headerlink" title="2. 配置环境变量"></a>2. 配置环境变量</h4><p>MYSQL_HOME:D:\mysql-5.7<br>在path 后面添加 ;%MYSQL_HOME%\bin</p>
-<h4 id="3-添加文件my-ini文件"><a href="#3-添加文件my-ini文件" class="headerlink" title="3. 添加文件my.ini文件"></a>3. 添加文件my.ini文件</h4><p>将如下代码放入my.ini文件中<br>basedir和datadir，请根据实际安装目录进行修改</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[mysql]</span><br><span class="line"># 设置mysql客户端默认字符集</span><br><span class="line">default-character-set=utf8</span><br><span class="line">[mysqld]</span><br><span class="line">#设置3306端口</span><br><span class="line">port = 3306</span><br><span class="line"># 设置mysql的安装目录</span><br><span class="line">basedir=D:\mysql5.7</span><br><span class="line"># 设置mysql数据库的数据的存放目录</span><br><span class="line">datadir=D:\mysql5.7\data</span><br><span class="line"># 允许最大连接数</span><br><span class="line">max_connections=200</span><br><span class="line"># 服务端使用的字符集默认为8比特编码的latin1字符集</span><br><span class="line">character-set-server=utf8</span><br><span class="line"># 创建新表时将使用的默认存储引擎</span><br><span class="line">default-storage-engine=INNODB</span><br></pre></td></tr></table></figure>
-<h4 id="4-打开cmd-exe"><a href="#4-打开cmd-exe" class="headerlink" title="4. 打开cmd.exe"></a>4. 打开cmd.exe</h4><p>必须以管理员的身份运行，从c:/windows/systen32文件夹中找到cmd.exe，右击以管理员身份打开。</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
         <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/12/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/11/">11</a><a class="page-number" href="/zzkenyon.github.io/page/12/">12</a><span class="page-number current">13</span>
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/page/12/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/11/">11</a><a class="page-number" href="/zzkenyon.github.io/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/zzkenyon.github.io/page/14/">14</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/14/">下一页 &raquo;</a>
         </nav>
     
 </section>

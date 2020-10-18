@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                126
+                131
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -231,7 +231,7 @@
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -249,7 +249,7 @@
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -440,6 +440,100 @@
 </aside>
             
             <section id="main">
+        <article id="post-nio-netty源码分析之executionMask" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/I-O和网络编程/">I/O和网络编程</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/netty/">netty</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">
+            <time datetime="2020-09-07T16:00:00.000Z" itemprop="datePublished">2020-09-08</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p>老版本的netty，<code>AbstractChannelHandlerContext</code> 有两个bool属性<code>InBound</code> 和outBound，<code>InBound=true</code>表示该节点是inBound，<code>outBound=true</code>表示该节点是outBound，当然也可能同时为true。在我阅读的源代码版本（4.1.50）中已经删除了这两个属性，取而代之的是属性<strong><em>executionMask</em></strong>，通过使用该属性可以在事件传播时，快速的判断出该节点中的Handler在inBound方向和outBound方向有没有重载某事件处理逻辑。</p>
+<p>之前分析过Pipeline的源码，在向Pipeline添加节点的时候，会创建<code>DefaultChannelHandlerContext</code>对象，调用其父类构造函数时</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> io.netty.channel.ChannelHandlerMask.mask;</span><br><span class="line"></span><br><span class="line">AbstractChannelHandlerContext(DefaultChannelPipeline pipeline, EventExecutor executor,</span><br><span class="line">                              String name, Class&lt;? extends ChannelHandler&gt; handlerClass) &#123;</span><br><span class="line">    <span class="keyword">this</span>.name = ObjectUtil.checkNotNull(name, <span class="string">"name"</span>);</span><br><span class="line">    <span class="keyword">this</span>.pipeline = pipeline;</span><br><span class="line">    <span class="keyword">this</span>.executor = executor; <span class="comment">// null</span></span><br><span class="line">    <span class="keyword">this</span>.executionMask = mask(handlerClass); <span class="comment">// 生成一个掩码 可以快读判断这个Handler重载了哪些方法</span></span><br><span class="line">    <span class="comment">// Its ordered if its driven by the EventLoop or the given Executor is an instanceof OrderedEventExecutor.</span></span><br><span class="line">    ordered = executor == <span class="keyword">null</span> || executor <span class="keyword">instanceof</span> OrderedEventExecutor; <span class="comment">// ture</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会用mask方法给其成员executionMask赋值，mask是<code>ChannelHandlerMask</code>类的静态方法，本文主要分析这类的源码，该类的源码并不复杂，之所以要拿出来分析，完全是因为这种设计思想还是值得借鉴的。</p>
+<p>首先看这个类定义了许多的int型静态变量，作为标记，每一个事件处理方法对应了17位中的一位</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-SpringBoot-事务源码分析" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -1286,102 +1380,8 @@
 
 
     
-        <article id="post-redis-热点key问题" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/noSql/">noSql</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/redis/">redis</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">
-            <time datetime="2020-01-01T16:00:00.000Z" itemprop="datePublished">2020-01-02</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p><a href="https://www.cnblogs.com/rjzheng/p/10874537.html" target="_blank" rel="noopener">原文链接</a></p>
-<p>所谓热key问题就是，突然有几十万的请求去访问redis上的某个特定key。那么，这样会造成流量过于集中，达到物理网卡上限，从而导致这台redis的服务器宕机。<br>那接下来这个key的请求，就会直接怼到你的数据库上，导致你的服务不可用。</p>
-<h3 id="1-怎么发现热key"><a href="#1-怎么发现热key" class="headerlink" title="1. 怎么发现热key"></a>1. 怎么发现热key</h3><p><strong><em>方法一:凭借业务经验，进行预估哪些是热key</em></strong><br>其实这个方法还是挺有可行性的。比如某商品在做秒杀，那这个商品的key就可以判断出是热key。</p>
-<p>缺点很明显，并非所有业务都能预估出哪些key是热key。</p>
-<p><strong><em>方法二:在客户端进行收集</em></strong><br>这个方式就是在操作redis之前，加入一行代码进行数据统计。那么这个数据统计的方式有很多种，也可以是给外部的通讯系统发送一个通知信息。缺点就是对客户端代码造成入侵。</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
         <nav id="page-nav">
-        <span class="page-number current">1</span><a class="page-number" href="/zzkenyon.github.io/page/2/">2</a><a class="page-number" href="/zzkenyon.github.io/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/13/">13</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/2/">下一页 &raquo;</a>
+        <span class="page-number current">1</span><a class="page-number" href="/zzkenyon.github.io/page/2/">2</a><a class="page-number" href="/zzkenyon.github.io/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/14/">14</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/2/">下一页 &raquo;</a>
         </nav>
     
 </section>

@@ -163,7 +163,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                126
+                131
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -231,7 +231,7 @@
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -249,7 +249,7 @@
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -440,6 +440,100 @@
 </aside>
             
             <section id="main">
+        <article id="post-redis-热点key问题" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/noSql/">noSql</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/redis/">redis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">
+            <time datetime="2020-01-01T16:00:00.000Z" itemprop="datePublished">2020-01-02</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                
+                    
+                    <p></p><p><a href="https://www.cnblogs.com/rjzheng/p/10874537.html" target="_blank" rel="noopener">原文链接</a></p>
+<p>所谓热key问题就是，突然有几十万的请求去访问redis上的某个特定key。那么，这样会造成流量过于集中，达到物理网卡上限，从而导致这台redis的服务器宕机。<br>那接下来这个key的请求，就会直接怼到你的数据库上，导致你的服务不可用。</p>
+<h3 id="1-怎么发现热key"><a href="#1-怎么发现热key" class="headerlink" title="1. 怎么发现热key"></a>1. 怎么发现热key</h3><p><strong><em>方法一:凭借业务经验，进行预估哪些是热key</em></strong><br>其实这个方法还是挺有可行性的。比如某商品在做秒杀，那这个商品的key就可以判断出是热key。</p>
+<p>缺点很明显，并非所有业务都能预估出哪些key是热key。</p>
+<p><strong><em>方法二:在客户端进行收集</em></strong><br>这个方式就是在操作redis之前，加入一行代码进行数据统计。那么这个数据统计的方式有很多种，也可以是给外部的通讯系统发送一个通知信息。缺点就是对客户端代码造成入侵。</p>
+<p>
+                
+            
+        
+        
+            </p></div>   
+            <div class="article-more-link">
+                <a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/#more">查看更多</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-redis-集群搭建" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -790,17 +884,17 @@
                 
                 
                     
-                    <p></p><p>Channel创建的时候会创建一个PipeLine，并且PipeLine也持有Channel对象的引用，二者是互相引用的关系。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractChannel.class</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="title">AbstractChannel</span><span class="params">(Channel parent)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    pipeline = newChannelPipeline();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> DefaultChannelPipeline <span class="title">newChannelPipeline</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">return</span> <span class="keyword">new</span> DefaultChannelPipeline(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>AbstractChannel 是Channel接口的第一个抽象实现类，其中就声明了对pipeline的引用，在看pipeLine的初始化，创建了一个DefaultChannelPipeline ，构造函数将正在构造的channel对象传进去，看构造器源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DefaultChannelPipeline</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="title">DefaultChannelPipeline</span><span class="params">(Channel channel)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.channel = ObjectUtil.checkNotNull(channel, <span class="string">"channel"</span>);</span><br><span class="line">    succeededFuture = <span class="keyword">new</span> SucceededChannelFuture(channel, <span class="keyword">null</span>);</span><br><span class="line">    voidPromise =  <span class="keyword">new</span> VoidChannelPromise(channel, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    tail = <span class="keyword">new</span> TailContext(<span class="keyword">this</span>);</span><br><span class="line">    head = <span class="keyword">new</span> HeadContext(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">    head.next = tail;</span><br><span class="line">    tail.prev = head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第一步就是将传入的channel对象存下来，然后创建头结点head和尾结点tail组成一个初始的双向链表。</p>
+                    <p></p><p>重读总结：</p>
+<ul>
+<li>事件传播方法，以<code>fireChannelActive()</code>为例，这个方法是定义在<code>ChannelInboundInvoker</code>接口中的，<code>AbstractChannelHandlerContext</code>和<code>DefaultChannelPipeline</code>两个类中都重载了这个方法，两者实现的区别是：<ul>
+<li><code>AbstractChannelHandlerContext</code>中的重载是从当前的Pipeline节点开始传播事件，一般用于业务逻辑处理结束后继续传播事件，下一节点需要查找</li>
+<li><code>DefaultChannelPipeline</code>的逻辑是用于事件刚要进入pipeline的时候，下一节点直接指定，In事件指定给head，out事件指定给tail</li>
 <p>
                 
             
         
         
-            </p></div>   
+            </p></ul></li></ul></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/#more">查看更多</a>
             </div>
@@ -978,17 +1072,17 @@
                 
                 
                     
-                    <p></p><p>我们知道服务端启动后，会有一条boss线程在运行着，负责接受客户端的新连接。boss线程具体运行的逻辑在NioEventLoop的<code>run()</code>方法中，这里不做具体体分析，只截取本文关心的代码片段：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//NioEventLoop</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  	...</span><br><span class="line">  	strategy = select(curDeadlineNanos);</span><br><span class="line">  	...</span><br><span class="line">    <span class="keyword">if</span> (strategy &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        processSelectedKeys();</span><br><span class="line">    &#125;  	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>典型的jdk nio 的代码逻辑，先select，再处理selectedKey，跟进处理代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//NioEventLoop</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processSelectedKeys</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (selectedKeys != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 优化过的处理 一般会进这里</span></span><br><span class="line">        processSelectedKeysOptimized();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 正常处理</span></span><br><span class="line">        processSelectedKeysPlain(selector.selectedKeys());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processSelectedKeysOptimized</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; selectedKeys.size; ++i) &#123;</span><br><span class="line">        <span class="keyword">final</span> SelectionKey k = selectedKeys.keys[i];</span><br><span class="line">        selectedKeys.keys[i] = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">final</span> Object a = k.attachment();</span><br><span class="line">      	<span class="comment">// 从selectedKey中取出的附件是NioSocketChannel对象</span></span><br><span class="line">        <span class="keyword">if</span> (a <span class="keyword">instanceof</span> AbstractNioChannel) &#123;</span><br><span class="line">        	 	 <span class="comment">// 继续跟进</span></span><br><span class="line">            processSelectedKey(k, (AbstractNioChannel) a);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">            NioTask&lt;SelectableChannel&gt; task = (NioTask&lt;SelectableChannel&gt;) a;</span><br><span class="line">            processSelectedKey(k, task);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (needsToSelectAgain) &#123;</span><br><span class="line">            selectedKeys.reset(i + <span class="number">1</span>);</span><br><span class="line">            selectAgain();</span><br><span class="line">            i = -<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processSelectedKey</span><span class="params">(SelectionKey k, AbstractNioChannel ch)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">//注意：所有通道注册的时候都没有第一时间指定监听事件，而ops==0 时，这里默认是监听读就绪事件</span></span><br><span class="line">        <span class="keyword">if</span> ((readyOps &amp; (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != <span class="number">0</span> || readyOps == <span class="number">0</span>) &#123;</span><br><span class="line">          unsafe.read();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (CancelledKeyException ignored) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>看到最终调用了<code>unsafe.read()</code>方法，注意这里处理的是 NioServerSocketChannel 上的读。</p>
+                    <p></p><p>重读总结：</p>
+<ul>
+<li>客户端的通道是由服务器创建的，当主线程监听到Accept事件，会进入事件处理流程，创建客户端通道</li>
+<li>子通道的生命周期 创建——初始化——注册<ul>
+<li>创建，主线程执行处理流程时创建子通道<code>NioSocketChannel</code>对象</li>
 <p>
                 
             
         
         
-            </p></div>   
+            </p></ul></li></ul></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/#more">查看更多</a>
             </div>
@@ -1072,17 +1166,17 @@
                 
                 
                     
-                    <p></p><p>首先贴一段简单的服务器启动代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">  NioEventLoopGroup parent = <span class="keyword">new</span> NioEventLoopGroup(<span class="number">1</span>); </span><br><span class="line">  NioEventLoopGroup children = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">  ServerBootstrap bs = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">  bs.group(parent,children)</span><br><span class="line">    .channel(NioServerSocketChannel.class)</span><br><span class="line">    .handler(<span class="keyword">new</span> ServerHandler())</span><br><span class="line">    .childHandler(<span class="keyword">new</span> ChannelInitializer&lt;Channel&gt;()&#123;</span><br><span class="line">      	<span class="meta">@Override</span></span><br><span class="line">      	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(NioSocketChannel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">          ch.pipeline().addLast(<span class="keyword">new</span> Spliter());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  bs.bind(<span class="number">8080</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>代码逻辑：</p>
-<p>1、创建了一个线程池 parent，其中只有一个线程，主要负责接受新连接</p>
-<p>2、创建另一个线程池 children，线程个数为默认值，核心数的2倍，主要负责处理客户端channel上的各种事件</p>
+                    <p></p><p>重读总结：</p>
+<ul>
+<li>想要更好的理解服务启动流程，就要明白netty的线程模型——reactor模型，主线程负责接受新连接，只监听主线程selector上注册的ACCEPT事件</li>
+<li>主通的生命周期为 创建——初始化——注册——绑定<ul>
+<li>创建，就是通过反射调用 默认的构造函数，创建一个<code>NioServerSocketChannel</code>对象</li>
 <p>
                 
             
         
         
-            </p></div>   
+            </p></ul></li></ul></div>   
             <div class="article-more-link">
                 <a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/#more">查看更多</a>
             </div>
@@ -1261,9 +1355,9 @@
                 
                     
                     <p></p><p>一个NioEventLoop对应于Reactor模型中的一个从Reactor线程，它持有一个Thread引用，可以简单将NioEventLoop理解为一个用于处理channel事件的线程。</p>
-<p>一个channel上的事件只能被同一个线程处理，NioEventLoop线程对channel事件的处理是一个串行化无锁执行过程，我们在初始化channel的时候在pipeline中添加了一系列的Handler（编解码、数据处理等），这些Handler的处理需要遵循一个固定的顺序，netty底层使用同一个线程按照这个顺序串行执行，避免了多个线程处理同一个channel需要使用锁同步产生的开销，这叫<strong>串行化无锁编程</strong></p>
+<p>一个channel上的事件只能被同一个线程处理，NioEventLoop线程对channel事件的处理是一个串行化无锁执行过程，netty在初始化channel的时候在pipeline中添加了一系列用户指定的Handler（通过<code>childHanler()</code>方法），这些Handler的处理需要遵循一个固定的顺序，netty底层使用同一个线程按照这个顺序串行执行，避免了多线程处理同一个channel需要使用锁同步产生的开销，这叫<strong>串行化无锁编程</strong></p>
 <p>一个NioEventLoop可以处理多个channel的就绪事件，即同一个nio线程可以处理多条连接的请求，这叫<strong>多路复用</strong></p>
-<h4 id="Channel指定evenloop"><a href="#Channel指定evenloop" class="headerlink" title="Channel指定evenloop"></a>Channel指定evenloop</h4><p>Channel的EventLoop是在注册的时候指定的，netty服务器启动时，首先会注册一个ServerChannel，该注册工作由Boss线程池完成，通常Boss线程池中值有一个线程。</p>
+<h3 id="1、Channel指定evenloop"><a href="#1、Channel指定evenloop" class="headerlink" title="1、Channel指定evenloop"></a>1、Channel指定evenloop</h3><p>Channel的<code>EventLoop</code>是在注册的时候指定的，netty服务器启动时，首先会注册一个ServerChannel，该注册工作由Boss线程池完成，通常Boss线程池中只有一个线程。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractBootstrap</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> ChannelFuture <span class="title">initAndRegister</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    ChannelFuture regFuture = config().group().register(channel);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>
                 
@@ -1286,102 +1380,8 @@
 
 
     
-        <article id="post-nio-epoll高效运行原理" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/I-O和网络编程/">I/O和网络编程</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/nio/">nio</a>
-    </div>
-
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">
-            <time datetime="2019-10-25T16:00:00.000Z" itemprop="datePublished">2019-10-26</time>
-        </a>
-    </div>
-
-
-                        
-                            <i class="fa fa-bar-chart"></i>
-                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
-                        
-                        
-                    </div>
-                
-                
-    
-        <h1 itemprop="name">
-            <a class="article-title" href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a>
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-        
-        
-            
-                
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                    
-                    
-                
-                
-                    
-                    <p></p><p>nio非阻塞牛逼在哪里？</p>
-<p>要解答这个问题首先要清楚bio的痛点在哪里。</p>
-<p>假如我们的服务使用bio模型，服务器启动之后需要一条线程一直监听端口上是否有连接请求发过来，如果没有请求，这条线程就一直等着；</p>
-<p>等了好久好久终于来了一个请求连接，连接建立成功后，又要开始等业务请求，由于网络慢或者其他原因又等了一千年；</p>
-<p>终于拿到了请求，电光火石间处理完拿到响应数据，准备响应出去，这时候发现由于不明原因，一千五百年之前的一条响应还没有发送出去，占据了内核缓冲区，这时候害得等，等前一条响应发出去才能将本次的响应写入缓冲区。。。沧海桑田</p>
-<p>
-                
-            
-        
-        
-            </p></div>   
-            <div class="article-more-link">
-                <a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/#more">查看更多</a>
-            </div>
-        
-        <footer class="article-footer">
-        </footer>
-    </div>
-</article>
-
-
-
-
-
-
-    
         <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="page-number current">2</span><a class="page-number" href="/zzkenyon.github.io/page/3/">3</a><a class="page-number" href="/zzkenyon.github.io/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/13/">13</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/3/">下一页 &raquo;</a>
+        <a class="extend prev" rel="prev" href="/zzkenyon.github.io/">&laquo; 上一页</a><a class="page-number" href="/zzkenyon.github.io/">1</a><span class="page-number current">2</span><a class="page-number" href="/zzkenyon.github.io/page/3/">3</a><a class="page-number" href="/zzkenyon.github.io/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/zzkenyon.github.io/page/14/">14</a><a class="extend next" rel="next" href="/zzkenyon.github.io/page/3/">下一页 &raquo;</a>
         </nav>
     
 </section>

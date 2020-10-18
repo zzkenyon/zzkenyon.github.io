@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>dubbo-服务消费者启动过程 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="dubbo">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="1、设计思想要实现服务消费，需要考虑以下问题：  生成远程服务的代理 获得目标服务的url地址 实现远程通信 实现负载均衡 实现集群容错   2、注解解析Dubbo的服务消费者注入也有两种方式:   通过xml形式  基于注解的方式   我来分析一下基于注解的方式的解析过程： @DubboReference 注解的解析逻辑在ReferenceAnnotationBeanPostProcessor类">
+<meta name="keywords" content="dubbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dubbo-服务消费者启动过程">
+<meta property="og:url" content="http://yoursite.com/child/2019/04/30/dubbo-服务消费/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="1、设计思想要实现服务消费，需要考虑以下问题：  生成远程服务的代理 获得目标服务的url地址 实现远程通信 实现负载均衡 实现集群容错   2、注解解析Dubbo的服务消费者注入也有两种方式:   通过xml形式  基于注解的方式   我来分析一下基于注解的方式的解析过程： @DubboReference 注解的解析逻辑在ReferenceAnnotationBeanPostProcessor类">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/ReferenceAnnotationBeanPostProcessor.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E7%AB%AFInvoker%E7%BB%93%E6%9E%84.png">
+<meta property="og:updated_time" content="2020-09-21T05:50:54.123Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="dubbo-服务消费者启动过程">
+<meta name="twitter:description" content="1、设计思想要实现服务消费，需要考虑以下问题：  生成远程服务的代理 获得目标服务的url地址 实现远程通信 实现负载均衡 实现集群容错   2、注解解析Dubbo的服务消费者注入也有两种方式:   通过xml形式  基于注解的方式   我来分析一下基于注解的方式的解析过程： @DubboReference 注解的解析逻辑在ReferenceAnnotationBeanPostProcessor类">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                131
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                33
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-dubbo-服务消费" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/RPC框架Dubbo/">RPC框架Dubbo</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/dubbo/">dubbo</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">
+            <time datetime="2019-04-29T16:00:00.000Z" itemprop="datePublished">2019-04-30</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            dubbo-服务消费者启动过程
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <h3 id="1、设计思想"><a href="#1、设计思想" class="headerlink" title="1、设计思想"></a>1、设计思想</h3><p>要实现服务消费，需要考虑以下问题：</p>
+<ul>
+<li>生成远程服务的代理</li>
+<li>获得目标服务的url地址</li>
+<li>实现远程通信</li>
+<li>实现负载均衡</li>
+<li>实现集群容错</li>
+</ul>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9.png" style="zoom:80%;"></p>
+<h3 id="2、注解解析"><a href="#2、注解解析" class="headerlink" title="2、注解解析"></a>2、注解解析</h3><p>Dubbo的服务消费者注入也有两种方式: </p>
+<ul>
+<li><p>通过xml形式</p>
+</li>
+<li><p>基于注解的方式</p>
+</li>
+</ul>
+<p>我来分析一下基于注解的方式的解析过程：</p>
+<p><code>@DubboReference</code> 注解的解析逻辑在<code>ReferenceAnnotationBeanPostProcessor</code>类中，在2.7.6版本中这个类在在<code>DubboAutoConfiguration</code>中有显示的配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@Bean</span>(name = ReferenceAnnotationBeanPostProcessor.BEAN_NAME) <span class="function"><span class="keyword">public</span> ReferenceAnnotationBeanPostProcessor <span class="title">referenceAnnotationBeanPostProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ReferenceAnnotationBeanPostProcessor();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但其实这里出现了重复注入的情况，因为在这段代码执行之前，<code>ReferenceAnnotationBeanPostProcessor</code>已经在容器中了，所以2.7.8版本删除了这段代码。</p>
+<p>那么这个类到底在哪里注入的？</p>
+<p>配置类<code>DubboAutoConfiguration</code>上注解了<code>@EnableDubboConfig</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import</span>(DubboConfigConfigurationRegistrar.class)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableDubboConfig &#123;</span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">multiple</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">true</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该注解使用了@Import动态注入，进入<code>DubboConfigConfigurationRegistrar</code>类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboConfigConfigurationRegistrar</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line">      	...</span><br><span class="line">				<span class="comment">// Since 2.7.6</span></span><br><span class="line">        registerCommonBeans(registry);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>registerCommonBeans()</code>方法是定义在<code>DubboBeanUtils</code>中的一个静态方法，注释可以看到这个方法是从2.7.6版本添加的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">registerCommonBeans</span><span class="params">(BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Since 2.5.7 Register @Reference Annotation Bean Processor as an infrastructure Bean</span></span><br><span class="line">    registerInfrastructureBean(registry, ReferenceAnnotationBeanPostProcessor.BEAN_NAME,</span><br><span class="line">            ReferenceAnnotationBeanPostProcessor.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Since 2.7.4 [Feature] https://github.com/apache/dubbo/issues/5093</span></span><br><span class="line">    registerInfrastructureBean(registry, DubboConfigAliasPostProcessor.BEAN_NAME,</span><br><span class="line">            DubboConfigAliasPostProcessor.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Since 2.7.5 Register DubboLifecycleComponentApplicationListener as an infrastructure Bean</span></span><br><span class="line">    registerInfrastructureBean(registry, DubboLifecycleComponentApplicationListener.BEAN_NAME,</span><br><span class="line">            DubboLifecycleComponentApplicationListener.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Since 2.7.4 Register DubboBootstrapApplicationListener as an infrastructure Bean</span></span><br><span class="line">    registerInfrastructureBean(registry, DubboBootstrapApplicationListener.BEAN_NAME,</span><br><span class="line">            DubboBootstrapApplicationListener.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Since 2.7.6 Register DubboConfigDefaultPropertyValueBeanPostProcessor as an infrastructure Bean</span></span><br><span class="line">    registerInfrastructureBean(registry, DubboConfigDefaultPropertyValueBeanPostProcessor.BEAN_NAME,</span><br><span class="line">            DubboConfigDefaultPropertyValueBeanPostProcessor.class);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到这个方法注入了几个dubbo的基础类，其中就有<code>ReferenceAnnotationBeanPostProcessor</code>。当使用xml方式解析dubbo配置的时候，也会使用到这个静态方法来注入这些基础类。</p>
+<p>下面我们进入正题，分析消费端启动流程</p>
+<p>springboot在实例化bean时会进入自动注入流程，之前分析过自动注入流程是在<code>populateBean()</code> 方法中，在此方法中有这段代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (BeanPostProcessor bp : getBeanPostProcessors()) &#123;</span><br><span class="line">   <span class="keyword">if</span> (bp <span class="keyword">instanceof</span> InstantiationAwareBeanPostProcessor) &#123;</span><br><span class="line">      InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;</span><br><span class="line">      PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);</span><br><span class="line">      <span class="keyword">if</span> (pvsToUse == <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="keyword">if</span> (filteredPds == <span class="keyword">null</span>) &#123;</span><br><span class="line">            filteredPds = filterPropertyDescriptorsForDependencyCheck(bw, mbd.allowCaching);</span><br><span class="line">         &#125;</span><br><span class="line">       	 <span class="comment">// 主要是这一句</span></span><br><span class="line">         pvsToUse = ibp.postProcessPropertyValues(pvs, filteredPds, bw.getWrappedInstance(), beanName);  </span><br><span class="line">         <span class="keyword">if</span> (pvsToUse == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      pvs = pvsToUse;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码会执行<code>BeanPostProcessor</code>中的逻辑<code>postProcessPropertyValues()</code>方法，</p>
+<p>再看<code>ReferenceAnnotationBeanPostProcessor</code>的类继承关系，它实现了<code>InstantiationAwareBeanPostProcessor</code>接口，该接口定义了<code>postProcessPropertyValues</code>方法</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/ReferenceAnnotationBeanPostProcessor.png" style="zoom: 30%;"></p>
+<p>进入<code>postProcessPropertyValues</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">// AbstractAnnotationBeanPostProcessor</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> PropertyValues <span class="title">postProcessPropertyValues</span><span class="params">(PropertyValues pvs, PropertyDescriptor[] pds, </span></span></span><br><span class="line"><span class="function"><span class="params">                                                Object bean, String beanName)</span> <span class="keyword">throws</span> </span></span><br><span class="line"><span class="function">  BeanCreationException </span>&#123;</span><br><span class="line">  <span class="comment">// 从这里进入就是注解解析流程，这里不深究，另起文章分析</span></span><br><span class="line">    InjectionMetadata metadata = findInjectionMetadata(beanName, bean.getClass(), pvs);  </span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 从这里注入</span></span><br><span class="line">        metadata.inject(bean, beanName, pvs);</span><br><span class="line">    &#125; ...</span><br><span class="line">    <span class="keyword">return</span> pvs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>findInjectionMetadata()</code>方法完成了对几个指定注解的解析，返回一个<code>InjectionMetadata</code>对象，执行该对象的<code>inject（）</code>方法进行注入流程。</p>
+<h3 id="3、注入远程服务代理对象"><a href="#3、注入远程服务代理对象" class="headerlink" title="3、注入远程服务代理对象"></a>3、注入远程服务代理对象</h3><p>继续跟进<code>inject()</code>，这是私有内部类 <code>AnnotatedFiledElement</code>中的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">//AbstractAnnotationBeanPostProcessor.AnnotatedFiledElement</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(Object bean, String beanName, PropertyValues pvs)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    Class&lt;?&gt; injectedType = field.getType();</span><br><span class="line">  <span class="comment">//getInjectedObject方法返回需要注入的代理对象，此处开始进入正题 </span></span><br><span class="line">    Object injectedObject = getInjectedObject(attributes, bean, beanName, injectedType, <span class="keyword">this</span>);</span><br><span class="line">    ReflectionUtils.makeAccessible(field);</span><br><span class="line">  <span class="comment">// 反射方式注入代理对象</span></span><br><span class="line">    field.set(bean, injectedObject);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>跟进<code>getInjectedObject</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//AbstractAnnotationBeanPostProcessor</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">getInjectedObject</span><span class="params">(AnnotationAttributes attributes, Object bean, String beanName, Class&lt;?&gt; injectedType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   InjectionMetadata.InjectedElement injectedElement)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		...</span><br><span class="line">    <span class="keyword">if</span> (injectedObject == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="comment">// &gt;&gt; 干活</span></span><br><span class="line">        injectedObject = doGetInjectedBean(attributes, bean, beanName, injectedType, injectedElement);</span><br><span class="line">        injectedObjectsCache.putIfAbsent(cacheKey, injectedObject);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> injectedObject;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终会执行到<code>doGetInjectedBean()</code>方法，这里使用模板模式，该方法定义在子类<code>ReferenceAnnotationBeanPostProcessor</code>中，</p>
+<h4 id="3-1-doGetInjectedBean-方法"><a href="#3-1-doGetInjectedBean-方法" class="headerlink" title="3.1 doGetInjectedBean 方法"></a>3.1 doGetInjectedBean 方法</h4><p>该方法主要做两件事：</p>
+<ul>
+<li><p>创建了一个<code>ReferenceBean</code>注册到Spring IOC容器中 </p>
+</li>
+<li><p>调用 <code>referenceBean.get()</code> 返回一个动态代理对象</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doGetInjectedBean</span><span class="params">(AnnotationAttributes attributes, Object bean, String beanName, Class&lt;?&gt; injectedType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   InjectionMetadata.InjectedElement injectedElement)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// ServiceBean:com.pd.ISayHello</span></span><br><span class="line">    String referencedBeanName = buildReferencedBeanName(attributes, injectedType);</span><br><span class="line">    <span class="comment">// @Reference(check=false,mock=com.pd.moke.ISayHelloMoke,protocol=dubbo) com.pd.ISayHello</span></span><br><span class="line">    String referenceBeanName = getReferenceBeanName(attributes, injectedType);</span><br><span class="line">   	<span class="comment">// 创建一个ReferenceBean</span></span><br><span class="line">    ReferenceBean referenceBean = buildReferenceBeanIfAbsent(referenceBeanName, attributes, injectedType); </span><br><span class="line">    <span class="keyword">boolean</span> localServiceBean = isLocalServiceBean(referencedBeanName, referenceBean, attributes);</span><br><span class="line">    prepareReferenceBean(referencedBeanName, referenceBean, localServiceBean);</span><br><span class="line">  	<span class="comment">//  将referenceBean注册到ioc</span></span><br><span class="line">  	registerReferenceBean(referencedBeanName, referenceBean, attributes, localServiceBean, injectedType);</span><br><span class="line">    cacheInjectedReferenceBean(referenceBean, injectedElement);</span><br><span class="line">  	 <span class="comment">// 使用ReferenceBean获取远程服务的调用对象</span></span><br><span class="line">    <span class="keyword">return</span> referenceBean.get();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (destroyed) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"The invoker of ReferenceConfig("</span> + url + <span class="string">") has already destroyed!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ref == <span class="keyword">null</span>) &#123;</span><br><span class="line">        init();  <span class="comment">//&gt;&gt;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ref; <span class="comment">// ref 是dubbo返回的用于远程调用的代理对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-2-createProxy-方法"><a href="#3-2-createProxy-方法" class="headerlink" title="3.2 createProxy() 方法"></a>3.2 createProxy() 方法</h4><p>init 方法有点类发布服务时的doExport方法，主要执行步骤如下：</p>
+<p>1、检查配置信息</p>
+<p>2、根据dubbo配置构建map集合</p>
+<p>3、调用createProxy方法创建动态代理对象</p>
+<p>本文重点分析第三步：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref = createProxy(map);</span><br></pre></td></tr></table></figure>
+<p>先思考一下，创建动态代理对象这个过程中，它可能会有哪些操作步骤?这个方法要能猜出来， 那必然需要对dubbo的使用比较熟悉。</p>
+<p>首先我们需要注意一个点，这里是创建一个代理对象，而这个代理对象应该也和协议有关系，也就是不同的协议，使用的代理对象也应该不一样。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//ReferenceConfig</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> T <span class="title">createProxy</span><span class="params">(Map&lt;String, String&gt; map)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (shouldJvmRefer(map)) &#123;</span><br><span class="line">        URL url = <span class="keyword">new</span> URL(LOCAL_PROTOCOL, LOCALHOST_VALUE, <span class="number">0</span>, interfaceClass.getName()).addParameters(map);</span><br><span class="line">        invoker = REF_PROTOCOL.refer(interfaceClass, url);</span><br><span class="line">        <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">            logger.info(<span class="string">"Using injvm service "</span> + interfaceClass.getName());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;...&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码是方法的第一部分，根据map进行判断，需要注入的服务是不是injvm的服务，主要判断依据是scope属性（scope==injvm时返回true），其次是generic属性（是泛化服务则返回false），最后的依据是<code>getExporter(exporterMap, url) != null</code>时，返回true，因为只有当前应用发布了该服务，<code>getExporter</code>才不会为空。</p>
+<p>我们继续分析createProxy第二段代码，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//ReferenceConfig</span></span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    urls.clear();	</span><br><span class="line">  	<span class="comment">// 点对点调用时的处理逻辑</span></span><br><span class="line">    <span class="keyword">if</span> (url != <span class="keyword">null</span> &amp;&amp; url.length() &gt; <span class="number">0</span>) &#123; </span><br><span class="line">        ...</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">        <span class="comment">// 再次确认协议不是injvm</span></span><br><span class="line">        <span class="keyword">if</span> (!LOCAL_PROTOCOL.equalsIgnoreCase(getProtocol())) &#123;</span><br><span class="line">            <span class="comment">//检查注册中心配置</span></span><br><span class="line">            checkRegistry();</span><br><span class="line">           	<span class="comment">//返回注册中心url列表</span></span><br><span class="line">            List&lt;URL&gt; us = ConfigValidationUtils.loadRegistries(<span class="keyword">this</span>, <span class="keyword">false</span>);</span><br><span class="line">            <span class="keyword">if</span> (CollectionUtils.isNotEmpty(us)) &#123;</span><br><span class="line">                <span class="keyword">for</span> (URL u : us) &#123;</span><br><span class="line">                    URL monitorUrl = ConfigValidationUtils.loadMonitor(<span class="keyword">this</span>, u);</span><br><span class="line">                    <span class="keyword">if</span> (monitorUrl != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        map.put(MONITOR_KEY, URL.encode(monitorUrl.toFullString()));</span><br><span class="line">                    &#125;</span><br><span class="line">                  	<span class="comment">// 将url添加一个refer属性，添加到成员urls中</span></span><br><span class="line">                    urls.add(u.addParameterAndEncoded(REFER_KEY, StringUtils.toQueryString(map)));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (urls.isEmpty()) &#123;</span><br><span class="line">                ... <span class="comment">// 抛异常</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码解析：</p>
+<ol>
+<li><p>成员变量<code>url</code>是没有使用注册中心，点对点调用时的硬编码url，不是本文重点不做分析</p>
+</li>
+<li><p>ConfigValidationUtils.loadRegistries（）返回注册中心url列表，url形状如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">registry://10.0.12.74:2181/org.apache.dubbo.registry.RegistryService?application=spring-boot-dubbo-consumer&amp;dubbo=2.0.2&amp;pid=1841&amp;qos.enable=false&amp;register=false&amp;registry=zookeeper</span><br><span class="line">&amp;release=2.7.8&amp;timestamp=1600308477956</span><br></pre></td></tr></table></figure>
+<p>是registry协议</p>
+</li>
+<li><p>每个注册中心url需要添加一个refer属性再放到urls中取，refer属性是之前的map生成的一个字符串，这样做只是为了随着url方便传参数</p>
+<p>refer属性的形状如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">refer=application%3Dspring-boot-dubbo-consumer%26check%3Dfalse%26dubbo%3D2.0.2%26init%3Dfalse</span><br><span class="line">%26interface%3Dcom.pd.ISayHello%26metadata-type%3Dremote%26methods%3DsayHello</span><br><span class="line">%26mock%3Dcom.pd.moke.ISayHelloMoke%26pid%3D1841%26protocol%3Ddubbo%26qos.enable%3Dfalse</span><br><span class="line">%26register.ip%3D172.30.66.2%26release%3D2.7.8%26side%3Dconsumer%26sticky%3Dfalse %26timestamp%3D1600308463376&amp;register=false&amp;registry=zookeeper&amp;release=2.7.8&amp;timestamp=1600308477956</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>createProxy()第三段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">...<span class="comment">// 接上段代码...</span></span><br><span class="line"><span class="keyword">if</span> (urls.size() == <span class="number">1</span>) &#123;</span><br><span class="line">      invoker = REF_PROTOCOL.refer(interfaceClass, urls.get(<span class="number">0</span>));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      List&lt;Invoker&lt;?&gt;&gt; invokers = <span class="keyword">new</span> ArrayList&lt;Invoker&lt;?&gt;&gt;();</span><br><span class="line">      URL registryURL = <span class="keyword">null</span>;</span><br><span class="line">      <span class="keyword">for</span> (URL url : urls) &#123;</span><br><span class="line">          <span class="comment">// 多注册中心配置，针对每个配置中心会返回一个调用器</span></span><br><span class="line">          <span class="comment">// url是register协议，进入RegisterProtocol.refer()     </span></span><br><span class="line">        	invokers.add(REF_PROTOCOL.refer(interfaceClass, url));</span><br><span class="line">          <span class="keyword">if</span> (UrlUtils.isRegistry(url)) &#123;</span><br><span class="line">              registryURL = url; <span class="comment">// use last registry url</span></span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (registryURL != <span class="keyword">null</span>) &#123; <span class="comment">// registry url is available</span></span><br><span class="line">          <span class="comment">// for multi-subscription scenario, use 'zone-aware' policy by default</span></span><br><span class="line">          String cluster = registryURL.getParameter(CLUSTER_KEY, ZoneAwareCluster.NAME);</span><br><span class="line"></span><br><span class="line">          invoker = Cluster.getCluster(cluster, <span class="keyword">false</span>).join(<span class="keyword">new</span> StaticDirectory(registryURL, invokers));</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123; <span class="comment">// not a registry url, must be direct invoke.</span></span><br><span class="line">          String cluster = CollectionUtils.isNotEmpty(invokers)</span><br><span class="line">                  ? (invokers.get(<span class="number">0</span>).getUrl() != <span class="keyword">null</span> ? invokers.get(<span class="number">0</span>).getUrl().getParameter(CLUSTER_KEY, ZoneAwareCluster.NAME) : Cluster.DEFAULT)</span><br><span class="line">                  : Cluster.DEFAULT;</span><br><span class="line">          invoker = Cluster.getCluster(cluster).join(<span class="keyword">new</span> StaticDirectory(invokers));</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>代码解析：</p>
+<p>这段代码就是比较重要的，生成调用器（代理对象），可以看到此处对单注册中心 和 多注册中心 的情况做了区分：</p>
+<ul>
+<li>单注册中心配置下直接调用refer方法，返回一个invoker</li>
+<li>多注册中心配置下，针对每个注册中心，产生一个invoker，然后通过<code>CLUSTER.join</code>把invokers以静态的Directory形式构建一个invoker对象。 目的是实现注册中心的路由</li>
+</ul>
+<p>理解此处逻辑的关键在于要清楚 <code>Directory</code>的概念 和 <code>Cluster.join()</code>的逻辑，后面我会对此分析。</p>
+<p>此时我还是先将注意力集中在主流程上，看看invoker是怎么被创建的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">REF_PROTOCOL.refer(interfaceClass, urls.get(<span class="number">0</span>))</span><br></pre></td></tr></table></figure>
+<p>REF_PROTOCOL是Protocol接口的自适应扩展类，这里协议类型registry，因此会执行RegistryProtocol的refer方法：</p>
+<h4 id="3-3-RegistryProtocol-refer"><a href="#3-3-RegistryProtocol-refer" class="headerlink" title="3.3 RegistryProtocol.refer()"></a>3.3 RegistryProtocol.refer()</h4><p>贴代码先</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">refer</span><span class="params">(Class&lt;T&gt; type, URL url)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="comment">// 返回具体的注册中心协议url  </span></span><br><span class="line">    url = getRegistryUrl(url);</span><br><span class="line">    <span class="comment">// 自适应扩展点创建的是一个被ListenerRegisterWrapper包装的ZookeeperRegister</span></span><br><span class="line">    Registry registry = registryFactory.getRegistry(url);</span><br><span class="line">    <span class="keyword">if</span> (RegistryService.class.equals(type)) &#123;</span><br><span class="line">        <span class="keyword">return</span> proxyFactory.getInvoker((T) registry, type, url);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// group="a,b" or group="*"</span></span><br><span class="line">    <span class="comment">// 将refer属性解析成map</span></span><br><span class="line">    Map&lt;String, String&gt; qs = StringUtils.parseQueryString(url.getParameterAndDecoded(REFER_KEY));</span><br><span class="line">    <span class="comment">// 指定了group的情况</span></span><br><span class="line">    String group = qs.get(GROUP_KEY);</span><br><span class="line">    <span class="keyword">if</span> (group != <span class="keyword">null</span> &amp;&amp; group.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((COMMA_SPLIT_PATTERN.split(group)).length &gt; <span class="number">1</span> || <span class="string">"*"</span>.equals(group)) &#123;</span><br><span class="line">            <span class="keyword">return</span> doRefer(Cluster.getCluster(MergeableCluster.NAME), registry, type, url);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 没指定group，创建Cluster对象，未指定的话默认是"failover"</span></span><br><span class="line">    Cluster cluster = Cluster.getCluster(qs.get(CLUSTER_KEY));</span><br><span class="line">    <span class="comment">// type 是服务接口类型</span></span><br><span class="line">    <span class="keyword">return</span> doRefer(cluster, registry, type, url);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要工作有：</p>
+<p>1、获取指定注册中心协议的url</p>
+<p>2、根据注册中心协议创建Registry对象</p>
+<p>3、将url参数refer解析成map</p>
+<p>4、获取cluster对象</p>
+<p>5、指定group和未指定，分两种情况执行dorefer操作</p>
+<p><strong>doRefer()</strong></p>
+<p>首先创建了<code>RegistryDirectory</code>对象，该对象作用很重要，它负责动态维护服务提供者列表。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RegistryProtocol</span></span><br><span class="line"><span class="keyword">private</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">doRefer</span><span class="params">(Cluster cluster, Registry registry, Class&lt;T&gt; type, URL url)</span> </span>&#123;</span><br><span class="line">  <span class="comment">//初始化RegistryDirectory ，对每个注册中心会创建一个Directory</span></span><br><span class="line">    RegistryDirectory&lt;T&gt; directory = <span class="keyword">new</span> RegistryDirectory&lt;T&gt;(type, url);</span><br><span class="line">    directory.setRegistry(registry);</span><br><span class="line">    directory.setProtocol(protocol);</span><br><span class="line">    <span class="comment">// all attributes of REFER_KEY</span></span><br><span class="line">    Map&lt;String, String&gt; parameters = <span class="keyword">new</span> HashMap&lt;String, String&gt;(directory.getConsumerUrl().getParameters());</span><br><span class="line">  <span class="comment">//创建consumer://协议的url</span></span><br><span class="line">    URL subscribeUrl = <span class="keyword">new</span> URL(CONSUMER_PROTOCOL, parameters.remove(REGISTER_IP_KEY), <span class="number">0</span>, type.getName(), parameters);</span><br><span class="line">    <span class="keyword">if</span> (directory.isShouldRegister()) &#123;</span><br><span class="line">       <span class="comment">//注册服务消费者的url地址</span></span><br><span class="line">        directory.setRegisteredConsumerUrl(subscribeUrl);</span><br><span class="line">        registry.register(directory.getRegisteredConsumerUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    directory.buildRouterChain(subscribeUrl);</span><br><span class="line">  	<span class="comment">// 订阅注册中心的</span></span><br><span class="line">    directory.subscribe(toSubscribeUrl(subscribeUrl));</span><br><span class="line">		<span class="comment">//一个注册中心会存在多个服务提供者，所以在这里需要把多个服务提供者通过cluster.join合并成一个集群调用器			ClusterInvoker，</span></span><br><span class="line">    Invoker&lt;T&gt; invoker = cluster.join(directory);</span><br><span class="line">  <span class="comment">// 获取监听器 </span></span><br><span class="line">    List&lt;RegistryProtocolListener&gt; listeners = findRegistryProtocolListeners(url);</span><br><span class="line">    <span class="keyword">if</span> (CollectionUtils.isEmpty(listeners)) &#123;</span><br><span class="line">        <span class="keyword">return</span> invoker;  <span class="comment">// 从这里返回</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    RegistryInvokerWrapper&lt;T&gt; registryInvokerWrapper = <span class="keyword">new</span> RegistryInvokerWrapper&lt;&gt;(directory, cluster, invoker);</span><br><span class="line">    <span class="keyword">for</span> (RegistryProtocolListener listener : listeners) &#123;</span><br><span class="line">        listener.onRefer(<span class="keyword">this</span>, registryInvokerWrapper);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> registryInvokerWrapper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-4-cluser-join"><a href="#3-4-cluser-join" class="headerlink" title="3.4 cluser.join()"></a>3.4 cluser.join()</h4><p>Cluter自适应扩展时会被包装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mock=org.apache.dubbo.rpc.cluster.support.wrapper.MockClusterWrapper</span><br><span class="line">failover=org.apache.dubbo.rpc.cluster.support.FailoverCluster</span><br></pre></td></tr></table></figure>
+<p>所以默认得到的Cluster是：</p>
+<p><code>MockClusterWrapper（FailoverCluster）</code></p>
+<p>cluster.join 会先进入<code>MockClusterWrapper</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">//MockClusterWrapper</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">join</span><span class="params">(Directory&lt;T&gt; directory)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MockClusterInvoker&lt;T&gt;(directory,</span><br><span class="line">            <span class="keyword">this</span>.cluster.join(directory));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后在执行<code>FailoverCluster</code>，然而这个类没有实现join方法而是继承了抽象父类<code>AbstractCluster</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">//AbstractCluster</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">join</span><span class="params">(Directory&lt;T&gt; directory)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> buildClusterInterceptors(doJoin(directory), directory.getUrl().getParameter(REFERENCE_INTERCEPTOR_KEY));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>doJoin（）</code>是模板方法，声明在抽象类，实现在子类中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span><span class="comment">//FailoverCluster</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">AbstractClusterInvoker&lt;T&gt; <span class="title">doJoin</span><span class="params">(Directory&lt;T&gt; directory)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FailoverClusterInvoker&lt;&gt;(directory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里返回一个<code>FailoverClusterInvoker</code></p>
+<p>紧接着通过方法<code>buildClusterInterceptors</code>给这个<code>Invoker</code>添加拦截器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">buildClusterInterceptors</span><span class="params">(AbstractClusterInvoker&lt;T&gt; clusterInvoker, String key)</span> </span>&#123;</span><br><span class="line">    AbstractClusterInvoker&lt;T&gt; last = clusterInvoker;</span><br><span class="line">    List&lt;ClusterInterceptor&gt; interceptors = ExtensionLoader.getExtensionLoader(ClusterInterceptor.class).getActivateExtension(clusterInvoker.getUrl(), key);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!interceptors.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = interceptors.size() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="keyword">final</span> ClusterInterceptor interceptor = interceptors.get(i);</span><br><span class="line">            <span class="keyword">final</span> AbstractClusterInvoker&lt;T&gt; next = last;</span><br><span class="line">            last = <span class="keyword">new</span> InterceptorInvokerNode&lt;&gt;(clusterInvoker, interceptor, next);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> last;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ClusterInterceptor</code>使用激活扩展方式，没有指定的情况下默认激活了<code>ConsumerContextClusterInterceptor</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">context=org.apache.dubbo.rpc.cluster.interceptor.ConsumerContextClusterInterceptor</span><br><span class="line">zone-aware=org.apache.dubbo.rpc.cluster.interceptor.ZoneAwareClusterInterceptor</span><br></pre></td></tr></table></figure>
+<p>使用拦截器包装之后，得到一个拦截器链，单链表</p>
+<p><code>InterceptorInvokerNode-&gt;FailoverClusterInvoker</code>，<code>InterceptorInvokerNode</code>中包含了拦截器以及<code>FailoverClusterInvoker</code>，和指向下一个拦截器链节点的指针</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">InterceptorInvokerNode</span><span class="params">(AbstractClusterInvoker&lt;T&gt; clusterInvoker,</span></span></span><br><span class="line"><span class="function"><span class="params">                              ClusterInterceptor interceptor,</span></span></span><br><span class="line"><span class="function"><span class="params">                              AbstractClusterInvoker&lt;T&gt; next)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.clusterInvoker = clusterInvoker;  </span><br><span class="line">    <span class="keyword">this</span>.interceptor = interceptor; <span class="comment">// 当前节点的拦截器</span></span><br><span class="line">    <span class="keyword">this</span>.next = next; <span class="comment">// 指向下一个节点指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为默认只有一个激活的拦截器，所以得到的链表如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">InterceptorInvokerNode（</span><br><span class="line">FailoverClusterInvoker，</span><br><span class="line">	ConsumerContextClusterInterceptor，</span><br><span class="line">	next    ---------------------------------&gt;  FailoverClusterInvoker</span><br><span class="line">	）</span><br></pre></td></tr></table></figure>
+<p><code>buildClusterInterceptors</code>方法返回的是链表头指针<code>InterceptorInvokerNode</code>引用</p>
+<p>最后不要忘了最开始是从Cluster的包装类<code>MockClusterWrapper</code>中开始调用的join方法，最后还要加上一层包装</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">//MockClusterWrapper</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">join</span><span class="params">(Directory&lt;T&gt; directory)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MockClusterInvoker&lt;T&gt;(directory,</span><br><span class="line">            <span class="keyword">this</span>.cluster.join(directory));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终得到的Invoker是这样的：</p>
+<p><code>MockClusterInvoker(InterceptorInvokerNode(FailoverClusterInvoker))</code></p>
+<p>到此是针对于一个注册中心得到的Invoker对象，前面讨论过多注册中心的情况，还需要调用一次cluster.join方法，将多个注册中心产生的Invoker合并成一个，以实现注册中心的负载均衡，回顾一下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ReferenceConfig</span></span><br><span class="line">String cluster = registryURL.getParameter(CLUSTER_KEY, ZoneAwareCluster.NAME);</span><br><span class="line">invoker = Cluster.getCluster(cluster, <span class="keyword">false</span>).join(<span class="keyword">new</span> StaticDirectory(registryURL, invokers));<span class="comment">//invokers就是多注册中心得到的Invoker集合</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，会先创建一个<code>StaticDirectory</code>静态的目录，为什么是静态的？因为注册中心的配置是写死的，不会变，针对注册中心创建动态的目录是因为注册中心的服务提供者目录可能随时会发生变化，目录相应的·也要跟着变，至于怎么变，后面分析。</p>
+<p>上面的代码  cluster = zone-aware</p>
+<p>最终得到的Cluster是 <code>ZoneAwareCluster</code>类型，且不需要进行包装：</p>
+<p>join直接进入抽象类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">join</span><span class="params">(Directory&lt;T&gt; directory)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> buildClusterInterceptors(doJoin(directory), directory.getUrl().getParameter(REFERENCE_INTERCEPTOR_KEY));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>doJoin进入<code>ZoneAwareCluster</code>，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> &lt;T&gt; <span class="function">AbstractClusterInvoker&lt;T&gt; <span class="title">doJoin</span><span class="params">(Directory&lt;T&gt; directory)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ZoneAwareClusterInvoker&lt;T&gt;(directory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再执行<code>buildClusterInterceptors</code>进行拦截器封装，最终得到的Invoker是这样的：</p>
+<p><code>InterceptorInvokerNode(FailoverClusterInvoker)</code></p>
+<p>结合注册中心生成的Invoker，最终产生的Invoker是这样的</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/dubbo/%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E7%AB%AFInvoker%E7%BB%93%E6%9E%84.png" alt></p>
+<h4 id="3-5-回到createProxy"><a href="#3-5-回到createProxy" class="headerlink" title="3.5 回到createProxy()"></a>3.5 回到createProxy()</h4><p>拿到最终的Invoker之后，要根据这个对象创建动态代理类，以便于消费端调用，看到<code>createProxy</code>方法的最后一句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> (T) PROXY_FACTORY.getProxy(invoker, ProtocolUtils.isGeneric(generic));</span><br></pre></td></tr></table></figure>
+<p>使用JavassistProxyFactory创建一个代理对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="comment">// AbstractProxyFactory</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">(Invoker&lt;T&gt; invoker, <span class="keyword">boolean</span> generic)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; interfaces = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    String config = invoker.getUrl().getParameter(INTERFACES);</span><br><span class="line">    <span class="keyword">if</span> (config != <span class="keyword">null</span> &amp;&amp; config.length() &gt; <span class="number">0</span>) &#123; </span><br><span class="line">       ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (generic) &#123;</span><br><span class="line">       ...</span><br><span class="line">    &#125;</span><br><span class="line">    interfaces.add(invoker.getInterface());</span><br><span class="line">    interfaces.addAll(Arrays.asList(INTERNAL_INTERFACES));</span><br><span class="line">    <span class="keyword">return</span> getProxy(invoker, interfaces.toArray(<span class="keyword">new</span> Class&lt;?&gt;[<span class="number">0</span>]));<span class="comment">//&gt;&gt; 进入</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>interfaces 最后包含三个接口：</p>
+<ul>
+<li><p>interface org.apache.dubbo.rpc.service.Destroyable</p>
+</li>
+<li><p>interface com.alibaba.dubbo.rpc.service.EchoService</p>
+</li>
+<li><p>interface com.pd.ISayHello</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">(Invoker&lt;T&gt; invoker, Class&lt;?&gt;[] interfaces)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (T) Proxy.getProxy(interfaces).newInstance(<span class="keyword">new</span> InvokerInvocationHandler(invoker));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>新建实例的时候，传入了一个<code>InvokerInvocationHandler</code>对象，动态代理见多了肯定知道，当消费者调用远程服务时，会进入该对象的<code>invoke</code>方法，这里在消费流程中再分析。</p>
+<p>到这里貌似消费端注入远程服务的流程就结束了，但是中间缺少了一个最重要的环节分析，那就是：</p>
+<ol>
+<li>服务目录的订阅和监听</li>
+<li>netty client 创建以及连接的建立</li>
+</ol>
+<p>这两项内容都是在<code>RegistryDirectory</code>中实现的</p>
+<h3 id="4-RegistryDirectory"><a href="#4-RegistryDirectory" class="headerlink" title="4. RegistryDirectory"></a>4. RegistryDirectory</h3><p>在哪里创建？</p>
+<p>在<code>RegistryProtocol.doRefer</code>的时候创建，每个注册中心会创建一个<code>RegistryDirectory</code>对象，<code>RegistryDirectory</code>中保存了所有服务提供者的调用Invoker，这些invoker在<code>RegistryDirectory.suscribe</code>方法被调用的时候进行创建。</p>
+<p>如何实现目录实时有效？</p>
+<p>并且这个对象中保存的服务提供者目录是动态可变的，可变的原因是该目录实现了<code>NotifyListener</code>接口，该接口就一个重要的接口方法<code>notify</code>。</p>
+<p>每当注册中心中的提供者列表发生变化的时候，例如使用的是zookeeper作为注册中心，dubbo会针对几个目录创建一些监听（subscribe时创建监听），当目录中的内容发生变化的时候会向监听的创建者（服务消费者）发送通知。</p>
+<p>服务消费者收到通知会调用<code>RegistryDirectory</code>中实现的<code>notify</code>方法，修改消费者内存<code>RegistryDirectory</code>对象中保存的的服务提供者目录，以保证服务提供者目录实时有效</p>
+<h3 id="5-消费过程"><a href="#5-消费过程" class="headerlink" title="5. 消费过程"></a>5. 消费过程</h3>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    zookeeper是什么以及能干什么
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">dubbo-配置中心</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
