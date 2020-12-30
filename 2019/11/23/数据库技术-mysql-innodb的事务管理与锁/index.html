@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>mysql-innodb的事务管理与锁 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="mysql">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="典型的事务场景：下单、转账 事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成 MYSQL中支持事务的数据引擎：innodb  ndb 1、数据库事务的四大特性是什么？原子性  Atomicity   由undo log保证 一致性  Consistent   数据完整性 隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的 持久性">
+<meta name="keywords" content="mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql-innodb的事务管理与锁">
+<meta property="og:url" content="http://yoursite.com/child/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="典型的事务场景：下单、转账 事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成 MYSQL中支持事务的数据引擎：innodb  ndb 1、数据库事务的四大特性是什么？原子性  Atomicity   由undo log保证 一致性  Consistent   数据完整性 隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的 持久性">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/%E5%9B%9E%E8%A1%A8.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/Gap-NextKey.png">
+<meta property="og:updated_time" content="2020-11-03T02:53:18.791Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql-innodb的事务管理与锁">
+<meta name="twitter:description" content="典型的事务场景：下单、转账 事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成 MYSQL中支持事务的数据引擎：innodb  ndb 1、数据库事务的四大特性是什么？原子性  Atomicity   由undo log保证 一致性  Consistent   数据完整性 隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的 持久性">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/%E5%9B%9E%E8%A1%A8.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                146
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                37
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-数据库技术-mysql-innodb的事务管理与锁" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/数据库技术/">数据库技术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/mysql/">mysql</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">
+            <time datetime="2019-11-22T16:00:00.000Z" itemprop="datePublished">2019-11-23</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            mysql-innodb的事务管理与锁
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>典型的事务场景：下单、转账</p>
+<p><strong>事物的定义：事务是DBMS执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成</strong></p>
+<p>MYSQL中支持事务的数据引擎：innodb  ndb</p>
+<h3 id="1、数据库事务的四大特性是什么？"><a href="#1、数据库事务的四大特性是什么？" class="headerlink" title="1、数据库事务的四大特性是什么？"></a>1、数据库事务的四大特性是什么？</h3><p>原子性  Atomicity   由undo log保证</p>
+<p>一致性  Consistent   数据完整性</p>
+<p>隔离性   Isolation  不同事务之间处理同一段数据应当是隔离的互不干扰的</p>
+<p>持久性   Durable  redo log</p>
+<p><strong>原子性、隔离性和持久性最终都是为了实现一致性。</strong></p>
+<h3 id="2、什么时候会出现事务、结束事务？"><a href="#2、什么时候会出现事务、结束事务？" class="headerlink" title="2、什么时候会出现事务、结束事务？"></a>2、什么时候会出现事务、结束事务？</h3><p>当我们执行单条语句的时候，会默认开启事务</p>
+<p>mysql 参数 autocommit 默认为 on 开启状态，执行单条查询语句不需要显示的声明事务、提交事务</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">global</span> <span class="keyword">VARIABLE</span> <span class="keyword">like</span> <span class="string">'autocommit'</span>  <span class="comment">--显示该参数的全局值</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">session</span> <span class="keyword">VARIABLE</span> <span class="keyword">like</span> <span class="string">'autocommit'</span> <span class="comment">--显示当前会话该参数的值</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> autocommit=<span class="keyword">off</span> <span class="comment">--关闭autocommit后，需要手动提交</span></span><br></pre></td></tr></table></figure>
+<p><strong>手动开启事务，两种方式</strong>  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> TRANSACATION;    </span><br><span class="line"></span><br><span class="line"><span class="keyword">begin</span>;</span><br></pre></td></tr></table></figure>
+<p>事务的结束：</p>
+<p>提交结束 commit;</p>
+<p>回滚结束 rollback；</p>
+<p>连接断开 会话结束 -&gt; 事务结束</p>
+<h3 id="3、事务并发带来的问题有哪些？"><a href="#3、事务并发带来的问题有哪些？" class="headerlink" title="3、事务并发带来的问题有哪些？"></a>3、事务并发带来的问题有哪些？</h3><ol>
+<li><p>脏读（读到未提交的数据）：事务A执行一条查询，在此之前事务B修改了这部分数据但没提交，导致A读取到事务B没有提交的数据，事务B可能回滚导致事务A读取到的数据是脏数据。</p>
+</li>
+<li><p>不可重复读：事务A执行一条查询后，事务B对这部分数据执行了update/delete并提交了，导致事务A再次查询时与上一次的查询结果不一致，称为不可重复度。</p>
+</li>
+<li><p>幻读：事务A执行一条范围查询后，事务B在此范围insert了若干条数据，导致事务A再次执行该查询是记录数增多，产生幻读。与不可重复的区别是这里针对的是插入操作。</p>
+</li>
+</ol>
+<p><strong><em>注意：幻读和不可重复度的区别是事务B对数据进行的操作不同，幻读是insert操作，不可重复读是update和delete操作</em></strong></p>
+<p>以上三个问题称为数据库的读一致性问题，必须由数据库自己提供一定的事务隔离机制来解决</p>
+<h3 id="4、SQL92-标准"><a href="#4、SQL92-标准" class="headerlink" title="4、SQL92 标准"></a>4、SQL92 标准</h3><p>许多数据库专家联合制定了一个标准，建议数据库厂商都按照这个标准提供一定的事务隔离级别，来解决事务并发问题。</p>
+<p>看一下SQL92标准的官网：<a href="http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt" target="_blank" rel="noopener">http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt</a></p>
+<p>在官网搜索_iso，会看到一张表格：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Level</th>
+<th>P1</th>
+<th>P2</th>
+<th>P3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">READ UNCOMMITTED</td>
+<td>Possible</td>
+<td>Possible</td>
+<td>Possible</td>
+</tr>
+<tr>
+<td style="text-align:left">READ COMMITTED</td>
+<td>Not Possible</td>
+<td>Possible</td>
+<td>Possible</td>
+</tr>
+<tr>
+<td style="text-align:left">REPEATABLE READ</td>
+<td>Not Possible</td>
+<td>Not Possible</td>
+<td>Possible</td>
+</tr>
+<tr>
+<td style="text-align:left">SERIALIZABLE</td>
+<td>Not Possible</td>
+<td>Not Possible</td>
+<td>Not Possible</td>
+</tr>
+</tbody>
+</table>
+<p>这里定义了四个隔离级别，右边的P1P2P3就是代表事务并发的三个问题，脏读，不可重复度，幻读。Possible表示在这个隔离级别下该问题有可能发生，Not Possible表示解决了该问题。</p>
+<ul>
+<li>Read Uncommited 未提交读</li>
+</ul>
+<p>顾名思义，事务可以读取到其他事物未提交的数据，使用这种隔离级别其实并未解决以上的任何问题</p>
+<ul>
+<li>Read Commited  已提交读</li>
+</ul>
+<p>只能读到其他事物已经提交了的数据，解决了脏读问题</p>
+<ul>
+<li>Repeatable Read  可重复读</li>
+</ul>
+<p>事务重复读取，保证重复读取数据一致，解决了不可重复度的问题</p>
+<ul>
+<li>Serializable 串行化</li>
+</ul>
+<p>事务串行化运行，没有并发自然没有不一性问题产生，但是严重影响效率，不推荐使用</p>
+<p>不同的厂商或者数据库引擎在实现以上标准时会有一些差异。Oracle只实现了两种RC和Serializable，Innodb对以上的四种隔离级别都进行了实现，值得一提的是，innodb 对Repeatable Read 这一级别的实现同时也解决了幻读的问题，因此这一级别是innodb的默认事务隔离级别。</p>
+<h3 id="5、innodb是如何实现事务隔离级别的呢"><a href="#5、innodb是如何实现事务隔离级别的呢" class="headerlink" title="5、innodb是如何实现事务隔离级别的呢?"></a>5、innodb是如何实现事务隔离级别的呢?</h3><p>如果要解决读一致性的问题 ，保证一个事务前后两次读取数据一致，实现事务隔离级别，应该怎么做 </p>
+<p>方案1： MVCC 基于多版本的并发控制  生成一个数据请求时间点的一致性数据，并用这个快照来提供一定级别的一致性读取。</p>
+<p>方案2 ： LBCC 基于锁的并发控制</p>
+<h4 id="MVCC的实现原理"><a href="#MVCC的实现原理" class="headerlink" title="MVCC的实现原理"></a>MVCC的实现原理</h4><p>InnoDB为每行记录都实现了三个隐藏字段</p>
+<p><em>DB_ROW_ID</em>   6字节：行标识</p>
+<p><em>DB_TRX_ID</em>  6字节：插入或更新行的最后一个事务ID，自动递增（理解为创建版本号）</p>
+<p><em>DB_ROLL_PTR</em>：  7字节：回滚指针（理解为删除版本号）数据被删除或记录为旧数据的时候记录当前的操作事务id。</p>
+<p><strong><em>mvcc核心思想，一个事务根据自己的事务id进行判断，只能查询到创建版本号比自己事务ID小的（在我之前插入或更新的数据）  和  删除版本号比我事务ID大的记录</em></strong>  </p>
+<p>下面通过一个简单的例子说明：</p>
+<p>事务一：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 1</span></span><br><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> mvcctest <span class="keyword">values</span>(<span class="literal">NULL</span>,<span class="string">"zzk"</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> mvcctest <span class="keyword">values</span>(<span class="literal">NULL</span>,<span class="string">"pjp"</span>);</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>此时的数据，创建版本是当前的事务id，删除版本号为空；</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>事务二：执行第一次查询，读取到两条原始数据，这时事务id为2：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>事务三，插入一条数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Transaction 3</span></span><br><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> mvctest <span class="keyword">values</span>(<span class="literal">NULL</span>,<span class="string">"zpd"</span>);</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>此时的数据多了一条zpd，它的创建版号是3：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>3</td>
+<td>zpd</td>
+<td>3</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>然后事务二再进行第二次查询</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (2) 第二次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>根据MVCC的原则：只能查询创建版本比自己小的数据，所以第二次查询也只能查询2条数据。</p>
+<p>事务四：删除数据，删除了id=1 zzk这条记录</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 4</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> mvcctest <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>这时候的数据，赵政康的删除版本被记录为事务id 4，其他不变：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>3</td>
+<td>zpd</td>
+<td>3</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>然后事务二执行第三次查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (2) 第二次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (3) 第三次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>根据MVCC的查找原则：只能查询创建版本比自己小，删除版本比自己大、以及未删除的记录</p>
+<p>也就是说在事务2开始之后被删除的数据依然可以被查出来，所以查询结果依然是2条数据。</p>
+<p>事务五：执行更新操作</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 5</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">update</span> mvcctest <span class="keyword">set</span> <span class="keyword">name</span>=<span class="string">'潘佳萍'</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span>；</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>此时的数据，更新数据的时候，旧数据的删除版本被记录为当前事务id，产生一条新数据，创建版本为当前事务id</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>创建版本</th>
+<th>删除版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>zzk</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pjp</td>
+<td>1</td>
+<td>5</td>
+</tr>
+<tr>
+<td>3</td>
+<td>zpd</td>
+<td>3</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>2</td>
+<td>潘佳萍</td>
+<td>5</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>然后事务二执行第四次查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--Transaction 2</span></span><br><span class="line"><span class="keyword">begin</span>；</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (1) 第一次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (2) 第二次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (3) 第三次查询  注意此处没有提交，事务2没有结束</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mvcctest ; <span class="comment">-- (4) 第四次查询  注意此处没有提交，事务2没有结束</span></span><br></pre></td></tr></table></figure>
+<p>查找规则：只能查询创建版本小于自己，删除版本大于自己，或者未删除的数据，所以依然是2条数据。</p>
+<p>通过以上演示我们可以看到，通过版本号的控制，无论其他事物是插入修改删除，事务2查询到的数据都没有变化。</p>
+<p>在InnoDB中，MVCC是通过undo log实现的，需要注意的是，MVCC和锁是协同使用来实现隔离性的，这两种方案并不是互斥的。</p>
+<p>Oracle、postgres等其他数据口都有MVCC的实现。</p>
+<h3 id="6、innodb中的锁"><a href="#6、innodb中的锁" class="headerlink" title="6、innodb中的锁"></a>6、innodb中的锁</h3><p>官网将锁分成了8类，这里我们将两个行级别的锁，和两个表级别的锁称<strong>锁的基本模式</strong>；后面三个Record Locks、Gap Locks、Next-Key Locks 称为<strong>锁的算法</strong>，也就是分别在上面情况下锁定什么范围。</p>
+<h4 id="6-1-共享锁"><a href="#6-1-共享锁" class="headerlink" title="6.1 共享锁"></a>6.1 共享锁</h4><p>第一个行级别的锁就是我们在广网看到的Shard Locks（共享锁），我们获取了一行数据的共享锁之后，可以用他来读取数据，所以叫读锁。而且多个事务可以共享一把读锁。</p>
+<p>可以用<code>select... lock in share mode;</code>的方式手工加上一把读锁。</p>
+<p>释放读锁有两种方式：提交事务或断开连接</p>
+<p>读锁可以重复的获取</p>
+<h4 id="6-2-排它锁"><a href="#6-2-排它锁" class="headerlink" title="6.2 排它锁"></a>6.2 排它锁</h4><p>第二个行级别的锁叫Exclusive Locks（排它锁），它是用来操作数据的，所以又叫写锁。只要一个事务获取了一行数据的排它锁，其他的事务就不能再获取这一行数据额的共享锁和排它锁。</p>
+<p>排它锁加锁两种方式：自动（增删改查操作自动加），手动加锁</p>
+<p>手动加锁命令 在查询语句后面加上<code>for update</code>，就会给查询的数据加上一个写锁</p>
+<p>释放排它锁的方式和共享锁一样。</p>
+<h4 id="6-3-意向锁"><a href="#6-3-意向锁" class="headerlink" title="6.3 意向锁"></a>6.3 意向锁</h4><p>意向锁是数据库自己维护的。</p>
+<p>当我们你给一行数据加上共享锁之前，数据库会自动在这张表上面加上一个意向共享锁；</p>
+<p>当我们给一行数据加上排它锁之前，数据库会自动在这张表上加上一个意向排它锁。</p>
+<p>如果一张表上至少有一个意向共享锁，说明有其他的事务给其中的某些数据加上了共享锁；</p>
+<p>如果一张表上面至少有一个意向排他锁，说明有其他的事务给其中的某些数据行加 了排他锁。</p>
+<p>那么这两个表级别锁存在的意义是什么？</p>
+<p>第一个，有了表级别锁，在innodb中就可以支持更多粒度的锁；</p>
+<p>第二个，如果没有意向锁的话，当我们想要一张表加上表锁的时候，是不是必须先判断有没有其他的事务锁定了其中的一行数据，那么这时候我们要扫描整张表才能确定能不能成功加上一个表锁，如果数据量大，加表锁的效率肯定很低</p>
+<p>这是引入意向锁之后，只要判断这张表上面有没有意向锁，如果有加表锁操作直接返回失败。所以innodb中的意向表锁，我们可以把它理解成一个标志。</p>
+<h3 id="7、行锁的原理"><a href="#7、行锁的原理" class="headerlink" title="7、行锁的原理"></a>7、行锁的原理</h3><p>行锁锁住的是什么？</p>
+<p>首先我们准备三张表，一张没有索引的 t1，一张有主键索引的 t2，一张有唯一索引的 t3。</p>
+<ul>
+<li>我们先假设 InnoDB 的锁锁住了是一行数据或者一条记录。 </li>
+</ul>
+<p>我们先来看一下 t1 的表结构，它有两个字段，int 类型的 id 和 varchar 类型的 name。 里面有 4 条数据，1、2、3、4。 </p>
+<table>
+<thead>
+<tr>
+<th><strong>Transaction 1 </strong></th>
+<th>Transaction 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>SELECT * FROM t1 WHERE id =1 FOR UPDATE;</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t1 where id=3 for update; //blocked</td>
+</tr>
+<tr>
+<td></td>
+<td>INSERT INTO <code>t1</code> (<code>id</code>, <code>name</code>) VALUES (5, ‘5’); //blocked</td>
+</tr>
+</tbody>
+</table>
+<p>现在我们在两个会话里面手工开启两个事务。 </p>
+<p>在第一个事务里面，我们通过 where id =1 锁住第一行数据。 </p>
+<p>在第二个事务里面，我们尝试给 id=3 的这一行数据加锁。 </p>
+<p>这个加锁的操作被阻塞了。为什么第一个事务锁住了 id=1 的这行数据，我不能操作 id=3 的数据呢？ </p>
+<p>再来操作一条不存在的数据，插入 id=5。它也被阻塞了。实际上这里整张表都被锁 住了。所以，我们的第一个猜想被推翻了，InnoDB 的锁锁住的应该不是 Record。</p>
+<p>为什么在没有索引或者没有用到索引的情况下，会锁住整张表？这个问题我们先留 在这里。 </p>
+<p><strong>有主键索引的表</strong> </p>
+<p>我们看一下 t2 的表结构。字段是一样的，不同的地方是 id 上创建了一个主键索引。 </p>
+<p>里面的数据是 1、4、7、10。 </p>
+<table>
+<thead>
+<tr>
+<th><strong>Transaction 1 </strong></th>
+<th>Transaction 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>select * from t2 where id=1 for update;</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t2 where id=1 for update; // blocked</td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t2 where id=4 for update; // OK</td>
+</tr>
+</tbody>
+</table>
+<p>第一种情况，使用相同的 id 值去加锁，冲突；使用不同的 id 加锁，可以加锁成功。 那么，既然不是锁定一行数据，有没有可能是锁住了 id 的这个字段呢？ </p>
+<p>我们继续往下验证。 </p>
+<p><strong>唯一索引（假设锁住字段）</strong> </p>
+<p>我们看一下 t3 的表结构。字段还是一样的， id 上创建了一个主键索引，name 上 </p>
+<p>创建了一个唯一索引。里面的数据是 1、4、7、10。 </p>
+<table>
+<thead>
+<tr>
+<th><strong>Transaction 1 </strong></th>
+<th>Transaction 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>select * from t3 where name= ‘4’ for update;</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t3 where name = ‘4’ for update; // blocked</td>
+</tr>
+<tr>
+<td></td>
+<td>select * from t3 where id = 4 for update; // blocked</td>
+</tr>
+</tbody>
+</table>
+<p>在第一个事务里面，我们通过 name 字段去锁定值是 4 的这行数据。 </p>
+<p>在第二个事务里面，尝试获取一样的排它锁，肯定是失败的。 </p>
+<p>在这里我们怀疑 InnoDB 锁住的是字段，所以换一个字段，用 id=4 去给这行数据加锁。又被阻塞了，说明锁住的是字段的这个推测也是错的，否则就不会出现第一个事务 锁住了 name，第二个字段锁住 id 失败的情况。 </p>
+<p>既然锁住的不是 record，也不是 column，InnoDB 里面锁住的到底是什么呢？在这 三个案例里面，我们要去分析一下他们的差异在哪里，也就是这三张表的结构，是什么 区别导致了加锁的行为的差异？其实答案就是索引。InnoDB 的行锁，就是通过锁住索引实现的。 </p>
+<p>那么我们还有两个问题没有解决： </p>
+<p>1、为什么表里面没有索引的时候，锁住一行数据会导致锁表？ </p>
+<p>或者说，如果锁住的是索引，一张表没有索引怎么办？ </p>
+<p>所以，一张表有没有可能没有索引？ </p>
+<p>1）如果我们定义了主键(PRIMARY KEY)，那么 InnoDB 会选择主键作为聚集索引。 </p>
+<p>2）如果没有显式定义主键，则 InnoDB 会选择第一个不包含有 NULL 值的唯一索 引作为主键索引。 </p>
+<p>3）如果也没有这样的唯一索引，则 InnoDB 会选择内置 6 字节长的 ROWID 作 为隐藏的聚集索引，它会随着行记录的写入而主键递增。 </p>
+<p>所以，为什么锁表，是因为查询没有使用索引，会进行全表扫描，然后把每一个隐藏的聚集索引都锁住了。 </p>
+<p>2、为什么通过唯一索引给数据行加锁，主键索引也会被锁住？ </p>
+<p>大家还记得在 InnoDB 里面，当我们使用辅助索引的时候，它是怎么检索数据的吗？ 辅助索引的叶子节点存储的是什么内容？</p>
+<p>在辅助索引里面，索引存储的是二级索引和主键的值。比如name=4，存储的是name 的索引和主键 id 的值 4。 </p>
+<p>而主键索引里面除了索引之外，还存储了完整的数据。所以我们通过辅助索引锁定 一行数据的时候，它跟我们检索数据的步骤是一样的，会通过主键值找到主键索引，然 后也锁定。 </p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/%E5%9B%9E%E8%A1%A8.png" alt="回表"></p>
+<h3 id="8、锁的算法"><a href="#8、锁的算法" class="headerlink" title="8、锁的算法"></a>8、锁的算法</h3><p>t2 这张表有一个主键索引。 </p>
+<p>我们插入了 4 行数据，主键 id 分别是 1、4、7、10。 </p>
+<p>因为我们用主键索引加锁，我们这里的划分标准就是主键索引的值。 </p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mysql/Gap-NextKey.png" alt></p>
+<p>这些数据库里面存在的主键值，我们把它叫做 Record，记录，那么这里我们就有 4 个 Record。 </p>
+<p>根据主键，这些存在的 Record 隔开的数据不存在的区间，我们把它叫做 Gap，间 隙，它是一个左开右开的区间。 </p>
+<p>假设我们有 N 个 Record，那么所有的数据会被划分成多少个 Gap 区间？答案是 N+1，就像我们把一条绳子砍 N 刀，它最后肯定是变成 N+1 段。 </p>
+<p>最后一个，间隙（Gap）连同它左边的记录（Record），我们把它叫做临键的区间， 它是一个左开右闭的区间。 </p>
+<h4 id="8-1-记录锁"><a href="#8-1-记录锁" class="headerlink" title="8.1 记录锁"></a>8.1 <strong>记录锁</strong></h4><p>第一种情况，当我们对于唯一性的索引（包括唯一索引和主键索引）使用等值查询， 精准匹配到一条记录的时候，这个时候使用的就是记录锁。 </p>
+<p>比如 where id = 1 4 7 10 。 </p>
+<p>我们使用不同的 key 去加锁，不会冲突，它只锁住这个 record。 </p>
+<h4 id="8-2-间隙锁"><a href="#8-2-间隙锁" class="headerlink" title="8.2 间隙锁"></a>8.2 <strong>间隙锁</strong></h4><p>第二种情况，当我们查询的记录不存在，没有命中任何一个 record，无论是用等值 查询还是范围查询的时候，它使用的都是间隙锁。 </p>
+<p>举个例子，where id &gt;4 and id &lt;7，where id = 6。 </p>
+<p>注意，间隙锁主要是阻塞插入 insert。相同的间隙锁之间不冲突。 </p>
+<p>Gap Lock 只在 RR 中存在，如果要关闭间隙锁，就是把事务隔离级别设置成 RC， 并且把 innodb_locks_unsafe_for_binlog 设置为 ON。 </p>
+<p>这种情况下除了外键约束和唯一性检查会加间隙锁，其他情况都不会用间隙锁。</p>
+<h4 id="8-3-临键锁"><a href="#8-3-临键锁" class="headerlink" title="8.3 临键锁"></a>8.3 <strong>临键锁</strong></h4><p>第三种情况，当我们使用了范围查询，不仅仅命中了 Record 记录，还包含了 Gap 间隙，在这种情况下我们使用的就是临键锁，它是 MySQL 里面默认的行锁算法，相当于 记录锁加上间隙锁。 </p>
+<p>唯一性索引，等值查询匹配到一条记录的时候，退化成记录锁。 </p>
+<p>没有匹配到任何记录的时候，退化成间隙锁。</p>
+<p>比如我们使用&gt;5 &lt;9， 它包含了记录不存在的区间，也包含了一个 Record 7。 </p>
+<p>临键锁，锁住最后一个 key 的下一个左开右闭的区间。 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span> &gt;<span class="number">5</span> <span class="keyword">and</span> <span class="keyword">id</span> &lt;=<span class="number">7</span> <span class="keyword">for</span> <span class="keyword">update</span>; <span class="comment">-- 锁住(4,7]和(7,10] </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span> &gt;<span class="number">8</span> <span class="keyword">and</span> <span class="keyword">id</span> &lt;=<span class="number">10</span> <span class="keyword">for</span> <span class="keyword">update</span>; <span class="comment">-- 锁住 (7,10]，(10,+∞)</span></span><br></pre></td></tr></table></figure>
+<p>为什么要锁住下一个左开右闭的区间？</p>
+<p>就是为了解决幻读的问题。 </p>
+<h3 id="9、innodb隔离级别的实现"><a href="#9、innodb隔离级别的实现" class="headerlink" title="9、innodb隔离级别的实现-"></a>9、innodb隔离级别的实现-</h3><h4 id="9-1-Read-Uncommited"><a href="#9-1-Read-Uncommited" class="headerlink" title="9.1 Read Uncommited"></a>9.1 Read Uncommited</h4><p>RU 隔离级别：不加锁。 </p>
+<h4 id="9-2-Serializable"><a href="#9-2-Serializable" class="headerlink" title="9.2 Serializable"></a>9.2 <strong>Serializable</strong></h4><p>Serializable 所有的 select 语句都会被隐式的转化为 <code>select ... in share mode</code>，会 和 update、delete 互斥。 </p>
+<p>这两个很好理解，主要是 RR 和 RC 的区别？ </p>
+<h4 id="9-3-Repeatable-Read"><a href="#9-3-Repeatable-Read" class="headerlink" title="9.3  Repeatable Read"></a>9.3  <strong>Repeatable Read</strong></h4><p>RR 隔离级别下，普通的 select 使用基于MVCC的快照读(snapshot read)</p>
+<p>加锁的 select(<code>select ... in share mode / select ... for update</code>)以及更新操作 update, delete 等语句使用当前读（current read），底层使用记录锁、或者间隙锁、 临键锁。 </p>
+<h4 id="9-4-Read-Commited"><a href="#9-4-Read-Commited" class="headerlink" title="9.4 Read Commited"></a>9.4 <strong>Read Commited</strong></h4><p>RC 隔离级别下，普通的 select 都是快照读，使用 MVCC 实现。 </p>
+<p>加锁的 select 都使用记录锁，因为没有 Gap Lock。 </p>
+<p>除了两种特殊情况——外键约束检查(foreign-key constraint checking)以及重复键检查(duplicate-key checking)时会使用间隙锁封锁区间。 </p>
+<p>所以 RC 会出现幻读的问题。 </p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    彻底理解cookie/session/token
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">netty源码分析之PipeLine</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

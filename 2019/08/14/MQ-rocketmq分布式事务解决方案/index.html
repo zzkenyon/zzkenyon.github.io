@@ -9,22 +9,22 @@
         <meta name="keywords" content="rocketmq">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事">
+    <meta name="description" content="1. 分布式事务简介X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交2PC (Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了ja">
 <meta name="keywords" content="rocketmq">
 <meta property="og:type" content="article">
 <meta property="og:title" content="rocketmq-分布式事务解决方案">
 <meta property="og:url" content="http://yoursite.com/child/2019/08/14/MQ-rocketmq分布式事务解决方案/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
-<meta property="og:description" content="X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事">
+<meta property="og:description" content="1. 分布式事务简介X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交2PC (Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了ja">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png">
-<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E5%90%8C%E5%BF%97%E6%96%B9%E6%A1%88.png">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-TCC%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%96%B9%E6%A1%88.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E5%90%8C%E5%BF%97%E6%96%B9%E6%A1%88.png">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF.png">
-<meta property="og:updated_time" content="2020-07-06T05:32:58.183Z">
+<meta property="og:updated_time" content="2020-11-16T02:03:02.230Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="rocketmq-分布式事务解决方案">
-<meta name="twitter:description" content="X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事">
+<meta name="twitter:description" content="1. 分布式事务简介X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交2PC (Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了ja">
 <meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png">
     
 
@@ -173,11 +173,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                131
+                146
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                33
+                37
                 <span>标签</span>
             </div>
         </div>
@@ -250,7 +250,7 @@
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -277,7 +277,7 @@
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -286,7 +286,7 @@
                             &nbsp;
                             noSql
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -304,7 +304,7 @@
                             &nbsp;
                             业务
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-zuul鉴权网关设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -322,7 +322,7 @@
                             &nbsp;
                             分布式架构技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -349,7 +349,7 @@
                             &nbsp;
                             数据库技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory open">
@@ -500,64 +500,147 @@
             
         
         
-            <p>X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交(2PC – Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事务编程接口规范-JTA</p>
-<p><strong>标准角色</strong></p>
-<p>在X/OpenDTP事务模型中，定义了三个角色：</p>
+            <h3 id="1-分布式事务简介"><a href="#1-分布式事务简介" class="headerlink" title="1. 分布式事务简介"></a>1. 分布式事务简介</h3><p>X/Open Distributed Transaction Processing Reference Model 是X/Open这个组织定义的一套分布式事务的标准，也就是定义了规范和API接口，由各个厂商进行具体的实现。这个标准提出了使用二阶段提交<strong>2PC</strong> (Two-Phase-Commit)来保证分布式事务的完整性。后来J2EE也遵循了X/OpenDTP规范，设计并实现了java里的分布式事务编程接口规范<strong>JTA</strong>（Java Transaction API）</p>
+<p>分布式事务包括事务管理器（Transaction Manager）和一个或多个支持 XA 协议的资源管理器 ( Resource Manager )。</p>
+<h4 id="1-1-分布式事务中的角色"><a href="#1-1-分布式事务中的角色" class="headerlink" title="1.1 分布式事务中的角色"></a>1.1 分布式事务中的角色</h4><p>在X/OpenDTP事务模型中，定义了三个角色：</p>
 <ol>
-<li><p>AP: application, 应用程序，也就是业务层。哪些操作属于一个事务，就是AP定义的</p>
-</li>
-<li><p>RM: Resource Manager，资源管理器。一般是数据库，也可以是其他资源管理器，比如消息队列， 文件系统</p>
-</li>
-<li><p>TM: Transaction Manager ，事务管理器、事务协调者，负责接收来自用户程序(AP)发起的XA事务 指令，并调度和协调参与事务的所有RM(数据库)，确保事务正确完成</p>
-</li>
+<li>AP：application，应用程序，也就是业务层。哪些操作属于一个事务，就是AP定义的</li>
+<li>RM： Resource Manager，资源管理器。一般是数据库，也可以是其他资源管理器，比如消息队列， 文件系统</li>
+<li>TM： Transaction Manager ，事务管理器、事务协调者，负责接收来自AP发起的XA事务指令，并调度和协调参与事务的所有RM，确保事务正确完成</li>
 </ol>
-<p>在分布式系统中，每一个机器节点虽然都能够明确知道自己在进行事务操作过程中的结果是成功还是失 败，但却无法直接获取到其他分布式节点的操作结果。因此当一个事务操作需要跨越多个分布式节点的 时候，为了保持事务处理的ACID特性，就需要引入一个“协调者”(TM)来统一调度所有分布式节点的 执行逻辑，这些被调度的分布式节点被称为AP。TM负责调度AP的行为，并最终决定这些AP是否要把事 务真正进行提交到(RM)</p>
-<p>XA是X/OpenDTP定义的RM和TM之间的接口规范，TM用它来通知和协调相关RM事务的开始、结束、提交或回滚。目前Oracle、Mysql、DB2都提供了对XA的支持，XA接口是双向的系统接口，在事务管理器TM以及多个RM之间形成同心桥梁，XA不能自动提交</p>
-<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png" alt></p>
-<p><strong>2PC</strong></p>
-<p>第一阶段：</p>
-<p>RM在第一阶段会做两件事</p>
+<p><strong>为什么需要TM这个角色？</strong></p>
+<p>在分布式系统中，每一个机器节点虽然都能够明确知道自己在进行事务操作过程中的结果是成功还是失败，但却无法直接获取到其他分布式节点的操作结果。因此当一个事务操作需要跨越多个分布式节点的 时候，为了保持事务处理的ACID特性，就需要引入一个”协调者”来统一调度所有分布式节点的执行逻辑。TM负责调度AP的行为，并最终决定这些AP是否要把各自的事务真正进行提交到RM</p>
+<h4 id="1-2-XA协议"><a href="#1-2-XA协议" class="headerlink" title="1.2 XA协议"></a>1.2 XA协议</h4><p>XA协议由Tuxedo首先提出的，并交给X/Open组织，作为资源管理器（数据库）与事务管理器的接口标准。目前，Oracle、Informix、DB2和Sybase等各大数据库厂家都提供对XA的支持。XA协议采用两阶段提交方式来管理分布式事务。XA接口提供资源管理器与事务管理器之间进行通信的标准接口。XA接口是双向的系统接口，在事务管理器TM以及多个RM之间形成同心桥梁，XA不能自动提交</p>
+<p>XA协议包括两套函数，以xa_开头的及以ax_开头的，这些函数使事务管理器可以对资源管理器进行的操作：</p>
+<p>1）xa_open，xa_close：建立和关闭与资源管理器的连接。</p>
+<p>2）xa_start，xa_end：开始和结束一个本地事务。</p>
+<p>3）xa_prepare，xa_commit，xa_rollback：预提交、提交和回滚一个本地事务。</p>
+<p>4）xa_recover：回滚一个已进行预提交的事务。</p>
+<p>5）ax_开头的函数使资源管理器可以动态地在事务管理器中进行注册，并可以对XID(TRANSACTION IDS)进行操作。</p>
+<p>6）ax_reg，ax_unreg；允许一个资源管理器在一个TMS(TRANSACTION MANAGER SERVER)中动态注册或撤消注册。</p>
+<p>看到这里我们应该清楚一些概念：</p>
+<p><strong><em>X/Open 是一个组织，他提出了分布式事务的标准DTP，该标准采用2PC来保证分布式事务的一致性，标准定义了分布式事务中的各种角色（AP,RM,TM），以及他们之间的通信协议XA，该协议是基于2PC的。J2EE遵循DTP标准实现了java里的分布式事务编程接口规范JTA。</em></strong></p>
+<h4 id="1-3-XA-2PC执行过程"><a href="#1-3-XA-2PC执行过程" class="headerlink" title="1.3 XA/2PC执行过程"></a>1.3 XA/2PC执行过程</h4><p>XA协议使用了2PC，因此XA需要两阶段提交： prepare 和 commit. </p>
+<ul>
+<li><p>第一阶段为 准备（prepare）阶段。即所有的RM准备执行事务并锁住需要的资源。参与者ready时，向TM报告已准备就绪。 </p>
+<p>例如数据库在此阶段会做两件事</p>
 <ol>
 <li>记录事务日志redo、undo</li>
 <li>返回给TM信息ok、error</li>
 </ol>
-<p>存在问题，如果第一阶段完成后TM宕机或网络出现故障，此时RM会一直阻塞发生死锁。因为没有timeout机制，3pc就针对此问题进行了改造，加入了3pc机制</p>
-<p>第二阶段：</p>
-<p>TM根据第一阶段的返回结果，通知RM执行提交或回滚</p>
-<h4 id="1-CAP理论"><a href="#1-CAP理论" class="headerlink" title="1. CAP理论"></a>1. CAP理论</h4><p>CAP的含义:</p>
-<ul>
-<li><p>C：Consistency 一致性 同一数据的多个副本是否实时相同。</p>
 </li>
-<li><p>A：Availability 可用性 可用性:一定时间内 &amp; 系统返回一个明确的结果 则称为该系统可用。</p>
-</li>
-<li><p>P：Partition tolerance 分区容错性 将同一服务分布在多个系统中，从而保证某一个系统宕机， 仍然有其他系统提供相同的服务。</p>
+<li><p>第二阶段为提交阶段（commit）。当TM确认所有参与者都ready后，向所有RM发送commit命令。 若某个RM返回no，则TM向所有RM发送rollback命令。</p>
 </li>
 </ul>
-<p>CAP理论告诉我们，在分布式系统中，C、A、P三个条件中我们最多只能选择两个。那么问题来了，究 竟选择哪两个条件较为合适呢?</p>
-<p>对于一个业务系统来说，可用性和分区容错性是必须要满足的两个条件，并且这两者是相辅相成的。业务系统之所以使用分布式系统，主要原因有两个:</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP%E6%A8%A1%E5%9E%8B.png" style="zoom:67%;"></p>
+<p><strong>存在问题</strong></p>
+<p>如果第一阶段完成后TM宕机或网络出现故障，导致TM无法发送commit/Rollback指令，此时RM会一直阻塞发生死锁。</p>
+<p>或者某一个RM在第一阶段一直没有回复TM，TM会一直阻塞等待。</p>
+<p>这都是因为2PC没有timeout机制导致的问题</p>
+<p><strong>XA性能局限性</strong></p>
+<ol>
+<li>效率低下，准备阶段的成本持久，全局事务状态的成本持久，性能与本地事务相差10倍左右；</li>
+<li>提交前，出现故障难以恢复和隔离问题。</li>
+</ol>
+<h3 id="2-理论支持"><a href="#2-理论支持" class="headerlink" title="2. 理论支持"></a>2. 理论支持</h3><h4 id="2-1-CAP理论"><a href="#2-1-CAP理论" class="headerlink" title="2.1 CAP理论"></a>2.1 CAP理论</h4><p>CAP的含义：</p>
 <ul>
-<li>提升整体性能 当业务量猛增，单个服务器已经无法满足我们的业务需求的时候，就需要使用分布 式系统，使用多个节点提供相同的功能，从而整体上提升系统的性能，这就是使用分布式系统的第 一个原因。</li>
+<li>C：Consistency 一致性 同一数据的多个副本是否实时相同。</li>
+<li>A：Availability 可用性：一定时间内 &amp; 系统返回一个明确的结果 则称为该系统可用。</li>
+<li>P：Partition tolerance 分区容错性 将同一服务分布在多个系统中，从而保证某一个系统宕机， 仍然有其他系统提供相同的服务。</li>
+</ul>
+<p>在分布式系统中，由于网络的不确定性，分区容错性是一个健壮的系统必须要保证的性能。一致性和可用性则需要根据具体的业务进行选择。CAP理论告诉我们，在分布式系统中，C、A、P三个条件中我们最多只能选择两个，P必选的前提下，要么选择AP，要么选择CP。</p>
+<p>对于一个业务系统来说，可用性和分区容错性是必须要满足的两个条件，并且这两者是相辅相成的。业务系统之所以使用分布式系统，主要原因有两个：</p>
+<ul>
+<li>提升整体性能 当业务量猛增，单个服务器已经无法满足我们的业务需求的时候，就需要使用分布式系统，使用多个节点提供相同的功能，从而整体上提升系统的性能，这就是使用分布式系统的第一个原因。</li>
 <li>实现分区容错性 单一节点 或 多个节点处于相同的网络环境下，那么会存在一定的风险，万一该 机房断电、该地区发生自然灾害，那么业务系统就全面瘫痪了。为了防止这一问题，采用分布式系 统，将多个子系统分布在不同的地域、不同的机房中，从而保证系统高可用性。</li>
 </ul>
 <p>这说明分区容错性是分布式系统的根本，如果分区容错性不能满足，那使用分布式系统将失去意义。</p>
 <p>此外，可用性对业务系统也尤为重要。在大谈用户体验的今天，如果业务系统时常出现“系统异常”、响 应时间过长等情况，这使得用户对系统的好感度大打折扣，在互联网行业竞争激烈的今天，相同领域的 竞争者不甚枚举，系统的间歇性不可用会立马导致用户流向竞争对手。因此，我们只能通过牺牲一致性 来换取系统的<strong>可用性</strong>和<strong>分区容错</strong></p>
-<h4 id="2-BASE理论"><a href="#2-BASE理论" class="headerlink" title="2. BASE理论"></a>2. BASE理论</h4><p>CAP理论告诉我们一个悲惨但不得不接受的事实——我们只能在C、A、P中选择两个条件。而对于业务 系统而言，我们往往选择牺牲一致性来换取系统的可用性和分区容错性。不过这里要指出的是，所谓 的“牺牲一致性”并不是完全放弃数据一致性，而是牺牲<strong>强一致性</strong>换取<strong>弱一致性</strong></p>
+<h4 id="2-2-BASE理论"><a href="#2-2-BASE理论" class="headerlink" title="2.2 BASE理论"></a>2.2 BASE理论</h4><p>CAP理论告诉我们一个悲惨但不得不接受的事实——我们只能在C、A、P中选择两个条件。而对于业务 系统而言，我们往往选择牺牲一致性来换取系统的可用性和分区容错性。不过这里要指出的是，所谓 的“牺牲一致性”并不是完全放弃数据一致性，而是牺牲<strong>强一致性</strong>换取<strong>弱一致性</strong></p>
 <ul>
 <li><p>BA：Basic Available 基本可用 </p>
 <ul>
-<li>整个系统在某些不可抗力的情况下，仍然能够保证“可用性”，即一定时间内仍然能够返回一个明确的结果。只不过“基本可用”和“高可用”的区别是:<ul>
+<li>整个系统在某些不可抗力的情况下，仍然能够保证“可用性”，即一定时间内仍然能够返回一个明确的结果。只不过“基本可用”和“高可用”的区别是：<ul>
 <li>“一定时间”可以适当延长 当举行大促时，响应时间可以适当延长 </li>
 <li>给部分用户返回一个降级页面，从而缓解服务器压 力。但要注意，返回降级页面仍然是返回明确结果。</li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p>S：Soft State:柔性状态 同一数据的不同副本的状态，可以不需要实时一致。</p>
+<li><p>S：Soft State：柔性状态 同一数据的不同副本的状态，可以不需要实时一致。</p>
 </li>
-<li><p>E：Eventual Consisstency:最终一致性 同一数据的不同副本的状态，可以不需要实时一致，但 一定要保证经过一定时间后仍然是一致的。</p>
+<li><p>E：Eventual Consisstency：最终一致性 同一数据的不同副本的状态，可以不需要实时一致，但 一定要保证经过一定时间后仍然是一致的。</p>
 </li>
 </ul>
-<h4 id="3-分布式事务常见解决方案"><a href="#3-分布式事务常见解决方案" class="headerlink" title="3. 分布式事务常见解决方案"></a>3. 分布式事务常见解决方案</h4><h5 id="3-1-最大努力通知方案"><a href="#3-1-最大努力通知方案" class="headerlink" title="3.1 最大努力通知方案"></a>3.1 最大努力通知方案</h5><p>最大努力通知方案主要也是借助MQ消息系统来进行事务控制，这一点与可靠消息最终一致方案一样。它是比较简单的分布式事务方案，它本质上就是通过定期校对，实现数据一致性。</p>
+<h3 id="3-分布式事务常见解决方案"><a href="#3-分布式事务常见解决方案" class="headerlink" title="3. 分布式事务常见解决方案"></a>3. 分布式事务常见解决方案</h3><h4 id="3-1-TCC两阶段补偿方案"><a href="#3-1-TCC两阶段补偿方案" class="headerlink" title="3.1 TCC两阶段补偿方案"></a>3.1 TCC两阶段补偿方案</h4><p>TCC，Try-Confirm-Cancel是一种在业务层实现分布式事务的方案，能够提供<strong>强一致性</strong>的保证。微服务间的同步调用， 比如转账场景，扣款与收款需要同时成功，这种有强一致性要求的场景可以使用TCC来完成。</p>
+<p><strong><em>TCC 是服务化的二阶段编程模型，采用的补偿机制，而XA事务采用的是回滚机制。</em></strong></p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-TCC%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%96%B9%E6%A1%88.png" style="zoom:67%;"></p>
+<p>下面以下单流程为例介绍一下TCC的工作流程，订单服务需要生成订单记录，修改订单支付状态–&gt;调用库存服务扣减库存–&gt;调用积分服务增加会员积分–&gt;调用仓储服务生成销售出库单。</p>
+<p><strong>Try阶段</strong></p>
+<p>完成所有业务检查(一致性)，预留业务资源(准隔离性)</p>
+<p>首先，上面订单服务先把自己的状态修改为：OrderStatus.UPDATING。</p>
+<p>这是啥意思呢？也就是说，在 pay() 那个方法里，你别直接把订单状态修改为已支付啊！你先把订单状态修改为 UPDATING，也就是修改中的意思。</p>
+<p>这个状态是个没有任何含义的这么一个状态，代表有人正在修改这个状态罢了。</p>
+<p>然后呢，库存服务直接提供的那个 reduceStock() 接口里，也别直接扣减库存啊，你可以是冻结掉库存。</p>
+<p>举个例子，本来你的库存数量是 100，你别直接 100 - 2 = 98，扣减这个库存！</p>
+<p>你可以把可销售的库存：100 - 2 = 98，设置为 98 没问题，然后在一个单独的冻结库存的字段里，设置一个 2。也就是说，有 2 个库存是给冻结了。</p>
+<p>积分服务的 addCredit() 接口也是同理，别直接给用户增加会员积分。你可以先在积分表里的一个预增加积分字段加入积分。</p>
+<p>比如：用户积分原本是 1190，现在要增加 10 个积分，别直接 1190 + 10 = 1200 个积分啊！</p>
+<p>你可以保持积分为 1190 不变，在一个预增加字段里，比如说 prepare_add_credit 字段，设置一个 10，表示有 10 个积分准备增加。</p>
+<p>仓储服务的 saleDelivery() 接口也是同理啊，你可以先创建一个销售出库单，但是这个销售出库单的状态是“UNKNOWN”。</p>
+<p>也就是说，刚刚创建这个销售出库单，此时还不确定它的状态是什么呢！</p>
+<p>上面这套改造接口的过程，其实就是所谓的 TCC 分布式事务中的第一个 T 字母代表的阶段，也就是 Try 阶段。</p>
+<p><strong>Confirm阶段</strong> </p>
+<p>确认执行业务操作，不做任何业务检查，只使用Try阶段预留的业务资源。</p>
+<p>然后就分成两种情况了，第一种情况是比较理想的，那就是各个服务执行自己的那个 Try 操作，都执行成功。</p>
+<p>这个时候，就需要依靠 TCC 分布式事务框架来推动后续的执行了。这里简单提一句，如果你要玩儿 TCC 分布式事务，必须引入一款 TCC 分布式事务框架，比如国内开源的 ByteTCC、Himly、TCC-transaction。</p>
+<p>否则的话，感知各个阶段的执行情况以及推进执行下一个阶段的这些事情，不太可能自己手写实现，太复杂了。</p>
+<p>如果你在各个服务里引入了一个 TCC 分布式事务的框架，订单服务里内嵌的那个 TCC 分布式事务框架可以感知到，各个服务的 Try 操作都成功了。</p>
+<p>此时，TCC 分布式事务框架会控制进入 TCC 下一个阶段，第一个 C 阶段，也就是 Confirm 阶段。</p>
+<p>为了实现这个阶段，你需要在各个服务里再加入一些代码。比如说，订单服务里，你可以加入一个 Confirm 的逻辑，就是正式把订单的状态设置为“已支付”了，大概是类似下面这样子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceConfirm</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">pay</span><span class="params">()</span></span>&#123;</span><br><span class="line">        orderDao.updateStatus(OrderStatus.PAYED);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>库存服务也是类似的，你可以有一个 InventoryServiceConfirm 类，里面提供一个 reduceStock() 接口的 Confirm 逻辑，这里就是将之前冻结库存字段的 2 个库存扣掉变为 0。</p>
+<p>这样的话，可销售库存之前就已经变为 98 了，现在冻结的 2 个库存也没了，那就正式完成了库存的扣减。</p>
+<p>积分服务也是类似的，可以在积分服务里提供一个 CreditServiceConfirm 类，里面有一个 addCredit() 接口的 Confirm 逻辑，就是将预增加字段的 10 个积分扣掉，然后加入实际的会员积分字段中，从 1190 变为 1120。</p>
+<p>仓储服务也是类似，可以在仓储服务中提供一个 WmsServiceConfirm 类，提供一个 saleDelivery() 接口的 Confirm 逻辑，将销售出库单的状态正式修改为“已创建”，可以供仓储管理人员查看和使用，而不是停留在之前的中间状态“UNKNOWN”了。</p>
+<p>好了，上面各种服务的 Confirm 的逻辑都实现好了，一旦订单服务里面的 TCC 分布式事务框架感知到各个服务的 Try 阶段都成功了以后，就会执行各个服务的 Confirm 逻辑。</p>
+<p>订单服务内的 TCC 事务框架会负责跟其他各个服务内的 TCC 事务框架进行通信，依次调用各个服务的 Confirm 逻辑。然后，正式完成各个服务的所有业务逻辑的执行。</p>
+<p><strong>Cancel阶段</strong></p>
+<p>取消Try阶段预留的业务资源。Try阶段出现异常时，取消所有业务资源预留请求</p>
+<p>那如果是异常的一种情况呢？</p>
+<p>举个例子：在 Try 阶段，比如积分服务吧，它执行出错了，此时会怎么样？</p>
+<p>那订单服务内的 TCC 事务框架是可以感知到的，然后它会决定对整个 TCC 分布式事务进行回滚。</p>
+<p>也就是说，会执行各个服务的第二个 C 阶段，Cancel 阶段。同样，为了实现这个 Cancel 阶段，各个服务还得加一些代码。</p>
+<p>首先订单服务，它得提供一个 OrderServiceCancel 的类，在里面有一个 pay() 接口的 Cancel 逻辑，就是可以将订单的状态设置为“CANCELED”，也就是这个订单的状态是已取消。</p>
+<p>库存服务也是同理，可以提供 reduceStock() 的 Cancel 逻辑，就是将冻结库存扣减掉 2，加回到可销售库存里去，98 + 2 = 100。</p>
+<p>积分服务也需要提供 addCredit() 接口的 Cancel 逻辑，将预增加积分字段的 10 个积分扣减掉。</p>
+<p>仓储服务也需要提供一个 saleDelivery() 接口的 Cancel 逻辑，将销售出库单的状态修改为“CANCELED”设置为已取消。</p>
+<p>然后这个时候，订单服务的 TCC 分布式事务框架只要感知到了任何一个服务的 Try 逻辑失败了，就会跟各个服务内的 TCC 分布式事务框架进行通信，然后调用各个服务的 Cancel 逻辑。</p>
+<p><strong>总结</strong></p>
+<p>总结一下，你要玩儿 TCC 分布式事务的话：首先需要选择某种 TCC 分布式事务框架，各个服务里就会有这个 TCC 分布式事务框架在运行。</p>
+<p>然后你原本的一个接口，要改造为 3 个逻辑，Try-Confirm-Cancel：</p>
+<ul>
+<li>先是服务调用链路依次执行 Try 逻辑。</li>
+<li>如果都正常的话，TCC 分布式事务框架推进执行 Confirm 逻辑，完成整个事务。</li>
+<li>如果某个服务的 Try 逻辑有问题，TCC 分布式事务框架感知到之后就会推进执行各个服务的 Cancel 逻辑，撤销之前执行的各种操作。</li>
+</ul>
+<p>这就是所谓的 TCC 分布式事务。TCC 分布式事务的核心思想，说白了，就是当遇到下面这些情况时：</p>
+<ul>
+<li>某个服务的数据库宕机了。</li>
+<li>某个服务自己挂了。</li>
+<li>那个服务的 Redis、Elasticsearch、MQ 等基础设施故障了。</li>
+<li>某些资源不足了，比如说库存不够这些。</li>
+</ul>
+<p>先来 Try 一下，不要把业务逻辑完成，先试试看，看各个服务能不能基本正常运转，能不能先冻结我需要的资源。</p>
+<p>如果 Try 都 OK，也就是说，底层的数据库、Redis、Elasticsearch、MQ 都是可以写入数据的，并且你保留好了需要使用的一些资源（比如冻结了一部分库存）。</p>
+<p>接着，再执行各个服务的 Confirm 逻辑，基本上 Confirm 就可以很大概率保证一个分布式事务的完成了。</p>
+<p>那如果 Try 阶段某个服务就失败了，比如说底层的数据库挂了，或者 Redis 挂了，等等。</p>
+<p>此时就自动执行各个服务的 Cancel 逻辑，把之前的 Try 逻辑都回滚，所有服务都不要执行任何设计的业务逻辑。保证大家要么一起成功，要么一起失败。</p>
+<p>如果有一些意外的情况发生了，比如说订单服务突然挂了，然后再次重启，TCC 分布式事务框架是如何保证之前没执行完的分布式事务继续执行的呢？</p>
+<p>所以，TCC 事务框架都是要记录一些分布式事务的活动日志的，可以在磁盘上的日志文件里记录，也可以在数据库里记录。保存下来分布式事务运行的各个阶段和状态。</p>
+<p>万一某个服务的 Cancel 或者 Confirm 逻辑执行一直失败怎么办呢？</p>
+<p>TCC 事务框架会通过活动日志记录各个服务的状态。举个例子，比如发现某个服务的 Cancel 或者 Confirm 一直没成功，会不停的重试调用它的 Cancel 或者 Confirm 逻辑，务必要它成功！</p>
+<h4 id="3-2-最大努力通知方案"><a href="#3-2-最大努力通知方案" class="headerlink" title="3.2 最大努力通知方案"></a>3.2 最大努力通知方案</h4><p>最大努力通知方案主要也是借助MQ消息系统来进行事务控制，这一点与可靠消息最终一致方案一样。它是比较简单的分布式事务方案，它本质上就是通过定期校对，实现数据一致性。</p>
 <p>一、最大努力通知方案的实现</p>
 <ol>
 <li>业务活动的主动方，在完成业务处理之后，向业务活动的被动方发送消息，允许消息丢失。</li>
@@ -578,17 +661,12 @@
 <p>在这个场景中，短信服务供应商是业务主动方，服务端业务是被动方，需要等待主动方的通知</p>
 <p>事务体现：服务端的登录和请求短信服务这两个操应该是一组</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E5%90%8C%E5%BF%97%E6%96%B9%E6%A1%88.png" alt></p>
-<h5 id="3-2-TCC两阶段补偿方案"><a href="#3-2-TCC两阶段补偿方案" class="headerlink" title="3.2 TCC两阶段补偿方案"></a>3.2 TCC两阶段补偿方案</h5><p>TCC是Try-Confirm-Cancel， 比如在支付场景中，先冻结一笔资金，再去发起支付。如果支付成功，则将冻结资金进行实际扣除;如果支付失败，则取消资金冻结</p>
-<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/rpc/DTP-TCC%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%96%B9%E6%A1%88.png" alt></p>
-<p><strong>Try阶段</strong></p>
-<p> 完成所有业务检查(一致性)，预留业务资源(准隔离性)</p>
-<p><strong>Confirm阶段</strong> </p>
-<p>确认执行业务操作，不做任何业务检查，只使用Try阶段预留的业务资源。</p>
-<p><strong>Cancel阶段</strong></p>
-<p>取消Try阶段预留的业务资源。Try阶段出现异常时，取消所有业务资源预留请求</p>
-<h5 id="3-3-事务消息方案"><a href="#3-3-事务消息方案" class="headerlink" title="3.3 事务消息方案"></a>3.3 事务消息方案</h5><p>RocketMQ的TransactionProducer(事务消息)</p>
-<p>RocketMQ和其他消息中间件最大的一个区别是支持了事务消息，这也是分布式事务里面的基于消息的最终一致性方案</p>
-<h6 id="3-3-1-RocketMQ消息的事务架构设计"><a href="#3-3-1-RocketMQ消息的事务架构设计" class="headerlink" title="3.3.1 RocketMQ消息的事务架构设计"></a>3.3.1 RocketMQ消息的事务架构设计</h6><ol>
+<p>再一个例子就是：支付服务场景</p>
+<p>支付宝、微信为支付服务的主动方</p>
+<p>接入支付服务的应用为被动方</p>
+<h4 id="3-3-基于事务消息的最终一致方案"><a href="#3-3-基于事务消息的最终一致方案" class="headerlink" title="3.3 基于事务消息的最终一致方案"></a>3.3 基于事务消息的最终一致方案</h4><p>RocketMQ的TransactionProducer(事务消息)</p>
+<p>RocketMQ和其他消息中间件最大的一个区别是支持了事务消息，这也是分布式事务里面的基于消息的<strong>最终一致性方案</strong></p>
+<h5 id="3-3-1-RocketMQ消息的事务架构设计"><a href="#3-3-1-RocketMQ消息的事务架构设计" class="headerlink" title="3.3.1 RocketMQ消息的事务架构设计"></a>3.3.1 RocketMQ消息的事务架构设计</h5><ol>
 <li>生产者执行本地事务，修改订单支付状态，并且提交事务</li>
 <li>生产者发送事务消息到broker上，消息发送到broker上在没有确认之前，消息对于consumer是不可见状态</li>
 <li>生产者确认事务消息，使得发送到broker上的事务消息对于消费者可见</li>
@@ -597,16 +675,18 @@
 </ol>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mq/rocketmq%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF.png" alt></p>
 <p><em>注意：本地事务提交之后就不能再回滚了，保证最终一致性的分布式事务中，当下游业务出现异常，要做的不是去回滚上游的业务，而是重试出现异常的业务，直到成功为止，保证业务的最终一致性。</em></p>
-<h6 id="3-3-2-事务消息的实践"><a href="#3-3-2-事务消息的实践" class="headerlink" title="3.3.2 事务消息的实践"></a>3.3.2 事务消息的实践</h6><p>通过一个下单以后扣减库存的数据一致性场景来演示RocketMQ的分布式事务特性</p>
+<h5 id="3-3-2-事务消息的实践"><a href="#3-3-2-事务消息的实践" class="headerlink" title="3.3.2 事务消息的实践"></a>3.3.2 事务消息的实践</h5><p>通过一个下单以后扣减库存的数据一致性场景来演示RocketMQ的分布式事务特性</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionProducer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> MQClientException, UnsupportedEncodingException, InterruptedException </span>&#123;</span><br><span class="line">        TransactionMQProducer transactionProducer = <span class="keyword">new</span> TransactionMQProducer(<span class="string">"tx_producer_group"</span>);</span><br><span class="line">        transactionProducer.setNamesrvAddr(<span class="string">"10.0.12.76:9876"</span>);</span><br><span class="line">        ExecutorService executorService = Executors.newFixedThreadPool(<span class="number">8</span>);</span><br><span class="line">        transactionProducer.setExecutorService(executorService);</span><br><span class="line">        transactionProducer.setTransactionListener(<span class="keyword">new</span> TransactionListenerLocal());</span><br><span class="line">        transactionProducer.start();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">20</span>;i++) &#123;</span><br><span class="line">            String orderId= UUID.randomUUID().toString();</span><br><span class="line">            String body=<span class="string">"&#123;'operation':'doOrder','orderId':'"</span>+orderId+<span class="string">"'&#125;"</span>;</span><br><span class="line">            Message message = <span class="keyword">new</span> Message(<span class="string">"pay_tx_topic"</span>, <span class="string">"TagA"</span>,orderId,</span><br><span class="line">                    body.getBytes(RemotingHelper.DEFAULT_CHARSET));</span><br><span class="line">            transactionProducer.sendMessageInTransaction(message,</span><br><span class="line">                    orderId+<span class="string">"&amp;"</span>+i);</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionListenerLocal</span> <span class="keyword">implements</span> <span class="title">TransactionListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;String,Boolean&gt; results=<span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 执行本地事务</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LocalTransactionState <span class="title">executeLocalTransaction</span><span class="params">(Message msg, Object arg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">":执行本地事务:"</span>+arg.toString()); String orderId=arg.toString();</span><br><span class="line">        <span class="keyword">boolean</span> rs = saveOrder(orderId);<span class="comment">//模拟数据入库操作</span></span><br><span class="line">        <span class="keyword">return</span> rs ? LocalTransactionState.COMMIT_MESSAGE:LocalTransactionState.UNKNOW;</span><br><span class="line">        <span class="comment">// 这个返回状态表示告诉broker这个事务消息是否被确认，允许给到consumer进行消费</span></span><br><span class="line">        <span class="comment">// LocalTransactionState.ROLLBACK_MESSAGE 回滚</span></span><br><span class="line">        <span class="comment">// LocalTransactionState.UNKNOW 未知</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">saveOrder</span><span class="params">(String orderId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//如果订单取模等于0，表示成功,否则表示失败</span></span><br><span class="line">        <span class="keyword">boolean</span> success=Math.abs(Objects.hash(orderId))%<span class="number">2</span>==<span class="number">0</span>;</span><br><span class="line">        results.put(orderId,success);</span><br><span class="line">        <span class="keyword">return</span> success;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 提供事务执行状态的回查方法，提供给broker回调</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LocalTransactionState <span class="title">checkLocalTransaction</span><span class="params">(MessageExt msg)</span> </span>&#123;</span><br><span class="line">        String orderId=msg.getKeys();</span><br><span class="line">        System.out.println(<span class="string">"执行事务执行状态的回查，orderId:"</span>+orderId);</span><br><span class="line">        <span class="keyword">boolean</span> rs=Boolean.TRUE.equals(results.get(orderId));</span><br><span class="line">        System.out.println(<span class="string">"回调:"</span>+rs);</span><br><span class="line">        <span class="keyword">return</span> rs?LocalTransactionState.COMMIT_MESSAGE: LocalTransactionState.ROLLBACK_MESSAGE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionConsumer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> MQClientException, IOException </span>&#123;</span><br><span class="line">        DefaultMQPushConsumer defaultMQPushConsumer = <span class="keyword">new</span> DefaultMQPushConsumer(<span class="string">"tx_consumer_group"</span>);</span><br><span class="line">        defaultMQPushConsumer.setNamesrvAddr(<span class="string">"10.0.12.76:9876"</span>);</span><br><span class="line">        defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);</span><br><span class="line">        defaultMQPushConsumer.subscribe(<span class="string">"pay_tx_topic"</span>,<span class="string">"*"</span>);</span><br><span class="line">        defaultMQPushConsumer.registerMessageListener((MessageListenerConcurrently)</span><br><span class="line">                (msgs, context) -&gt; &#123;</span><br><span class="line">                    msgs.stream().forEach(messageExt -&gt; &#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            String orderId=messageExt.getKeys();</span><br><span class="line">                            String body=<span class="keyword">new</span> String(messageExt.getBody(),</span><br><span class="line">                                    RemotingHelper.DEFAULT_CHARSET);</span><br><span class="line">                            System.out.println(<span class="string">"收到消息:"</span>+body+<span class="string">"，开始扣减库存:"</span>+orderId);</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125; &#125;);</span><br><span class="line">                    <span class="keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span><br><span class="line">                &#125;);</span><br><span class="line">        defaultMQPushConsumer.start();</span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h6 id="3-3-3-RocketMQ事务消息的三种状态"><a href="#3-3-3-RocketMQ事务消息的三种状态" class="headerlink" title="3.3.3 RocketMQ事务消息的三种状态"></a>3.3.3 RocketMQ事务消息的三种状态</h6><ol>
+<h5 id="3-3-3-RocketMQ事务消息的三种状态"><a href="#3-3-3-RocketMQ事务消息的三种状态" class="headerlink" title="3.3.3 RocketMQ事务消息的三种状态"></a>3.3.3 RocketMQ事务消息的三种状态</h5><ol>
 <li><code>ROLLBACK_MESSAGE</code>：回滚事务</li>
 <li><code>COMMIT_MESSAGE</code>：提交事务</li>
 <li><code>UNKNOW</code>： broker会定时的回查Producer消息状态，直到彻底成功或失败。</li>
 </ol>
-<p>当<code>executeLocalTransaction</code>方法返回<code>ROLLBACK_MESSAGE</code>时，表示直接回滚事务，当返回 <code>COMMIT_MESSAGE</code>提交事务，当返回<code>UNKNOW</code>时，Broker会在一段时间之后回查checkLocalTransaction，根据 checkLocalTransaction返回状态执行事务的操作(回滚或提交)。</p>
+<p>当<code>executeLocalTransaction</code>方法返回<code>ROLLBACK_MESSAGE</code>时，表示直接回滚事务</p>
+<p>当返回 <code>COMMIT_MESSAGE</code>提交事务</p>
+<p>当返回<code>UNKNOW</code>时，Broker会在一段时间之后回查checkLocalTransaction，根据 checkLocalTransaction返回状态执行事务的操作(回滚或提交)。</p>
 <p>如示例中，当返回<code>ROLLBACK_MESSAGE</code>时消费者不会收到消息，且不会调用回查函数，当返回 <code>COMMIT_MESSAGE</code>时事务提交，消费者收到消息，当返回<code>UNKNOW</code>时，在一段时间之后调用回查函 数，并根据status判断返回提交或回滚状态，返回提交状态的消息将会被消费者消费，所以此时消费者 可以消费部分消息</p>
 
             </div>

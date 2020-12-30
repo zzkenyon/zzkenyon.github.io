@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>redis-高可用架构集解析 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="redis">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="目标： 1、掌握redis主从复制的配置和原理 2、掌握redis哨兵机制的原理和实战 3、掌握redis分布式的各种方案对比，包括客户端sharding、代理Proxy、和redis cluster 为什么要分布式部署redis？ 在分布式环境下，任何组件都要保证以下三点  性能 高可用 可扩展  要做到以上三点需要依赖两种关键技术，一种是分片，一种是冗余。 分片就是把所有数据拆分到多个节点存储">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-高可用架构集解析">
+<meta property="og:url" content="http://yoursite.com/child/2020/06/02/redis-高可用架构解析/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="目标： 1、掌握redis主从复制的配置和原理 2、掌握redis哨兵机制的原理和实战 3、掌握redis分布式的各种方案对比，包括客户端sharding、代理Proxy、和redis cluster 为什么要分布式部署redis？ 在分布式环境下，任何组件都要保证以下三点  性能 高可用 可扩展  要做到以上三点需要依赖两种关键技术，一种是分片，一种是冗余。 分片就是把所有数据拆分到多个节点存储">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-sentinel-%E6%9E%B6%E6%9E%84.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-shard.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-cluster-%E6%9E%B6%E6%9E%84.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-cluster.png">
+<meta property="og:updated_time" content="2020-11-27T07:32:38.442Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis-高可用架构集解析">
+<meta name="twitter:description" content="目标： 1、掌握redis主从复制的配置和原理 2、掌握redis哨兵机制的原理和实战 3、掌握redis分布式的各种方案对比，包括客户端sharding、代理Proxy、和redis cluster 为什么要分布式部署redis？ 在分布式环境下，任何组件都要保证以下三点  性能 高可用 可扩展  要做到以上三点需要依赖两种关键技术，一种是分片，一种是冗余。 分片就是把所有数据拆分到多个节点存储">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-sentinel-%E6%9E%B6%E6%9E%84.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                146
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                37
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-redis-高可用架构解析" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/noSql/">noSql</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/redis/">redis</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">
+            <time datetime="2020-06-01T16:00:00.000Z" itemprop="datePublished">2020-06-02</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            redis-高可用架构集解析
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>目标：</p>
+<p>1、掌握redis主从复制的配置和原理</p>
+<p>2、掌握redis哨兵机制的原理和实战</p>
+<p>3、掌握redis分布式的各种方案对比，包括客户端sharding、代理Proxy、和redis cluster</p>
+<p>为什么要分布式部署redis？</p>
+<p>在分布式环境下，任何组件都要保证以下三点</p>
+<ul>
+<li>性能</li>
+<li>高可用</li>
+<li>可扩展</li>
+</ul>
+<p>要做到以上三点需要依赖两种关键技术，一种是分片，一种是冗余。</p>
+<p>分片就是把所有数据拆分到多个节点存储。</p>
+<p>冗余就是在每个节点都有一个或者多个副本。</p>
+<p>那么redis必须要提供数据分片和主从复制的功能，副本有不同的角色，如果主节点发生故障，则把某个从节点自动升级为主节点</p>
+<p>所以本文主要围绕三点进行讨论：</p>
+<p>1、主从复制怎么实现</p>
+<p>2、主从切换怎么实现</p>
+<p>3、数据分片怎么实现</p>
+<h3 id="1、redis主从复制"><a href="#1、redis主从复制" class="headerlink" title="1、redis主从复制"></a>1、redis主从复制</h3><p>跟kafka、rocketmq等分布式组件一样，redis支持集群架构，集群的节点有主从之分，主节点叫master，从节点叫slave。slave会通过复制技术，自动同步master的数据</p>
+<h4 id="1-1-主从复制配置"><a href="#1-1-主从复制配置" class="headerlink" title="1.1 主从复制配置"></a>1.1 主从复制配置</h4><p>redis的主从复制配置非常简单，有三种方式，</p>
+<p>第一种：只需要在从节点的配置文件redis.conf中添加一行配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replicaof ip port</span><br></pre></td></tr></table></figure>
+<p>从节点启动之后，就会自动的连接到master节点开始同步数据。</p>
+<p>如果master节点宕机了，选举出了新的master，这个配置在内存中会被重写。</p>
+<p>第二种方式，就是在启动redis服务时通过参数指定master节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server --slaveof ip port</span><br></pre></td></tr></table></figure>
+<p>一个正在运行中的节点，也可以变成其他节点的从节点，这就是第三种方式：在客户端执行命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slaveof ip port</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，一个从节点也可以是其他从节点的主节点，形成级联复制的关系。</p>
+<p>通过以下命令查看集群状态：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; info replication</span><br></pre></td></tr></table></figure>
+<p>从节点是只读的，不能执行写操作，执行写命令会报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">（error）READONLY</span><br></pre></td></tr></table></figure>
+<p>在主节点写入后，slave会自动从master同步数据</p>
+<p>从节点也可以改变从属关系，自己单飞</p>
+<p>将redis.conf中的replica of配置去掉并重启，或者在客户端直接断开复制：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; slaveof no one</span><br></pre></td></tr></table></figure>
+<p>MySql的主从复制原理我们是清楚地，依赖binglog文件，然后还有几个线程。那么redis呢？</p>
+<p>接下来研究主从复制到底是怎么实现的</p>
+<h4 id="1-2-主从复制原理"><a href="#1-2-主从复制原理" class="headerlink" title="1.2 主从复制原理"></a>1.2 主从复制原理</h4><p>主从复制分为两类：全量复制   和   增量复制。</p>
+<p>全量复制就是一个从节点第一次连接到主节点，需同步全部的数据；</p>
+<p>增量复制就是从节点网络断开了或者宕机了，重启之后缺了一部分数据需要同步。</p>
+<h5 id="1-2-1-连接阶段"><a href="#1-2-1-连接阶段" class="headerlink" title="1.2.1 连接阶段"></a>1.2.1 连接阶段</h5><p>​    1、slave节点启动时，或者执行slaveof命令是，会在自己本地保存master节点的信息，包括master 节点的host和port</p>
+<p>​    2、slave节点内部有个定时任务replicationCron，每隔1秒检查是否有新的master节点要连接和复制，见源码replication.c 3132line</p>
+<p>​    如果发现有master节点，就跟master节点建立连接，如果连接成功，从节点就为连接，为了让主节点感知到slave节点的存活，从节点会定时给主节点发送ping请求</p>
+<p>​    建立连接之后就可以同部署绝了，这里分为两个阶段</p>
+<h5 id="2-2-2-数据同步阶段"><a href="#2-2-2-数据同步阶段" class="headerlink" title="2.2.2 数据同步阶段"></a>2.2.2 数据同步阶段</h5><p>​    如果是新加入的slave节点，那就需要全量复制。master通过bgsave命令在本地生成一份RDB快照文件，将快照发给slave节点（如果超时会重连，可以调大repl-timeout的值）</p>
+<p>​    问题：如果slave几点自己本来有数据怎么办？</p>
+<p>​    slave节点首先需要清除自己的旧数据，然后用RDB文件加载数据。</p>
+<p>​    问题：master节点生成RDB期间，接收到的写命令怎么处理？</p>
+<p>​    开始生成快照文件是，master会把所有的新命令缓存在内存中。在slave节点保存了RDB之后，再将新的写命令复制给slave节点（跟AOF重写rewrite期间接收到的命令处理思路是一样的）</p>
+<p>​    第一次全量同步完了，主从已经保持一致了，后面的就是持续把接收到的命令发送给slave节点。</p>
+<h5 id="2-2-3-命令传播阶段"><a href="#2-2-3-命令传播阶段" class="headerlink" title="2.2.3 命令传播阶段"></a>2.2.3 命令传播阶段</h5><p>​    主节点持续吧命令异步复制给从节点。</p>
+<p>​    总结起来很简单，前面用RDM文件，后面吧命令发给slave节点，就实现了主从复制。</p>
+<p>​    注意：一般情况下我们不会用redis做读写分离，因为redis的吞吐量已经够高了，做集群分片之后并发问题更少，所以不需要考虑主从延迟的问题</p>
+<p>​    与Mysql一样，主从复制延迟是不可避免的，只能通过优化网络来改善</p>
+<p>​    第二种情况技术增量复制了。</p>
+<p>​    slave通过master_repl_offset记录的偏移量，来记录上次复制到哪里，用命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt;info replication</span><br></pre></td></tr></table></figure>
+<p>可以查看到这个偏移量属性。</p>
+<p>​    redis从2.8.18版本开始支持无盘复制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repl-diskless-sync=no</span><br></pre></td></tr></table></figure>
+<p>​    为了降低主节点的磁盘开销，Redis支持无盘复制，master生成的RDB文件不保存到磁盘而是直接通过网络发送给从节点。无盘复制适用于主节点所在的机器磁盘性能较差但是带宽比较充裕的的场景。</p>
+<h4 id="1-3-主从复制的不足"><a href="#1-3-主从复制的不足" class="headerlink" title="1.3 主从复制的不足"></a>1.3 主从复制的不足</h4><p>​    redis主从复制解决了数据备份和一部分性能的问题，但是没有解决高可用的问题，在一主一从或者一主多从的情况下，如果主服务器挂了，对外提供的服务就不可用了，单点问题没有得到解决。</p>
+<p>​    如果每次都是手动把之前的从服务切换成主服务器，然后把剩余节点设置成它的从节点，太费时费力，还会造成一定时间服务器不可用。</p>
+<h3 id="2、可用性保证之哨兵Sentinel"><a href="#2、可用性保证之哨兵Sentinel" class="headerlink" title="2、可用性保证之哨兵Sentinel"></a>2、可用性保证之哨兵Sentinel</h3><h4 id="2-1-Sentinel原理"><a href="#2-1-Sentinel原理" class="headerlink" title="2.1 Sentinel原理"></a>2.1 Sentinel原理</h4><p>怎么实现高可用呢？</p>
+<p>对于服务起来说，能够实现主从自动切换</p>
+<p>对于客户端来说，能够获取最新的master</p>
+<p>要实现以上两点，我们就必须引入一个第三方来管理redis节点的存活状态，而且具备路由功能，例如rocketmq的nameserver</p>
+<p>思路：</p>
+<p>创建一台监控服务器监控所有的redis服务节点的状态，比如，master节点超过一定时间没有给监控服务发送心跳报文，酒吧master下线，然后把某一个slave编程master。应用每一次都是从这个监控服务器拿到master地址的。</p>
+<p>问题：如果监控服务器出问题怎么办，那还要创建一个监控服务器来监控监控服务器吗。。。这似乎陷入了死循环。</p>
+<p>redis的高可用是通过哨兵Sentinel来保证的。它的思路就是通过运行监控服务器来保证服务的可用性。</p>
+<p>从redis2.8开始，redis就提供了一个稳定版本的Sentinel来解决高可用问题。</p>
+<p>我们一般会启动奇数个的Sentinel服务</p>
+<p>用脚本启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-sentinel ../sentinel.con</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server ../sentinel.con --sentinel</span><br></pre></td></tr></table></figure>
+<p>它本质上是一个运行在特殊模式下的redis。Sentinel通过info命令得到被监听Redis机器的master，slave信息。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-sentinel-%E6%9E%B6%E6%9E%84.png" alt="Sentinel" style="zoom:67%;"></p>
+<p>为了保证可用性，会对Sentinel最集群部署。Sentinel既监控所有的Redis服务，Sentinel之间也会互相监控。</p>
+<p>注意：Sentinel本身没有主从之分</p>
+<p>问题：Sentinel之间唯一的联系就是他们监控相同的redis节点，那他们怎么知道相互之间存在的？</p>
+<p>答案是使用redis的发布订阅功能：</p>
+<p>Sentinel上线时，给所有的Redis节点的<code>__sentinel__:hello</code>频道（channel）发送消息；</p>
+<p>每个Sentinel都订阅了所有redis节点的<code>__sentinel__:hello</code>频道，所以能互相感知对方的存在。</p>
+<h5 id="2-1-1-服务下线"><a href="#2-1-1-服务下线" class="headerlink" title="2.1.1 服务下线"></a>2.1.1 服务下线</h5><p>问题：Sentinel如何感知master下线了？</p>
+<p>Sentinel默认每秒1次的频率向Redis服务节点发送Ping命令，如果指定时间没有收到回复（默认30秒。可配置）Sentinel将该节点标记为下线（主观下线）</p>
+<p>时间配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel down-after-milliseconds &lt;master-name&gt; &lt;milliseconds&gt;</span><br></pre></td></tr></table></figure>
+<p>但是，自己发现master下线不能代表真的下线，万一是你自己网络问题呢，这时候Sentinel会询问其他的Sentinel节点，确认是否真的下线，如果多数Sentinel节点都认为该master下线了，那才真的下线（客观下线）</p>
+<p>确认下线后，要重新选举master</p>
+<h5 id="2-1-2-故障转移"><a href="#2-1-2-故障转移" class="headerlink" title="2.1.2 故障转移"></a>2.1.2 故障转移</h5><p>redis的选举和故障转移都是由Sentinel完成的。</p>
+<p>问题：有这么多的Sentinel节点，谁来做呢？</p>
+<p>故障转移的第一步就是在Sentinel集群选择一个Leader，有Leader完成故障转移流程、Sentinel通过Raft算法，实现leader选举的。</p>
+<p>问题：那么Sentinel leader又是根据什么来选举redis的呢？</p>
+<p>对于所有的slave节点，一共有四个因素会影响选举的结果，分别是断开连接时长，优先级排序，复制数量和进程id</p>
+<ol>
+<li>如果节点与哨兵连接断开的比较久，超过某个阈值，直接失去选举权</li>
+<li>有选举全，再看谁的优先级高，这个在配置文件中可以配置（replica-priority 100），数字越小优先级越大</li>
+<li>优先级相同，比较谁的偏移量大</li>
+<li>最后在比较谁的进程id小</li>
+</ol>
+<p>master节点确定之后，要将其他的节点设置为他的从节点，</p>
+<ol>
+<li>Sentinel leader向master节点发送命令 slaveof no one</li>
+<li>再向其他节点发送slaveof ip port，让他成为主节点的从节点，故障转移完成。</li>
+</ol>
+<h4 id="2-2-Sentinel功能总结"><a href="#2-2-Sentinel功能总结" class="headerlink" title="2.2 Sentinel功能总结"></a>2.2 Sentinel功能总结</h4><p>监控：Sentinel会不断检查节点是否正常运行</p>
+<p>通知：若某节点被监控到出问题，Sentinel会通过api发出通知</p>
+<p>自动故障转移</p>
+<p>配置管理：客户端只需要连接到Sentinel集群，就能获取当前redis集群的master</p>
+<p>哨兵机制的不足：</p>
+<ol>
+<li>主从切换过程会丢失数据，因为只有一个master</li>
+<li>只能单点写，没有解决水平扩容</li>
+</ol>
+<p>如果数据量非常大，这时候就要对redis进行数据分片</p>
+<p>这时候我们需要多个master-slave的group    ，把数据分布到不同的group中。</p>
+<p>问题：怎么分片？分片后怎么路由？</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-shard.png" alt="redsi-groups" style="zoom:67%;"></p>
+<h3 id="3、redis数据分片方案"><a href="#3、redis数据分片方案" class="headerlink" title="3、redis数据分片方案"></a>3、redis数据分片方案</h3><p>三种方案：</p>
+<p>第一种：在客户端实现相关分片逻辑，例如用取模或者一致性哈希对key进行分片，查询和修改都先判断key路由</p>
+<p>第二种：把做分片处理的逻辑抽取出来，运行一个独立的代理服务，客户端连接到这个代理服务，代理服务做请求的转发。</p>
+<p>第三种：基于服务端实现。</p>
+<h4 id="3-1-客户端分片"><a href="#3-1-客户端分片" class="headerlink" title="3.1 客户端分片"></a>3.1 客户端分片</h4><p>​    Jedis客户端中就支持分片功能，Jedis是Spring Boot 2.X版本之前默认的Redis客户端，RedisTemplate就是对Jedis的封装</p>
+<h5 id="3-1-1-ShardedJedis"><a href="#3-1-1-ShardedJedis" class="headerlink" title="3.1.1 ShardedJedis"></a>3.1.1 ShardedJedis</h5><h5 id="3-1-2-一致性hash算法"><a href="#3-1-2-一致性hash算法" class="headerlink" title="3.1.2 一致性hash算法"></a>3.1.2 一致性hash算法</h5><p>把所有的哈希值空间组织成一个虚拟的圆环，整个空间按顺时针方向组织。因为是环形空间，0和2^32-1是重叠的。</p>
+<p>每个节点在哈希环上都有一个位置，</p>
+<p>先对key进行hash，根据hash值落在环上的位置按照顺时针的方向找，找到第一个节点就将该key存入。</p>
+<p>虚拟节点–解决节点分布不均匀的问题</p>
+<p>jedis对一致性hash的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="3-2-代理分片"><a href="#3-2-代理分片" class="headerlink" title="3.2 代理分片"></a>3.2 代理分片</h4><p>典型的代理分区方案有：</p>
+<p>Twitter开源的Twemproxy</p>
+<p>豌豆荚开源的codis</p>
+<h5 id="3-2-1-Twemproxy"><a href="#3-2-1-Twemproxy" class="headerlink" title="3.2.1 Twemproxy"></a>3.2.1 Twemproxy</h5><p>优点：比较稳定，可用性高</p>
+<p>不足：</p>
+<ol>
+<li>出现故障不能自动转移，架构复杂，需要借助其他组件实现高可用（LVS/HAProxy + Keepalived)</li>
+<li>扩缩绒需要修改配置，不能实现平滑的扩缩绒</li>
+</ol>
+<h5 id="3-2-2-codis"><a href="#3-2-2-codis" class="headerlink" title="3.2.2 codis"></a>3.2.2 codis</h5><p>​    Codis是一个代理中间件，豌豆荚用GO语言开发，跟Mycat是一类的组件。</p>
+<p>​    功能：客户端连接Codis和连接Redis没有区别</p>
+<p>​    分片原理：Codis把所有的key分成了N个槽（例如1024），每个草对应一个分组，一个分组对应一个或者一组Redis实例。Codis对key进行CRC32运算，得到一个32位的数字，然后模以N，得到余数，这个余数就是key对应的槽，槽能对应道redis节点，跟Mycat的先取模后范围思想类似。</p>
+<p>​    Codis的槽位映射关系是保存在proxy中的，如果要解决单点故障问题，Codis也要组集群部署，多个Codis节点要同步槽和节点映射关系需要运行一个zookeeper。</p>
+<p>​    再新增节点的时候，可以为节点指定特定的槽位，Codis也提供了自动均衡策略。</p>
+<p>​    Codis不支持事务，其他一些命令也不支持</p>
+<p>​    获取数据原理：以mget为例，在各个节点中获取到符合的key，然后在汇总到Codis中返回给客户端</p>
+<p>​    Codis是第三方提供的分布式解决方案，在官网的集群功能稳定前，Codis也得到了大量的应用。</p>
+<h4 id="3-3-redis-cluster"><a href="#3-3-redis-cluster" class="headerlink" title="3.3 redis cluster"></a>3.3 redis cluster</h4><p>​    Redis Cluster是在Redis3.0的版本正式推出的，用来解决分布式的需求，同时也可以实现高可用。跟Codis不一样，它是去中心化的，客户端可以连接到任意一个可用的节点。</p>
+<p>​    数据分片需要解决的问题：</p>
+<pre><code>- 数据怎么相对均匀的分片
+- 客户端怎么访问到相应的节点
+- 重新分片的过程，怎么保证正常服务
+</code></pre><h5 id="3-3-1-架构"><a href="#3-3-1-架构" class="headerlink" title="3.3.1 架构"></a>3.3.1 架构</h5><p>Redis Cluster 可以看成由多个节点组成的数据集合。客户端不需要关注数据的子集到底存在哪个节点，只需要关注这个集合整体。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-cluster-%E6%9E%B6%E6%9E%84.png" style="zoom:67%;"></p>
+<h5 id="3-3-2-搭建"><a href="#3-3-2-搭建" class="headerlink" title="3.3.2 搭建"></a>3.3.2 搭建</h5><h5 id="3-3-3-数据分布"><a href="#3-3-3-数据分布" class="headerlink" title="3.3.3 数据分布"></a>3.3.3 数据分布</h5><p>使用虚拟槽位实现数据的分片</p>
+<p>Redis创建了16384个槽（slot），每个redis group负责一定区间的slot</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-cluster.png" alt="redis-cluster架构" style="zoom:67%;"></p>
+<p>对象分布到Redis节点上时，对Key用CRC16算法计算再模以16384，得到slot值，数据落到负责该槽位的节点上。</p>
+<p>集群的每个master节点都会维护自己负责的slot，用一个bit序列实现，比如：序列的第0位是1，代表第一个sloat由他负责，为0表示不负责。</p>
+<p>查看key属于哪个slot：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt;cluster keyslot zzk</span><br></pre></td></tr></table></figure>
+<p>问题：如何让相关的数据落到一个节点上？</p>
+<p>比如有些multi key操作是不能跨节点的，</p>
+<p>在key里面加入<code>{hash tag}</code>即可。redis在计算slot时只会获取{}之间的字符串进行slot计算，</p>
+<h5 id="3-3-4-客户端重定向"><a href="#3-3-4-客户端重定向" class="headerlink" title="3.3.4 客户端重定向"></a>3.3.4 客户端重定向</h5><p>问题：客户端连接到那一台服务器？访问的数据不再当前节点上怎么办？</p>
+<p>jedis等客户端会在本地维护一份slot–node的映射关系，大部分时候不需要重定向，所以叫smart jedis（需要客户端支持）</p>
+<h5 id="3-3-5-数据迁移"><a href="#3-3-5-数据迁移" class="headerlink" title="3.3.5 数据迁移"></a>3.3.5 数据迁移</h5><p>问题：新增或下线了master节点，数据如何迁移？</p>
+<p>添加新节点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster add-node localip localport  newip newport</span><br></pre></td></tr></table></figure>
+<p>新增的节点没有hash槽，不能分配数据，在原来任意一个节点上执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster reshard localip localport</span><br></pre></td></tr></table></figure>
+<p>输入需要分配的哈希槽的数量和哈希槽的来源节点</p>
+<h5 id="3-3-6-高可用和主从切换原理"><a href="#3-3-6-高可用和主从切换原理" class="headerlink" title="3.3.6 高可用和主从切换原理"></a>3.3.6 高可用和主从切换原理</h5><p>当slave发现自己的master变为FAIL状态时，边仓石进行Failover，以期称为新的master。由于挂掉的master可能有多个slave，从而存在slave竞争上岗的过程：</p>
+<ol>
+<li>slave发现自己的master变为Fail</li>
+<li>将自己记录的集群currentEpoch+1，并广播FAILOVER_AUTH_REQUEST信息</li>
+<li>其他节点收到该信息，只有master（其他group的master）响应，判断请求者的合法性，并发送FAILOVER_AUTH_ACK,，对每个epoch只发送一个一次ack</li>
+<li>尝试failover的slaver收集FAILOVER_AUTH_ACK</li>
+<li>超过半数后变成新的master</li>
+<li>广播PONG通知其他集群节点。</li>
+</ol>
+<p>总结：Redis Cluster既能实现主从角色分配，又能实现主从切换，相当于继承了Replication和Sentinel的功能</p>
+<h5 id="3-3-7-总结"><a href="#3-3-7-总结" class="headerlink" title="3.3.7 总结"></a>3.3.7 总结</h5><p>redis cluster特点：</p>
+<ol>
+<li>无中心架构</li>
+<li>数据按照slot存储分布在多个节点，节点间数据共享，可动态调整数据分布。</li>
+<li>可扩展性，可线性扩展到1000个节点，官方推荐不超过1000个，节点可动态添加或删除</li>
+<li>高可用性，部分节点不可用时，集群仍可用。通过增加slave做standby数据副本，能够实现故障自动failover，节点之间通过gossip协议贾环状态信息，用投票机制完成slave到master的角色提升</li>
+<li>运维成本极低</li>
+</ol>
+<p><a href="https://www.cnblogs.com/ivictor/p/9762394.html" target="_blank" rel="noopener">深入理解Redis Cluster</a></p>
+<p><a href="https://www.cnblogs.com/rjzheng/p/10360619.html" target="_blank" rel="noopener">那些年用过的Redis集群架构（含面试解析）</a>  </p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    SpringBoot-事务源码分析
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">SpringCloud-分布式事务Seate-AT</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

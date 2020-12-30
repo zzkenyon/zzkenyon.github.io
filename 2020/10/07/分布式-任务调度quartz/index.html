@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>任务调度-使用quartz | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="quartz">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="文章目标： 1、了解任务调度的应用场景和 Quartz 的基本特性  2、掌握 Quartz Java 编程和 Spring 集成的使用 3、掌握 Quartz 动态调度和集群部署的实现 1、任务调度场景在业务系统中有很多这样的场景: 1、账单日或者还款日上午 10 点，给每个信用卡客户发送账单通知，还款通知。如 何判断客户的账单日、还款日，完成通知的发送 2、银行业务系统，夜间要完成跑批的一系列">
+<meta name="keywords" content="quartz">
+<meta property="og:type" content="article">
+<meta property="og:title" content="任务调度-使用quartz">
+<meta property="og:url" content="http://yoursite.com/child/2020/10/07/分布式-任务调度quartz/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="文章目标： 1、了解任务调度的应用场景和 Quartz 的基本特性  2、掌握 Quartz Java 编程和 Spring 集成的使用 3、掌握 Quartz 动态调度和集群部署的实现 1、任务调度场景在业务系统中有很多这样的场景: 1、账单日或者还款日上午 10 点，给每个信用卡客户发送账单通知，还款通知。如 何判断客户的账单日、还款日，完成通知的发送 2、银行业务系统，夜间要完成跑批的一系列">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/quartz/quratz%E7%BB%93%E6%9E%84%E6%80%BB%E5%9B%BE.png">
+<meta property="og:updated_time" content="2020-11-15T09:43:53.761Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="任务调度-使用quartz">
+<meta name="twitter:description" content="文章目标： 1、了解任务调度的应用场景和 Quartz 的基本特性  2、掌握 Quartz Java 编程和 Spring 集成的使用 3、掌握 Quartz 动态调度和集群部署的实现 1、任务调度场景在业务系统中有很多这样的场景: 1、账单日或者还款日上午 10 点，给每个信用卡客户发送账单通知，还款通知。如 何判断客户的账单日、还款日，完成通知的发送 2、银行业务系统，夜间要完成跑批的一系列">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/quartz/quratz%E7%BB%93%E6%9E%84%E6%80%BB%E5%9B%BE.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                146
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                37
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-分布式-任务调度quartz" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/分布式架构技术/">分布式架构技术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/quartz/">quartz</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">
+            <time datetime="2020-10-06T16:00:00.000Z" itemprop="datePublished">2020-10-07</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            任务调度-使用quartz
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>文章目标：</p>
+<p>1、了解任务调度的应用场景和 Quartz 的基本特性 </p>
+<p>2、掌握 Quartz Java 编程和 Spring 集成的使用</p>
+<p>3、掌握 Quartz 动态调度和集群部署的实现</p>
+<h3 id="1、任务调度场景"><a href="#1、任务调度场景" class="headerlink" title="1、任务调度场景"></a>1、任务调度场景</h3><p>在业务系统中有很多这样的场景:</p>
+<p>1、账单日或者还款日上午 10 点，给每个信用卡客户发送账单通知，还款通知。如 何判断客户的账单日、还款日，完成通知的发送</p>
+<p>2、银行业务系统，夜间要完成跑批的一系列流程，清理数据，下载文件，解析文件， 对账清算、切换结算日期等等。如何触发一系列流程的执行</p>
+<p>3、金融机构跟人民银行二代支付系统对接，人民银行要求低于 5W 的金额(小额支付)半个小时打一次包发送，以缓解并发压力。所以，银行的跨行转账分成了多个流程: 录入、复核、发送。如何把半个小时以内的所有数据一次性发送</p>
+<p>类似于这种 </p>
+<ul>
+<li>基于准确的时刻或者固定的时间间隔触发的任务</li>
+<li>有批量数据需要处理</li>
+<li>要实现两个动作解耦的场景</li>
+</ul>
+<p>我们都可以用任务调度来实现。</p>
+<h3 id="2、任务调度需求分析"><a href="#2、任务调度需求分析" class="headerlink" title="2、任务调度需求分析"></a>2、任务调度需求分析</h3><ol>
+<li>可以定义触发的规则，比如基于时刻、时间间隔、表达式。</li>
+<li>可以定义需要执行的任务。比如执行一个脚本或者一段代码。任务和规则是 分开的。</li>
+<li>集中管理配置，持久配置。不用把规则写在代码里面，可以看到所有的任务 配置，方便维护。重启之后任务可以再次调度——配置文件或者配置中心。</li>
+<li>支持任务的串行执行，例如执行 A 任务后再执行 B 任务再执行 C 任务。</li>
+<li>支持多个任务并发执行，互不干扰(例如 ScheduledThreadPoolExecutor)。</li>
+<li>有自己的调度器，可以启动、中断、停止任务。</li>
+<li>容易集成到 Spring。</li>
+</ol>
+<h3 id="3、任务调度工具和框架"><a href="#3、任务调度工具和框架" class="headerlink" title="3、任务调度工具和框架"></a>3、任务调度工具和框架</h3><ul>
+<li><p>Linux crontab，Windows 计划任务</p>
+</li>
+<li><p>MySQL、Oracle</p>
+</li>
+<li><p>Kettle </p>
+</li>
+<li><p>jdk自带的Timer、ScheduledThreadPool</p>
+</li>
+<li>Spring Task--@Scheduled  也是使用ScheduledThreadPool实现的</li>
+<li>quartz，XXL-JOB，Elastic-Job</li>
+</ul>
+<h3 id="4、Quartz使用入门"><a href="#4、Quartz使用入门" class="headerlink" title="4、Quartz使用入门"></a>4、Quartz使用入门</h3><h4 id="4-1-基本介绍"><a href="#4-1-基本介绍" class="headerlink" title="4.1 基本介绍"></a>4.1 基本介绍</h4><p><a href="http://www.quartz-scheduler.org/" target="_blank" rel="noopener">官网</a></p>
+<p>Quartz 的意思是石英，像石英表一样精确。</p>
+<p>Quartz 是一个老牌的任务调度系统，98 年构思，01 年发布到 sourceforge。现在更新比较慢，因为已经非常成熟了。</p>
+<p>Quartz 的目的就是让任务调度更加简单，开发人员只需要关注业务即可。他是用 Java 语言编写的(也有.NET 的版本)。Java 代码能做的任何事情，Quartz 都可以调度。</p>
+<p>特点：</p>
+<ul>
+<li>精确到毫秒级别的调度</li>
+<li>可以独立运行，也可以集成到容器中</li>
+<li>支持事务(JobStoreCMT )</li>
+<li>支持集群</li>
+<li>支持持久化</li>
+</ul>
+<h4 id="4-2-API使用"><a href="#4-2-API使用" class="headerlink" title="4.2 API使用"></a>4.2 API使用</h4><p>引入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.quartz-scheduler<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>quartz<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>默认配置：</p>
+<p>org.quartz.core 包下，有一个默认的配置文件，quartz.properties。当我们没有 定义一个同名的配置文件的时候，就会使用默认配置文件里面的配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">org.quartz.scheduler.instanceName: DefaultQuartzScheduler </span><br><span class="line">org.quartz.scheduler.rmi.export: false</span><br><span class="line">org.quartz.scheduler.rmi.proxy: false </span><br><span class="line">org.quartz.scheduler.wrapJobExecutionInUserTransaction: false </span><br><span class="line">org.quartz.threadPool.class: org.quartz.simpl.SimpleThreadPool </span><br><span class="line">org.quartz.threadPool.threadCount: 10</span><br><span class="line">org.quartz.threadPool.threadPriority: 5 </span><br><span class="line">org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread: true </span><br><span class="line">org.quartz.jobStore.misfireThreshold: 60000</span><br><span class="line">org.quartz.jobStore.class: org.quartz.simpl.RAMJobStore</span><br></pre></td></tr></table></figure>
+<p>创建三大对象：</p>
+<ul>
+<li>创建Job：任务</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyJob</span> <span class="keyword">implements</span> <span class="title">Job</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(JobExecutionContext context)</span> <span class="keyword">throws</span> JobExecutionException </span>&#123;</span><br><span class="line">  	System.out.println(<span class="string">"假发在哪里买的"</span>); </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在使用到 Job时，需要进一步包装成 JobDetail。必须要指定 JobName 和 groupName，两个合起    来是唯一标识符。可以携带 KV 的数据(JobDataMap)，用于扩展属性，在运行的时候可以从context    获取到。</p>
+<ul>
+<li><p>创建Trigger：就是调度策略</p>
+</li>
+<li><p>创建Scheduler：调度器</p>
+</li>
+</ul>
+<p>通过 Factory 获取调度器的实例，把 JobDetail 和 Trigger 绑定，注册到容器中。Scheduler 先启动后启动无所谓，只要有 Trigger 到达触发条件，就会执行任务。</p>
+<p>详细代码请见：</p>
+<h4 id="4-3-体系结构总结"><a href="#4-3-体系结构总结" class="headerlink" title="4.3 体系结构总结"></a>4.3 体系结构总结</h4><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/quartz/quratz%E7%BB%93%E6%9E%84%E6%80%BB%E5%9B%BE.png" alt="总体架构" style="zoom:60%;"></p>
+<h5 id="4-3-1-JobDetail"><a href="#4-3-1-JobDetail" class="headerlink" title="4.3.1 JobDetail"></a>4.3.1 JobDetail</h5><p>我们创建一个实现 Job 接口的类，使用 JobBuilder 包装成 JobDetail，它可以携带 KV 的数据。</p>
+<h5 id="4-3-2-Trigger"><a href="#4-3-2-Trigger" class="headerlink" title="4.3.2 Trigger"></a>4.3.2 Trigger</h5><p>定义任务的触发规则，Trigger，使用 TriggerBuilder 来构建。</p>
+<p>JobDetail 跟 Trigger 是 1:N 的关系。</p>
+<p>思考：为什么任务和规则要解耦？</p>
+<p>因为任务调度规则复杂的时候可以配置多个trigger来实现。</p>
+<p>Trigger 接口在 Quartz 有 4 个继承的子接口:</p>
+<table>
+<thead>
+<tr>
+<th>子接口</th>
+<th>描述</th>
+<th style="text-align:left">特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SimpleTrigger</td>
+<td>简单触发器</td>
+<td style="text-align:left">固定时刻或时间间隔，毫秒</td>
+</tr>
+<tr>
+<td>CalendarIntervalTrigger</td>
+<td>基于日历的触发器</td>
+<td style="text-align:left">比简单触发器更多时间单位，支持非固定时 间的触发，例如一年可能 365/366，一个月 可能28/29/30/31</td>
+</tr>
+<tr>
+<td>DailyTimeIntervalTrigger</td>
+<td>基于日期的触发器</td>
+<td style="text-align:left">每天的某个时间段</td>
+</tr>
+<tr>
+<td>CronTrigger</td>
+<td>基于 Cron 表达式的触发器</td>
+<td style="text-align:left">最常用的</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>SimpleTrigger</p>
+<p>SimpleTrigger 可以定义固定时刻或者固定时间间隔的调度规则(精确到毫秒)。 例如:每天 9 点钟运行;每隔 30 分钟运行一次。</p>
+</li>
+<li><p>CalendarIntervalTrigger</p>
+<p>CalendarIntervalTrigger 可以定义更多时间单位的调度需求，精确到秒。 好处是不需要去计算时间间隔，比如 1 个小时等于多少毫秒。 例如每年、每个月、每周、每天、每小时、每分钟、每秒。 每年的月数和每个月的天数不是固定的，这种情况也适用。</p>
+</li>
+<li><p>DailyTimeIntervalTrigger</p>
+<p>每天的某个时间段内，以一定的时间间隔执行任务。</p>
+<p>例如:每天早上 9 点到晚上 9 点，每隔半个小时执行一次，并且只在周一到周六执 行。</p>
+</li>
+<li><p>CronTrigger</p>
+<p>CronTirgger 可以定义基于 Cron 表达式的调度规则，是最常用的触发器类型。 </p>
+</li>
+</ul>
+<p><a href="https://github.com/zzkenyon/thinking/tree/master/quartz-demo/quartz-standalone/src/main/java/com/panda/trigger/" target="_blank" rel="noopener">Trigger示例代码</a></p>
+<p><strong>Cron 表达式</strong></p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>时间域</th>
+<th>取值范围</th>
+<th>特殊值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>秒</td>
+<td>0-59</td>
+<td>,-*/</td>
+</tr>
+<tr>
+<td>2</td>
+<td>分钟</td>
+<td>0-59</td>
+<td>,-*/</td>
+</tr>
+<tr>
+<td>3</td>
+<td>小时</td>
+<td>0-23</td>
+<td>,-*/</td>
+</tr>
+<tr>
+<td>4</td>
+<td>日期</td>
+<td>1-31</td>
+<td>,-*?/ L W C</td>
+</tr>
+<tr>
+<td>5</td>
+<td>月份</td>
+<td>1-12</td>
+<td>,-*/</td>
+</tr>
+<tr>
+<td>6</td>
+<td>星期</td>
+<td>1-7</td>
+<td>,-*?/ L W C</td>
+</tr>
+<tr>
+<td>7</td>
+<td>年份（可选）</td>
+<td>1-31</td>
+<td>,-*/</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>星号(*):可用在所有字段中，表示对应时间域的每一个时刻，例如，在分钟字段时，表示“每分钟”; </p>
+<p>问号(?):该字符只在日期和星期字段中使用，它通常指定为“无意义的值”，相当于点位符; </p>
+<p>减号(-):表达一个范围，如在小时字段中使用“10-12”，则表示从 10 到 12 点，即 10,11,12; </p>
+<p>逗号(,):表达一个列表值，如在星期字段中使用“MON,WED,FRI”，则表示星期一，星期三和星期五;</p>
+<p> 斜杠(/):x/y 表达一个等步长序列，x 为起始值，y 为增量步长值。如在分钟字段中使用 0/15，则表示为 0,15,30 和45 秒，而 5/15 在分钟字段中表示 5,20,35,50，你也可以使用*/y，它等同于 0/y;</p>
+<p>L:该字符只在日期和星期字段中使用，代表“Last”的意思，但它在两个字段中意思不同。L 在日期字段中，表示 这个月份的最后一天，如一月的 31 号，非闰年二月的 28 号;如果 L 用在星期中，则表示星期六，等同于 7。但是，如 果 L 出现在星期字段里，而且在前面有一个数值 X，则表示“这个月的最后 X 天”，例如，6L 表示该月的最后星期五;</p>
+<p>W:该字符只能出现在日期字段里，是对前导日期的修饰，表示离该日期最近的工作日。例如 15W 表示离该月 15 号最近的工作日，如果该月 15 号是星期六，则匹配 14 号星期五;如果 15 日是星期日，则匹配 16 号星期一;如果 15 号是星期二，那结果就是 15 号星期二。但必须注意关联的匹配日期不能够跨月，如你指定 1W，如果 1 号是星期六， 结果匹配的是 3 号星期一，而非上个月最后的那天。W 字符串只能指定单一日期，而不能指定日期范围;</p>
+<p>LW 组合:在日期字段可以组合使用 LW，它的意思是当月的最后一个工作日;</p>
+<p>井号(#):该字符只能在星期字段中使用，表示当月某个工作日。如 6#3 表示当月的第三个星期五(6 表示星期五， #3 表示当前的第三个)，而 4#5 表示当月的第五个星期三，假设当月没有第五个星期三，忽略不触发;</p>
+<p>C:该字符只在日期和星期字段中使用，代表“Calendar”的意思。它的意思是计划所关联的日期，如果日期没有 被关联，则相当于日历中所有日期。例如 5C 在日期字段中就相当于日历 5 日以后的第一天。1C 在星期字段中相当于 星期日后的第一天。</p>
+<p>Cron 表达式对特殊字符的大小写不敏感，对代表星期的缩写英文大小写也不敏感。</p>
+</blockquote>
+<p>上面我们定义的都是在什么时间执行，但是我们有一些在什么时间不执行的需求， 比如:理财周末和法定假日购买不计息;证券公司周末和法定假日休市。</p>
+<p><strong>基于 Calendar 的排除规则</strong></p>
+<p>如果要在触发器的基础上，排除一些时间区间不执行任务，就要用到 Quartz 的 Calendar 类(注意不是 JDK 的 Calendar)。可以按年、月、周、日、特定日期、Cron 表达式排除。</p>
+<p>调用 Trigger 的 <code>modifiedByCalendar()</code>添加到触发器中，并且调用调度器的 addCalendar()方法注册排除规则。</p>
+<p>Calendar的种类：</p>
+<ul>
+<li>BaseCalendar  为高级的 Calendar 实现了基本的功能，实现了 org.quartz.Calendar 接口</li>
+<li>AnnualCalendar  排除年中一天或多天</li>
+<li>CronCalendar  日历的这种实现排除了由给定的 CronExpression 表达的时间集合。 例如， 您可以使用此日历使用表达式“<code>* * 0-7,18-23?* *</code>”每天排除所有营业时间(上午 8 点至下午 5 点)。 如果 CronTrigger 具有给定的 cron 表达式并且与具有相同表达式的 CronCalendar 相关联，则日历将排除触发器包含的所有时间，并且它们将彼此抵消。</li>
+<li>DailyCalendar  您可以使用此日历来排除营业时间(上午 8 点 - 5 点)每天。 每个 DailyCalendar 仅允许指定单个时间范围，并且该时间范围可能不会跨越每 日边界(即，您不能指定从上午 8 点至凌晨 5 点的时间范围)。 如果属 性 invertTimeRange 为 false(默认)，则时间范围定义触发器不允许触发 的时间范围。 如果 invertTimeRange 为 true，则时间范围被反转 - 也就是 排除在定义的时间范围之外的所有时间。</li>
+<li>HolidayCalendar  特别的用于从 Trigger 中排除节假日</li>
+<li>MonthlyCalendar  排除月份中的指定数天，例如，可用于排除每月的最后一天</li>
+<li>WeeklyCalendar  排除星期中的任意周几，例如，可用于排除周末，默认周六和周日</li>
+</ul>
+<p><a href="https://github.com/zzkenyon/thinking/tree/master/quartz-demo/quartz-standalone/src/main/java/com/panda/calendar/" target="_blank" rel="noopener">Calendar示例代码</a></p>
+<h5 id="4-3-3-Scheduler"><a href="#4-3-3-Scheduler" class="headerlink" title="4.3.3 Scheduler"></a>4.3.3 Scheduler</h5><p>调度器，是 Quartz 的指挥官，由 StdSchedulerFactory 产生。它是单例的。</p>
+<p>并且是 Quartz 中最重要的 API，默认是实现类是 StdScheduler，里面包含了一个 QuartzScheduler。QuartzScheduler 里面又包含了一个 QuartzSchedulerThread。</p>
+<p>Scheduler 中的方法主要分为三大类:</p>
+<ol>
+<li>操作调度器本身，例如调度器的启动 start()、调度器的关闭 shutdown()。 </li>
+<li>操作 Trigger，例如 pauseTriggers()、resumeTrigger()。</li>
+<li>操作 Job，例如 scheduleJob()、unscheduleJob()、rescheduleJob()</li>
+</ol>
+<p>这些方法非常重要，可以实现任务的动态调度。</p>
+<p><a href="https://github.com/zzkenyon/thinking/tree/master/quartz-demo/quartz-standalone/src/main/java/com/panda/scheduler" target="_blank" rel="noopener">Scheduler示例代码</a></p>
+<h5 id="4-3-4-Listener"><a href="#4-3-4-Listener" class="headerlink" title="4.3.4 Listener"></a>4.3.4 Listener</h5><p>我们有这么一种需求，在每个任务运行结束之后发送通知给运维管理员。那是不是 要在每个任务的最后添加一行代码呢?这种方式对原来的代码造成了入侵，不利于维护。 如果代码不是写在任务代码的最后一行，怎么知道任务执行完了呢?或者说，怎么监测 到任务的生命周期呢?</p>
+<p>观察者模式:定义对象间一种一对多的依赖关系，使得每当一个对象改变状态，则 所有依赖它的对象都会得到通知并自动更新。</p>
+<p>Quartz 中提供了三种 Listener，监听 Scheduler 的，监听 Trigger 的，监听 Job 的。 只需要创建类实现相应的接口，并在 Scheduler 上注册 Listener，便可实现对核心对象的监听。</p>
+<ol>
+<li>JobListener</li>
+</ol>
+<p>定义了4个方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>作用或执行实际</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>getName()</td>
+<td>返回 JobListener 的名称</td>
+</tr>
+<tr>
+<td>jobToBeExecuted()</td>
+<td>Scheduler 在 JobDetail 将要被执行时调用这个方法</td>
+</tr>
+<tr>
+<td>jobExecutionVetoed()</td>
+<td>Scheduler 在 JobDetail 即将被执行，但又被 TriggerListener 否决了时调用这个 方法</td>
+</tr>
+<tr>
+<td>jobWasExecuted()</td>
+<td>Scheduler 在 JobDetail 被执行之后调用这个方法</td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li>TriggerListener</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>作用或执行实际</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>getName()</td>
+<td>获取名称</td>
+</tr>
+<tr>
+<td>triggerFired()</td>
+<td>Trigger 被触发，Job 上的 execute() 方法将要被执行时，Scheduler 就调用这个 方法</td>
+</tr>
+<tr>
+<td>vetoJobExecution()</td>
+<td>在 Trigger 触发后，Job 将要被执行时由 Scheduler 调用这个方法。 TriggerListener 给了一个选择去否决 Job 的执行。假如这个方法返回 true，这 个 Job 将不会为此次 Trigger 触发而得到执行</td>
+</tr>
+<tr>
+<td>triggerMisfired()</td>
+<td>Trigger 错过触发时调用</td>
+</tr>
+<tr>
+<td>triggerComplete()</td>
+<td>Trigger 被触发并且完成了 Job 的执行时，Scheduler 调用这个方法</td>
+</tr>
+</tbody>
+</table>
+<ol start="3">
+<li>SchedulerListener</li>
+</ol>
+<p>方法很多，省略</p>
+<p><a href="https://github.com/zzkenyon/thinking/tree/master/quartz-demo/quartz-standalone/src/main/java/com/panda/listeners" target="_blank" rel="noopener">Listener示例代码</a></p>
+<h5 id="4-3-5-JobStore"><a href="#4-3-5-JobStore" class="headerlink" title="4.3.5 JobStore"></a>4.3.5 JobStore</h5><p>Jobstore 用来存储任务和触发器相关的信息，例如所有任务的名称、数量、状态等 等。Quartz 中有两种存储任务的方式，一种在内存，一种是在数据库。</p>
+<ul>
+<li>RAMJobStore</li>
+</ul>
+<p>Quartz 默认的 JobStore 是 RAMJobstore，也就是把任务和触发器信息运行的信息 存储在内存中，用到了 HashMap、TreeSet、HashSet 等等数据结构。</p>
+<p>如果程序崩溃或重启，所有存储在内存中的数据都会丢失。所以我们需要把这些数 据持久化到磁盘。</p>
+<ul>
+<li>JDBCJobStore</li>
+</ul>
+<p>JDBCJobStore 可以通过 JDBC 接口，将任务运行数据保存在数据库中。</p>
+<p>JDBC 的实现方式有两种，JobStoreSupport 类的两个子类: </p>
+<p>JobStoreTX:在独立的程序中使用，自己管理事务，不参与外部事务。</p>
+<p>JobStoreCMT:(Container Managed Transactions (CMT)，如果需要容器管理事务时，使用它。</p>
+<p>使用 JDBCJobSotre 时，需要配置数据库信息:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">org.quartz.jobStore.class:org.quartz.impl.jdbcjobstore.JobStoreTX </span><br><span class="line">org.quartz.jobStore.driverDelegateClass:org.quartz.impl.jdbcjobstore.StdJDBCDelegate</span><br><span class="line"># 使用 quartz.properties，不使用默认配置</span><br><span class="line">org.quartz.jobStore.useProperties:true</span><br><span class="line">#数据库中 quartz 表的表名前缀</span><br><span class="line">org.quartz.jobStore.tablePrefix:QRTZ_</span><br><span class="line">org.quartz.jobStore.dataSource:myDS</span><br><span class="line"></span><br><span class="line">#配置数据源</span><br><span class="line">org.quartz.dataSource.myDS.driver:com.mysql.jdbc.Driver </span><br><span class="line">org.quartz.dataSource.myDS.URL:jdbc:mysql://localhost:3306/quartz?useUnicode=true&amp;characterEncoding=utf8 org.quartz.dataSource.myDS.user:root</span><br><span class="line">org.quartz.dataSource.myDS.password:123456</span><br><span class="line">org.quartz.dataSource.myDS.validationQuery=select 0 from dual</span><br></pre></td></tr></table></figure>
+<p>问题来了?需要建什么表?表里面有什么字段?字段类型和长度是什么? </p>
+<p>在官网的 Downloads 链接中，提供了 11 张表的建表语句: quartz-2.2.3-distribution\quartz-2.2.3\docs\dbTables</p>
+<p>2.3 的版本在这个路径下:src\org\quartz\impl\jdbcjobstore</p>
+<p>表名与作用:</p>
+<table>
+<thead>
+<tr>
+<th>表名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QRTZ_BLOB_TRIGGERS</td>
+<td>Trigger 作为 Blob 类型存储</td>
+</tr>
+<tr>
+<td>QRTZ_CALENDARS</td>
+<td>存储 Quartz 的 Calendar 信息</td>
+</tr>
+<tr>
+<td>QRTZ_CRON_TRIGGERS</td>
+<td>存储 CronTrigger，包括 Cron 表达式和时区信息</td>
+</tr>
+<tr>
+<td>QRTZ_FIRED_TRIGGERS</td>
+<td>存储与已触发的 Trigger 相关的状态信息，以及相关 Job 的执行信息</td>
+</tr>
+<tr>
+<td>QRTZ_JOB_DETAILS</td>
+<td>存储每一个已配置的 Job 的详细信息</td>
+</tr>
+<tr>
+<td>QRTZ_LOCKS</td>
+<td>存储程序的悲观锁的信息</td>
+</tr>
+<tr>
+<td>QRTZ_PAUSED_TRIGGER_GRPS</td>
+<td>存储已暂停的 Trigger 组的信息</td>
+</tr>
+<tr>
+<td>QRTZ_SCHEDULER_STATE</td>
+<td>存储少量的有关 Scheduler 的状态信息，和别的 Scheduler 实例</td>
+</tr>
+<tr>
+<td>QRTZ_SIMPLE_TRIGGERS</td>
+<td>存储 SimpleTrigger 的信息，包括重复次数、间隔、以及已触的次数</td>
+</tr>
+<tr>
+<td>QRTZ_SIMPROP_TRIGGERS</td>
+<td>存储 CalendarIntervalTrigger 和 DailyTimeIntervalTrigger 两种类型的触发器</td>
+</tr>
+<tr>
+<td>QRTZ_TRIGGERS</td>
+<td>存储已配置的 Trigger 的信息</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5、与spring集成"><a href="#5、与spring集成" class="headerlink" title="5、与spring集成"></a>5、与spring集成</h3><p>Spring-quartz 工程</p>
+<p>Spring 在 spring-context-support.jar 中直接提供了对 Quartz 的支持。</p>
+<p>使用三个FactoryBean配置核心对象</p>
+<ul>
+<li>JobDetailFactoryBean 实现的是FactoryBean<jobdetail></jobdetail></li>
+<li>FactoryBean<trigger>  对不同的Trigger实现有不同的FactoryBean</trigger></li>
+<li>SchedulerFactoryBean  实现的是FactoryBean<scheduler></scheduler></li>
+</ul>
+<p>配置方式可以选择xml方式或者java注解配置。</p>
+<h3 id="6、动态调度"><a href="#6、动态调度" class="headerlink" title="6、动态调度"></a>6、动态调度</h3><p>传统的 Spring 方式集成，由于任务信息全部配置在 xml 文件中，如果需要操作任务 或者修改任务运行频率，只能重新编译、打包、部署、重启，如果有紧急问题需要处理， 会浪费很多的时间。</p>
+<p>有没有可以动态调度任务的方法?比如停止一个 Job?启动一个 Job?修改 Job 的 触发频率?</p>
+<p>读取配置文件、写入配置文件、重启 Scheduler 或重启应用明显是不可取的。 对于这种频繁变更并且需要实时生效的配置信息，我们可以放到哪里?</p>
+<p>ZK、Redis、DB tables。</p>
+<p> 并且，可以提供一个界面，实现对数据表的轻松操作。</p>
+<h4 id="6-1-配置管理"><a href="#6-1-配置管理" class="headerlink" title="6.1 配置管理"></a>6.1 配置管理</h4><p>这里我们用最简单的数据库的实现。</p>
+<p>建一张什么样的表?参考 JobDetail 的属性。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`sys_job`</span> (</span><br><span class="line">	<span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'ID'</span>,</span><br><span class="line">	<span class="string">`job_name`</span> <span class="built_in">varchar</span>(<span class="number">512</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'任务名称'</span>,</span><br><span class="line">	<span class="string">`job_group`</span> <span class="built_in">varchar</span>(<span class="number">512</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'任务组名'</span>,</span><br><span class="line">	<span class="string">`job_cron`</span> <span class="built_in">varchar</span>(<span class="number">512</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'时间表达式'</span>, </span><br><span class="line">  <span class="string">`job_class_path`</span> <span class="built_in">varchar</span>(<span class="number">1024</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'类路径,全类型'</span>, </span><br><span class="line">  <span class="string">`job_data_map`</span> <span class="built_in">varchar</span>(<span class="number">1024</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'传递 map 参数'</span>, </span><br><span class="line">  <span class="string">`job_status`</span> <span class="built_in">int</span>(<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'状态:1 启用 0 停用'</span>, </span><br><span class="line">  <span class="string">`job_describe`</span> <span class="built_in">varchar</span>(<span class="number">1024</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'任务功能描述'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">25</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8;</span><br></pre></td></tr></table></figure>
+<h4 id="6-2-数据操作与任务调度"><a href="#6-2-数据操作与任务调度" class="headerlink" title="6.2 数据操作与任务调度"></a>6.2 数据操作与任务调度</h4><p>操作数据表非常简单，SSM 增删改查。 但是在修改了表的数据之后，怎么让调度器知道呢?</p>
+<p>调度器的接口：Scheduler 在我们的需求中，我们需要做的事情:</p>
+<p>1、 新增一个任务<br> 2、 删除一个任务<br> 3、 启动、停止一个任务<br> 4、 修改任务的信息(包括调度规律)</p>
+<p>因此可以把相关的操作封装到一个工具类中。 <a href>代码</a></p>
+<h4 id="6-3-容器启动与Service注入"><a href="#6-3-容器启动与Service注入" class="headerlink" title="6.3 容器启动与Service注入"></a>6.3 容器启动与Service注入</h4><h5 id="6-3-1-容器启动"><a href="#6-3-1-容器启动" class="headerlink" title="6.3.1 容器启动"></a>6.3.1 容器启动</h5><p>因为任务没有定义在 ApplicationContext.xml 中，而是放到了数据库中，Spring Boot 启动时，怎么读取任务信息?</p>
+<p>或者，怎么在 Spring 启动完成的时候做一些事情? </p>
+<p>创建一个类，实现 CommandLineRunner 接口，实现 run 方法。 </p>
+<p>从表中查出状态是 1 的任务，然后构建。</p>
+<h5 id="6-3-2-Service-类注入到-Job-中"><a href="#6-3-2-Service-类注入到-Job-中" class="headerlink" title="6.3.2 Service 类注入到 Job 中"></a>6.3.2 Service 类注入到 Job 中</h5><p>Spring的 Bean 如何注入到实现了 Job 接口的类中?</p>
+<p>例如在 SendMailTask 中，需要注入 ISysJobService，查询数据库发送邮件。 如果没有任何配置，注入会报空指针异常。</p>
+<p>原因:</p>
+<p>因为定时任务 Job 对象的实例化过程是在 Quartz 中进行的，而 Service Bean 是由Spring 容器管理的，Quartz 察觉不到 Service Bean 的存在，所以无法将 Service Bean 装配到 Job 对象中。</p>
+<p>分析:</p>
+<p>Quartz 集成到 Spring 中，用到 SchedulerFactoryBean，其实现了 InitializingBean 方法，在唯一的方法 afterPropertiesSet()在 Bean 的属性初始化后调用。</p>
+<p>调度器用 AdaptableJobFactory 对 Job 对象进行实例化。所以，如果我们可以把这 个 JobFactory 指定为我们自定义的工厂的话，就可以在 Job 实例化完成之后，把 Job 纳入到 Spring 容器中管理。</p>
+<p>解决这个问题的步骤:</p>
+<p>1、定义一个 AdaptableJobFactory，实现 JobFactory 接口，实现接口定义的newJob 方法，在这里面返回 Job 实例</p>
+<p>2、定义一个 MyJobFactory，继承 AdaptableJobFactory。使用 Spring 的 AutowireCapableBeanFactory，把 Job 实例注入到容器中。</p>
+<p>3、指定 Scheduler 的 JobFactory 为自定义的 JobFactory。</p>
+<h3 id="7、集群部署"><a href="#7、集群部署" class="headerlink" title="7、集群部署"></a>7、集群部署</h3><p><strong>为什么需要集群?</strong></p>
+<p>1、防止单点故障，减少对业务的影响</p>
+<p>2、减少节点的压力，例如在 10 点要触发 1000 个任务，如果有 10 个节点，则每个 节点之需要执行 100 个任务</p>
+<p><strong>集群需要解决的问题?</strong></p>
+<p>1、任务重跑，因为节点部署的内容是一样的，到 10 点的时候，每个节点都会执行 相同的操作，引起数据混乱。比如跑批，绝对不能执行多次。</p>
+<p>2、任务漏跑，假如任务是平均分配的，本来应该在某个节点上执行的任务，因为节 点故障，一直没有得到执行。</p>
+<p>3、水平集群需要注意时间同步问题</p>
+<p>4、Quartz 使用的是随机的负载均衡算法，不能指定节点执行</p>
+<p><strong>如何解决？</strong></p>
+<p>所以必须要有一种共享数据或者通信的机制。在分布式系统的不同节点中，我们可 以采用什么样的方式，实现数据共享?</p>
+<p>两两通信，或者基于分布式的服务，实现数据共享。</p>
+<p>例如:ZK、Redis、DB。</p>
+<p>在 Quartz 中，提供了一种简单的方式，基于数据库共享任务执行信息。也就是说，一个节点执行任务的时候，会操作数据库，其他的节点查询数据库，便可以感知到了。 </p>
+<p>同样的问题:建什么表?哪些字段?</p>
+<p>依旧使用quartz系统自带的 11 张表。</p>
+<p><strong>集群配置与验证</strong></p>
+<p>quartz.properties 配置</p>
+<p>四个配置:集群实例 ID、集群开关、数据库持久化、数据源信息</p>
+<p>注意先清空 quartz 所有表、改端口、两个任务频率改成一样 </p>
+<p>验证 1:先后启动 2 个节点，任务是否重跑</p>
+<p>验证 2:停掉一个节点，任务是否漏跑</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    数据库技术-liquibase使用和原理
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">netty源码分析之executionMask</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>分库分表-为什么要分库分表 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="Mycat">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="目标： 1、理解分库分表的意义 2、理解数据切分的不同方式，以及带来的问题与解决方案 1、为什么要分库分表随着业务变得越来越复杂，用户越来越多，集中式的架构性能会出现巨大的问题，比如系统会越来越慢，而且时不时会宕机，所以必须要解决高性能和可用性的问题。 不仅仅是应用，作为所有业务数据的管理者，数据库也会遇到一样的问题，而且很 多时候应用系统出现问题，就是数据库变慢了或者数据库挂掉了导致的。 1.1">
+<meta name="keywords" content="Mycat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分库分表-为什么要分库分表">
+<meta property="og:url" content="http://yoursite.com/child/2020/05/10/数据库技术-Mycat-为什么要分库分表/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="目标： 1、理解分库分表的意义 2、理解数据切分的不同方式，以及带来的问题与解决方案 1、为什么要分库分表随着业务变得越来越复杂，用户越来越多，集中式的架构性能会出现巨大的问题，比如系统会越来越慢，而且时不时会宕机，所以必须要解决高性能和可用性的问题。 不仅仅是应用，作为所有业务数据的管理者，数据库也会遇到一样的问题，而且很 多时候应用系统出现问题，就是数据库变慢了或者数据库挂掉了导致的。 1.1">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%8D%95%E5%BA%94%E7%94%A8%E5%8D%95%E5%BA%93.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%A4%9A%E5%BA%94%E7%94%A8%E5%8D%95%E5%BA%93.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%A4%9A%E5%BA%94%E7%94%A8%E5%A4%9A%E5%BA%93.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%8D%95%E5%BA%94%E7%94%A8%E5%A4%9A%E5%BA%93.png">
+<meta property="og:updated_time" content="2020-11-15T09:48:21.379Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分库分表-为什么要分库分表">
+<meta name="twitter:description" content="目标： 1、理解分库分表的意义 2、理解数据切分的不同方式，以及带来的问题与解决方案 1、为什么要分库分表随着业务变得越来越复杂，用户越来越多，集中式的架构性能会出现巨大的问题，比如系统会越来越慢，而且时不时会宕机，所以必须要解决高性能和可用性的问题。 不仅仅是应用，作为所有业务数据的管理者，数据库也会遇到一样的问题，而且很 多时候应用系统出现问题，就是数据库变慢了或者数据库挂掉了导致的。 1.1">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%8D%95%E5%BA%94%E7%94%A8%E5%8D%95%E5%BA%93.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                146
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                37
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册/">dubbo-服务发布和注册</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费/">dubbo-服务消费者启动过程</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/17/SpringCloud-注册中心nacos/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-数据库技术-Mycat-为什么要分库分表" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/数据库技术/">数据库技术</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/Mycat/">Mycat</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">
+            <time datetime="2020-05-10T02:56:23.000Z" itemprop="datePublished">2020-05-10</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            分库分表-为什么要分库分表
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>目标：</p>
+<p>1、理解分库分表的意义</p>
+<p>2、理解数据切分的不同方式，以及带来的问题与解决方案</p>
+<h3 id="1、为什么要分库分表"><a href="#1、为什么要分库分表" class="headerlink" title="1、为什么要分库分表"></a>1、为什么要分库分表</h3><p>随着业务变得越来越复杂，用户越来越多，集中式的架构性能会出现巨大的问题，比如系统会越来越慢，而且时不时会宕机，所以必须要解决高性能和可用性的问题。</p>
+<p>不仅仅是应用，作为所有业务数据的管理者，数据库也会遇到一样的问题，而且很 多时候应用系统出现问题，就是数据库变慢了或者数据库挂掉了导致的。</p>
+<h4 id="1-1-数据库瓶颈的出现"><a href="#1-1-数据库瓶颈的出现" class="headerlink" title="1.1 数据库瓶颈的出现"></a>1.1 数据库瓶颈的出现</h4><p>一般来说哦会出现哪些问题呢？比如在高并发的情况下连接数不够用；或者数据量太大，查询效率变得越来越低；或者是因为存储的问题，数据库所在的及其性能下降</p>
+<p>这些问题归根到底都是收到了硬件的限制，cpu内存磁盘网络等等。在集中式架构里面，我们怎么解决硬件带来的性能瓶颈问题呢？加配置。换cpu，升级内存，扩展磁盘，升级带宽等等</p>
+<p>这种优化方式有两个问题</p>
+<ul>
+<li>随着业务量变大容易遇到新的瓶颈</li>
+<li>收效投入比太低</li>
+</ul>
+<p>那我们思考一下，把升级硬件放在一边，如果数据库的性能出现问题了，我们可以从哪些方面进行优化呢？有没有成本更低收效更好的方式？</p>
+<h4 id="1-2-数据库优化方案对比"><a href="#1-2-数据库优化方案对比" class="headerlink" title="1.2 数据库优化方案对比"></a>1.2 数据库优化方案对比</h4><p>第一招：重启——重启是释放资源最好的方法</p>
+<h5 id="1-2-1-SQL与索引"><a href="#1-2-1-SQL与索引" class="headerlink" title="1.2.1 SQL与索引"></a>1.2.1 SQL与索引</h5><p>当SQL写的非常复杂，比如关联的表非常多，条件非常多，查询消耗的事件非常长，这样的一个SQL就要慢SQL。以为SQL语句是我们自己写的，可控性最高，所以第一步就是检查SQL。在很多情况下我们优化的目标就是为了用到索引。</p>
+<h5 id="1-2-2-表与存储引擎"><a href="#1-2-2-表与存储引擎" class="headerlink" title="1.2.2 表与存储引擎"></a>1.2.2 表与存储引擎</h5><p>如果sql语句没什么问题，那就接着检查我们查询的目标，也就是表结构的设计有没有问题。比如对于字段类型和长度的选择，或者表结构是不是需要拆分或者合并，不同的表应该选择什么存储引擎是不是需要分区等等。</p>
+<h5 id="1-2-3-架构优化"><a href="#1-2-3-架构优化" class="headerlink" title="1.2.3 架构优化"></a>1.2.3 架构优化</h5><p>表结构也没问题了，就要上升到数据库服务的层面，从架构层面进行优化。</p>
+<p>因为数据都是在磁盘上存储，如果加了索引还是很慢，干脆可以把数据在内存里面缓存起来，这个时候可以部署缓存中间件。</p>
+<p>如果一台数据库服务器承受不了访问压力，可以部署集群做负载均衡。当然这些数据库节点用该有自动同步的机制。有了主从同步之后就可以主从复制实现读写分离。让写的服务都访问master节点，请的请求都访问slaver节点。</p>
+<p>有了读写分离以后问题并没有完全解决：</p>
+<p>1、只有一个master，写的压力没有得到分摊</p>
+<p>2、所有的节点都存储相同的数据，在一个节点出现存储瓶颈的时候，磁盘不够用了，其他节点也一样会遇到这个问题。</p>
+<p>所以这个时候无哦们要用到分布式环境中一个非常重要的手段：分片，每个节点都只是存储总体数据的一部分，那这个就是我们今天要讲的分库分表。分片以后为了提升可用性，可以对分片再做冗余。</p>
+<h5 id="1-2-4-数据库配置"><a href="#1-2-4-数据库配置" class="headerlink" title="1.2.4 数据库配置"></a>1.2.4 数据库配置</h5><p>如果通过架构层面没有解决问题，或者机器虽然配置很高但是性能没有发挥到极致，还可以优化数据库的配置，比如连接数，缓冲池大小等等</p>
+<h5 id="1-2-5-操作系统"><a href="#1-2-5-操作系统" class="headerlink" title="1.2.5 操作系统"></a>1.2.5 操作系统</h5><p>当然，因为数据库时安装在操作系统上的，所以操作西永的配置也有优化空间。最后才是硬件的优化，在单机的数据库上当然可以做。</p>
+<p>我们先对数据库性能优化有了一个全局的认识，这个是非常重要的。我们清楚了分库分表在什么位置，也知道并不是数据库一慢，就要去做分库分表，可以优化的地方多的是。</p>
+<p>OK，那么问题来了，这么多的优化方案，到底什么时候才需要分库分表呢?</p>
+<p>评判标准是什么？</p>
+<ul>
+<li>如果是数据量的话，一张表存储了多少记录的时候，才需要考虑分库分表？</li>
+<li>如果是数据增长速度的话，每天产生多少数据，才需要考虑分库分表？</li>
+<li>如果是应用访问情况的话，查询超过几秒中，有多少请求无法获取连接，才需要考虑分库分表？</li>
+</ul>
+<p>先来看一下一个消费金融核心系统的架构演进过程。这个也是很多公司项目一般的演进过程。</p>
+<h4 id="1-3-架构演进与分库分表"><a href="#1-3-架构演进与分库分表" class="headerlink" title="1.3 架构演进与分库分表"></a>1.3 架构演进与分库分表</h4><p>消费金融这个名字可能听起来比较陌生，但是跟大 家的生活息息相关。它主要是分成线上和线下两部分。线下的就是跟一些门店合作，提 供贷款服务，所以大家买手机买电脑买摩托车可以分期。线上的就是一些电商的场景， 比如花呗、京东白条，都属于消费金融。</p>
+<h5 id="1-3-1-单应用单数据库"><a href="#1-3-1-单应用单数据库" class="headerlink" title="1.3.1 单应用单数据库"></a>1.3.1 单应用单数据库</h5><p>当时我们是直接采购了一套消费金融核心系统，这是一个典型的单体架构的应用。</p>
+<p>单体架构应用的特点就是所有的代码都在一个工程里面，打成一个 war 包部署到 tomcat，最后运行在一个进程中。</p>
+<p>有了这个系统以后，客户办理在门店办理贷款，也就是贷前贷中贷后的所有的流程 都可以通过这一套系统完成。这套消费金融的核心系统，用的是 Oracle 的数据库，初始 化以后有几百张表，比如客户信息表、账户表、商户表、产品表、放款表、还款表等等。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%8D%95%E5%BA%94%E7%94%A8%E5%8D%95%E5%BA%93.png" style="zoom:50%;"></p>
+<p>公司门店开到了全国几百个城市，基本上一个城市一个分公司。合作的商户有十几万家，门店数量二十几万家，客户数量到达了千万级别。</p>
+<p>为了适应业务的发展，这一套核心系统不停地在修改，代码量越来越大，系统变得 越来越臃肿。</p>
+<p>节假日做活动，订单暴增，结果系统宕机了几个小 时，导致全国的销售有几个小时都做不了单，干着急。</p>
+<p>对于 IT 部来说，该做的事情全都做了，搭集群，负载均衡，加缓存，优化数据库，优化业务代码系统，但是都应对不了系统的访问压力。</p>
+<p>所以这个时候系统拆分就势在必行了。也就是我们说的对计算进行分片。 另外一块其实也是管理上的问题，几百个人做一个项目肯定会有很多的冲突。我们把以前这一套采购的核心系统拆分出来很多的子系统，比如提单系统、商户管理系统、 信审系统、合同系统、代扣系统、催收系统，所有的系统都依旧共用一套 Oracle 数据库。</p>
+<p>这个时候我们进入了多应用单数据库的阶段。</p>
+<h5 id="1-3-2-多应用单数据库"><a href="#1-3-2-多应用单数据库" class="headerlink" title="1.3.2 多应用单数据库"></a>1.3.2 多应用单数据库</h5><p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%A4%9A%E5%BA%94%E7%94%A8%E5%8D%95%E5%BA%93.png" style="zoom:50%;"></p>
+<p>对代码进行了解耦，职责进行了拆分，我们的生产环境出现问题的时候，可以快速 地排查和解决。这是第一次改造，原来我们一个系统使用一个据库，现在多个子系统共 用一个 Oracle 的数据库。</p>
+<p>但是这种多个子系统共用一个 DB 的架构，会出现一些问题，什么问题呢?</p>
+<p>第一个就是所有的业务系统都共用一个 DB，无论是从性能还是存储的角度来说，都 是满足不了需求的。随着我们的业务继续膨胀，我们又会增加更多的系统来访问核心数 据库，但是一个物理数据库能够支撑的并发量是有限的，所有的业务系统之间还会产生 竞争，最终会导致应用的性能下降，甚至拖垮业务系统。</p>
+<h5 id="1-3-3-多应用独立数据库"><a href="#1-3-3-多应用独立数据库" class="headerlink" title="1.3.3 多应用独立数据库"></a>1.3.3 多应用独立数据库</h5><p>所以这个时候，我们必须要对各个子系统的数据库也做一个拆分。这个时候每个业 务系统都有了自己的数据库，不同的业务系统就可以用不同的存储方案。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%A4%9A%E5%BA%94%E7%94%A8%E5%A4%9A%E5%BA%93.png" style="zoom:50%;"></p>
+<p>当然在一段时间之内核心数据库并没有下线，它依然是所有的 IT 系统交换数据的一 个中心，每个系统都会把自己的数据同步到核心系统，也是从核心系统同步其他系统的数据，后面我们也在逐步脱离这个核心系统。</p>
+<p>所以，分库其实是我们在解决系统性能问题的过程中，对系统进行拆分的时候带来 的一个必然的结果。现在的微服务架构也是一样的，只拆应用不拆分数据库，不能解决根本的问题。</p>
+<p>所以，对数据库进行分库，它一般是应用的服务拆分，模块的分解，或者子系统的 划分带来一个必然的结果。</p>
+<h5 id="1-3-4-什么时候分表"><a href="#1-3-4-什么时候分表" class="headerlink" title="1.3.4 什么时候分表?"></a>1.3.4 什么时候分表?</h5><p>当我们对原来一个数据库的表做了分库以后，其中一些表的数据在快速地膨胀，比 如客户表已经超过 1000 万了，合同表也超过 5000 万了，还款历史表已经上亿了，而且还在以一个非常快的速度在增长，这个时候查询也已经出现了非常明显的效率下降。 所以，在分库之后，还需要进一步进行分表(单应用多数据库)。当然，我们最开 始想到的可能是在一个数据库里面拆分数据，分区或者分表，到后面才是切分到多个数据库中。 所以，分表主要是为了减少单张表的大小，解决单表数据量带来的性能问题。</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/mycat/%E5%8D%95%E5%BA%94%E7%94%A8%E5%A4%9A%E5%BA%93.png" style="zoom:50%;"></p>
+<p>回到我们开始的问题，大家觉得一张表的存储的数量达到多少的时候，需 要做分表?</p>
+<p>那么到底一张表数据量到达多少的时候，我们需要去做分库分表呢?200 万?300 万?500 万?</p>
+<p>大家可能在网上看过一些数据库的规范，比如阿里巴巴 Java 开发手册，它推荐的理 论分表界线是 500 万。</p>
+<blockquote>
+<p>【推荐】单表行数超过 500 万行或者单表容量超过 2GB，才推荐进行分库分表。 说明:如果预计三年后的数据量根本达不到这个级别，请不要在创建表时就分库分表。</p>
+</blockquote>
+<p>在阿里编程规约里面，它推荐的是超过 500 万才考虑分表。但是一段时间之内到不了这个数量级，不要先做分库分表。<br> 从这句话里面我们读出来两个信息: </p>
+<p>1、第一，如果可以不用分库分表，我们尽量不要分库分表。因为它会大大地提升系统的复杂度，带来很多新的问题。如果对于一个很简单的项目，一上线就分库分表，这个就叫过度设计了，也不符合项目迭代和演进的规律。</p>
+<p>2、第二，分库分表是一个长期的规划，要解决的不只是现在的问题。它不需要经常 性地去实施，但是一旦做了，在几年之内是不需要变动的。</p>
+<p>到底是不是 500 万呢?这个也不一定，还是要以业务的实际的情况为准。如果我们 创建的表结构合理，字段不是太多，并且索引创建正确的情况下，单张表存储几千万的 数据是完全没有问题的，这个还是以应用的实际情况为准。</p>
+<p>如果是真的慢了，而且其他的方案都用过了，性能还是跟不上，这个时候才考虑分 库分表。</p>
+<p>那如果要做分库分表，分库分表到底有哪些类型?</p>
+<h3 id="2-分库分表的类型和特点"><a href="#2-分库分表的类型和特点" class="headerlink" title="2. 分库分表的类型和特点"></a>2. 分库分表的类型和特点</h3><p>我们把前面的拆分方式归纳了一下，一共就两种，一种叫垂直拆分，一种叫水平拆分。</p>
+<ul>
+<li><p>垂直切分:基于表或字段划分，表结构不同。我们有单库的分表，也有多库的分库。</p>
+</li>
+<li><p>水平切分:基于数据划分，表结构相同，数据不同，也有同库的水平切分和多库的 切分。</p>
+</li>
+</ul>
+<h4 id="2-1-垂直切分"><a href="#2-1-垂直切分" class="headerlink" title="2.1 垂直切分"></a>2.1 垂直切分</h4><p>垂直分表有两种，一种单库的，一种多库的。字段太多就要拆表，表太多就要拆库</p>
+<h5 id="2-1-1-单库垂直分表"><a href="#2-1-1-单库垂直分表" class="headerlink" title="2.1.1 单库垂直分表"></a>2.1.1 单库垂直分表</h5><p>单库分表，比如:商户信息表，拆分成基本信息表，联系方式表，结算信息表，附 件表等等。</p>
+<h5 id="2-1-2-多库垂直分表"><a href="#2-1-2-多库垂直分表" class="headerlink" title="2.1.2 多库垂直分表"></a>2.1.2 多库垂直分表</h5><p>多库垂直分表就是把原来存储在一个库的不同的表，拆分到不同的数据库。</p>
+<p>比如:消费金融核心系统数据库，有很多客户相关的表，这些客户相关的表，全部 单独存放到客户的数据库里面。合同，放款，风控相关的业务表也是一样的。</p>
+<p>当我们对原来的一张表做了分库的处理，如果某些业务系统的数据还是有一个非常 快的增长速度，比如说还款数据库的还款历史表，数据量达到了几个亿，这个时候硬件 限制导致的性能问题还是会出现，所以从这个角度来说垂直切分并没有从根本上解决单 库单表数据量过大的问题。在这个时候，我们还需要对我们的数据做一个水平的切分。 这个时候，一个应用需要多个数据库。</p>
+<h4 id="2-2-水平切分"><a href="#2-2-水平切分" class="headerlink" title="2.2 水平切分"></a>2.2 水平切分</h4><p>水平切分就是按照数据的维度分布不同的表中，可以是单库的，也可以是多库的。</p>
+<h5 id="2-2-1-单库水平分表"><a href="#2-2-1-单库水平分表" class="headerlink" title="2.2.1 单库水平分表"></a>2.2.1 单库水平分表</h5><p>两个案例:</p>
+<p>银行的交易流水表，所有进出的交易都需要登记这张表，因为绝大部分时候客户都 是查询当天的交易和一个月以内的交易数据，所以我们根据使用频率把这张表拆分成三 张表:</p>
+<p>当天表 channel_transaction:只存储当天的数据。</p>
+<p>当月表 channel_transaction_month:我们在夜间运行一个定时任务，前一天 的数据，全部迁移到当月表。用的是 insert into select，然后 delete。</p>
+<p>历史表 channel_transaction_history:同样是通过定时任务，把登记时间超过 30 天的数据，迁移到 history 历史表(历史表的数据非常大，我们按照月度，每个 月建立分区)。</p>
+<p>费用明细表:</p>
+<p>消费金融公司跟线下商户合作，给客户办理了贷款以后，消费金融公司要给商户返 费用，或者叫提成，每天都会产生很多的费用的数据。为了方便管理，我们每个月建立 一张费用表，例如 fee_detail_202501……fee_detail_202512。</p>
+<p>但是注意，跟分区一样，在一个数据库分表的方式虽然可以一定程度解决单表查询 性能的问题，但是并不能解决单机存储瓶颈的问题，因为所有的表占用的是相同的磁盘 存储空间。</p>
+<h5 id="2-2-2-多库水平分表"><a href="#2-2-2-多库水平分表" class="headerlink" title="2.2.2 多库水平分表"></a>2.2.2 多库水平分表</h5><p>另一种是多库的水平分表。比如客户表，我们拆分到多个库存储，表结构是完全一 样的。</p>
+<p>一般我们说的分库分表都是跨库的分表。</p>
+<p>既然分库分表能够帮助我们解决性能的问题，那我们是不是马上动手去做，甚至在 项目设计的时候就先给它分几个库呢?先冷静一下，我们来看一下分库分表会带来哪些 问题，也就是我们前面说的分库分表之后带来的复杂性。</p>
+<h4 id="2-3-分库分表带来的问题"><a href="#2-3-分库分表带来的问题" class="headerlink" title="2.3 分库分表带来的问题"></a>2.3 分库分表带来的问题</h4><h5 id="2-3-1-跨库关联查询"><a href="#2-3-1-跨库关联查询" class="headerlink" title="2.3.1 跨库关联查询"></a>2.3.1 跨库关联查询</h5><p>比如查询在合同信息的时候要关联客户数据，由于是合同数据和客户数据是在不同的数据库，那么我们肯定不能直接使用join这种方式去做关联查询</p>
+<p>我们有几种主要的解决方案：</p>
+<ol>
+<li><p>字段冗余</p>
+</li>
+<li><p>数据同步 ： 比如商户系统要查询产品系统的产品表，我们干脆在商户系统创建一张产品表，通过 ETL、MQ 或者 canal 定时同步产品数据。</p>
+</li>
+<li><p>全局表：有一些基础信息表，比如行名行号表、行政区划表，被很多业务系统用到，如果我们放在核心系统，每个系统都要调接口去查询，这个时候我们可 以在所有的数据库都存储相同的基础数据，各个系统自己维护，保持同步。</p>
+<p>上面的思路都是通过合理的业务设计避免跨库关联查询，实际上在我们的系统中， 尽量不要用跨库关联查询。如果最后无法避免跨库关联的情况，那我们就只能用最后一 种办法。</p>
+</li>
+<li><p>系统业务层组装：在不同的数据库节点，各自利用查询条件，把符合条件数据的数据查询出来，然后在内存中重新组装，返回给客户端。</p>
+</li>
+</ol>
+<h5 id="2-3-2-分布式事务"><a href="#2-3-2-分布式事务" class="headerlink" title="2.3.2 分布式事务"></a>2.3.2 分布式事务</h5><p>比如在一个贷款的流程里面，合同系统登记了数据，放款系统也必须生成放款记录， 如果两个操作不是同时成功或者同时失败，就会出现数据一致性的问题。</p>
+<p>如果实在一个数据库里面，我们可以使用本第十五来控制，但是在不同的数据库里面就不行了。这里必须要出现一个协调者的角色，大家统一行动，而且要分成多个阶段。一般是是先确定都能成功才能保证成功，只要有一个不成功，就要全部失败。</p>
+<p>核心思想其实是在预先提交能够恒公的情况下，尽量缩短同时提交的时间差，来提升成功的概率。</p>
+<p>分布式事务，在微服务篇有文章详细介绍。</p>
+<h5 id="2-3-3-排序、翻页、函数计算问题"><a href="#2-3-3-排序、翻页、函数计算问题" class="headerlink" title="2.3.3 排序、翻页、函数计算问题"></a>2.3.3 排序、翻页、函数计算问题</h5><p>跨节点多苦进行查询时没会出现limit分页，order by排序的问题。比如有两个节点： 节点 1 存的是奇数 id=1,3,5,7,9……;节点 2 存的是偶数 id=2,4,6,8,10……</p>
+<p>如果查询语句是查出第一页的 10 条数据:<br> select * from user_info order by id limit 0,10</p>
+<p>需要在两个节点上各取出 10 条(为什么都要查 10 条?假设 10 条都在第 2 个节点上?)，然后合并数据，重新排序，节点多的话就更麻烦了。</p>
+<p>max、min、sum、count 之类的函数在进行计算的时候，也需要先在每个分片上执行相应的函数，然后将各个分片的结果集进行汇总和再次计算，最终将结果返回。</p>
+<h5 id="2-3-4-全局ID避重"><a href="#2-3-4-全局ID避重" class="headerlink" title="2.3.4 全局ID避重"></a>2.3.4 全局ID避重</h5><p>MySQL 的数据库里面字段有一个自增的属性，Oracle 也有 Sequence 序列。如果 是一个数据库，那么可以保证 ID 是不重复的，但是水平分表以后，每个表都按照自己的 规律自增，不同的表之间肯定会出现 ID 重复的问题。</p>
+<p>全局ID也有单独文章进行介绍。</p>
+<p>当然还有一个非常关键的问题。 原来你的应用系统只需要连接到一个数据库，配置一个数据源，现在要配置多个。</p>
+<p>配置就配置吧，问题就来了:<br> 我们在执行一条 SQL 语句的时候，比如插入，它应该是在哪个数据节点上面执行呢?</p>
+<p>又比如查询，1 条数据只在其中的一个节点上面，我怎么知道在哪个节点?如果是列表查询，数据分布在多个节点，是不是要在所有的数据库节点里面都查询一遍，才能拿到结 果?</p>
+<p>这个问题我们把它叫做:多数据源的问题，或者动态数据源的问题。</p>
+<p>我们可以从查询的整个流程来分析一下，哪些环节是我们可以下手的。</p>
+<h4 id="2-4-多数据源-动态数据源的解决方案"><a href="#2-4-多数据源-动态数据源的解决方案" class="headerlink" title="2.4 多数据源/动态数据源的解决方案"></a>2.4 多数据源/动态数据源的解决方案</h4><p>在 SSM 的项目里面，查询一般要经过这些流程: DAO——Mapper(ORM)——JDBC——代理——数据库服务</p>
+<h5 id="2-4-1-DAO层"><a href="#2-4-1-DAO层" class="headerlink" title="2.4.1 DAO层"></a>2.4.1 DAO层</h5><p>第一个就是在我们的客户端的代码，比如 DAO 层，在我们连接到某一个数据源之前， 我们先根据配置的分片规则，判断需要连接到哪些节点，再建立连接。</p>
+<p>Spring 中提供了一个抽象类 AbstractRoutingDataSource，可以实现数据源的动态切换。</p>
+<p><a href="https://github.com/zzkenyon/thinking/tree/master/mycat/src/main/java/com/panda/datasource" target="_blank" rel="noopener">详见代码</a></p>
+<p>在 DAO 层实现的<strong>优势</strong>:不需要依赖 ORM 框架，即使替换了 ORM 框架也不受影响。实现简单(不需要解析 SQL 和路由规则)，可以灵活地定制。</p>
+<p> 在 DAO 层实现的<strong>缺点</strong>:不能复用，不能跨语言。</p>
+<h5 id="2-4-2-ORM-框架层"><a href="#2-4-2-ORM-框架层" class="headerlink" title="2.4.2 ORM 框架层"></a>2.4.2 ORM 框架层</h5><p>第二个是在框架层，比如我们用 MyBatis 连接数据库，也可以指定数据源。我们可以基于 MyBatis 插件的拦截机制(拦截 query 和 update 方法)，实现数据源的选择。</p>
+<p>例如:</p>
+<p>Mybatis 分片:可以插件通过设置 Statement 的 Connection，或者使用不同的 SqlSessionFactory 实现。</p>
+<h5 id="2-4-3-驱动层"><a href="#2-4-3-驱动层" class="headerlink" title="2.4.3 驱动层"></a>2.4.3 驱动层</h5><p>不管是 MyBatis 还是 Hibernate，还是 Spring 的 JdbcTemplate，本质上都是对 JDBC 的封装，所以第三层就是驱动层。比如 Sharding-JDBC，就是对 JDBC 的对象进行了封 装。JDBC 里面有两个核心对象，一个是 Connection，是一个连接的封装，一个是 DataSource，是对一个数据库的封装。</p>
+<p>我们可以自己实现一个 DataSource，在项目中配置多个数据源，这样就可以随心所 欲地切换 datasource 了(Sharding-JDBC 就是这样实现的)。</p>
+<h5 id="2-4-4-代理层"><a href="#2-4-4-代理层" class="headerlink" title="2.4.4 代理层"></a>2.4.4 代理层</h5><p>前面三种都是在客户端实现的。也就是说，如果你有 10 个项目，那就要对 10 个项 目进行改造，当然这种情况下我们会把逻辑抽取出来打成 jar 包，直接依赖使用。但如果不是 Java 的项目呢?那就麻烦了，同样的逻辑还是要实现一遍。</p>
+<p>所以我们干脆把它做成一个服务，这样不同语言的项目都可以直接连接，使用这个逻辑了。它应该提供跟数据库一样的协议，减少客户端的变动，比如我原来用的 Spring、MyBatis、Druid，都不要让我去改，只要改数据库的 IP 和连接规则就行了。</p>
+<p>到了这个时候，因为提供了一个代理服务，帮我们去查数据，再把数据返回，我们就把它叫代理层。Mycat 和 Sharding-Proxy，都是属于这一层。</p>
+<h5 id="2-4-5-数据库服务"><a href="#2-4-5-数据库服务" class="headerlink" title="2.4.5 数据库服务"></a>2.4.5 数据库服务</h5><p>最后一层就是在数据库服务上实现。以非关系型数据库 Redis 为例，Redis Cluster 分片，产品多个连接以后，能够自动路由。MySQL 可以吗?不可以，那我就去改一下 MySQL 的源码，让它变成一个分布式的数据库。在数据库服务前面加一个路由层，后面 支持多个数据源。</p>
+<p>腾讯云现在主推的 TDSQL，就是这样一种实现。不过，这样的数据库在部署的时候， 多了很多的节点需要部署。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    分库分表-mycat基础
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">MyBatis-给源码加中文注释(转)</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2020 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
