@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>SpringCloud-nacos核心源码分析 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="SpringCloud">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="注册中心需要的核心功能：  服务提供者将服务信息发布到注册中心，此处涉及到服务信息的数据结构设计及存储 服务消费者能够从注册中心获取所需服务的实例信息 注册中心需要感知服务的健康状况，心跳机制 服务消费者需要动态更新依赖的服务列表信息  nacos服务信息数据结构设计与存储 1234/** * Map(namespace, Map(group::serviceName, Service)). */">
+<meta name="keywords" content="SpringCloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloud-nacos核心源码分析">
+<meta property="og:url" content="http://yoursite.com/child/2020/08/17/SpringCloud-nacos核心源码分析/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="注册中心需要的核心功能：  服务提供者将服务信息发布到注册中心，此处涉及到服务信息的数据结构设计及存储 服务消费者能够从注册中心获取所需服务的实例信息 注册中心需要感知服务的健康状况，心跳机制 服务消费者需要动态更新依赖的服务列表信息  nacos服务信息数据结构设计与存储 1234/** * Map(namespace, Map(group::serviceName, Service)). */">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-1.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-2.png">
+<meta property="og:updated_time" content="2021-01-11T06:55:00.548Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringCloud-nacos核心源码分析">
+<meta name="twitter:description" content="注册中心需要的核心功能：  服务提供者将服务信息发布到注册中心，此处涉及到服务信息的数据结构设计及存储 服务消费者能够从注册中心获取所需服务的实例信息 注册中心需要感知服务的健康状况，心跳机制 服务消费者需要动态更新依赖的服务列表信息  nacos服务信息数据结构设计与存储 1234/** * Map(namespace, Map(group::serviceName, Service)). */">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-1.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                151
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                39
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/SpringCloud-nacos注册中心使用/">SpringCloud-注册中心nacos</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/08/17/SpringCloud-nacos核心源码分析/">SpringCloud-nacos核心源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-SpringCloud-nacos核心源码分析" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/08/17/SpringCloud-nacos核心源码分析/">
+            <time datetime="2020-08-16T16:00:00.000Z" itemprop="datePublished">2020-08-17</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            SpringCloud-nacos核心源码分析
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>注册中心需要的核心功能：</p>
+<ol>
+<li>服务提供者将服务信息发布到注册中心，此处涉及到服务信息的数据结构设计及存储</li>
+<li>服务消费者能够从注册中心获取所需服务的实例信息</li>
+<li>注册中心需要感知服务的健康状况，心跳机制</li>
+<li>服务消费者需要动态更新依赖的服务列表信息</li>
+</ol>
+<p>nacos服务信息数据结构设计与存储</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Map(namespace, Map(group::serviceName, Service)).</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Map&lt;String, Service&gt;&gt; serviceMap = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<p>一个服务Service中，可以包含多个集群</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * map(clustrtName,Cluster)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> Map&lt;String, Cluster&gt; clusterMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<p>一个集群Cluster中，可以包含多个实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonIgnore</span> <span class="comment">// 持久化节点</span></span><br><span class="line"><span class="keyword">private</span> Set&lt;Instance&gt; persistentInstances = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="meta">@JsonIgnore</span>  <span class="comment">//临时节点</span></span><br><span class="line"><span class="keyword">private</span> Set&lt;Instance&gt; ephemeralInstances = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<p>一个实例Instance 中存储了该实例的所有信息。</p>
+<h3 id="1-服务提供者注册服务"><a href="#1-服务提供者注册服务" class="headerlink" title="1. 服务提供者注册服务"></a>1. 服务提供者注册服务</h3><h4 id="1-1-时机"><a href="#1-1-时机" class="headerlink" title="1.1 时机"></a>1.1 时机</h4><ul>
+<li>启动时注册，springboot启动时，会执行dubbo服务发布以及注册流程</li>
+<li>启动后注册，此时使用的是事件监听机制，在 DubboServiceRegistrationNonWebApplicationAutoConfiguration 这个类中，会监听<code>ApplicationStartedEvent</code> 事件，这个事件是spring boot在2.0新增的，就是当spring boot应用启动完成之后会发布这个事件。而此时监听到这个事件之后，会触发注册的动作。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DubboServiceRegistrationNonWebApplicationAutoConfiguration </span></span><br><span class="line"><span class="meta">@EventListener</span>(ApplicationStartedEvent.class)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationStarted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   setServerPort();</span><br><span class="line">   register();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (registered) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   serviceRegistry.register(registration);</span><br><span class="line">   registered = <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="1-2-流程"><a href="#1-2-流程" class="headerlink" title="1.2 流程"></a>1.2 流程</h4><p><strong>NacosServiceRegistry.register</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//NacosServiceRegistry</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(Registration registration)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (StringUtils.isEmpty(registration.getServiceId())) &#123;</span><br><span class="line">        log.warn(<span class="string">"No service to register for nacos client..."</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">     &#125;</span><br><span class="line">   String serviceId = registration.getServiceId(); <span class="comment">//对应当前应用的application.name</span></span><br><span class="line">   String group = nacosDiscoveryProperties.getGroup();<span class="comment">//表示nacos上的分组配置</span></span><br><span class="line">   Instance instance = getNacosInstanceFromRegistration(registration);<span class="comment">//表示服务实例信息</span></span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      namingService.registerInstance(serviceId, group, instance);</span><br><span class="line">      log.info(<span class="string">"nacos registry, &#123;&#125; &#123;&#125; &#123;&#125;:&#123;&#125; register finished"</span>, group, serviceId,</span><br><span class="line">            instance.getIp(), instance.getPort());</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      log.error(<span class="string">"nacos registry, &#123;&#125; register failed...&#123;&#125;,"</span>, serviceId,</span><br><span class="line">            registration.toString(), e);</span><br><span class="line">      <span class="comment">// rethrow a RuntimeException if the registration is failed.</span></span><br><span class="line">      <span class="comment">// issue : https://github.com/alibaba/spring-cloud-alibaba/issues/1132</span></span><br><span class="line">      rethrowRuntimeException(e);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>NamingService.registerInstance</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerInstance</span><span class="params">(String serviceName, String groupName, Instance instance)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (instance.isEphemeral()) &#123; <span class="comment">// 若是临时节点，需要构建心跳信息</span></span><br><span class="line">        BeatInfo beatInfo = <span class="keyword">new</span> BeatInfo();</span><br><span class="line">        beatInfo.setServiceName(NamingUtils.getGroupedName(serviceName, groupName));</span><br><span class="line">        beatInfo.setIp(instance.getIp());</span><br><span class="line">        beatInfo.setPort(instance.getPort());</span><br><span class="line">        beatInfo.setCluster(instance.getClusterName());</span><br><span class="line">        beatInfo.setWeight(instance.getWeight());</span><br><span class="line">        beatInfo.setMetadata(instance.getMetadata());</span><br><span class="line">        beatInfo.setScheduled(<span class="keyword">false</span>);</span><br><span class="line">        beatInfo.setPeriod(instance.getInstanceHeartBeatInterval());</span><br><span class="line">				<span class="comment">// 添加心跳信息进行处理</span></span><br><span class="line">        beatReactor.addBeatInfo(NamingUtils.getGroupedName(serviceName, groupName), beatInfo);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    serverProxy.registerService(NamingUtils.getGroupedName(serviceName, groupName), groupName, instance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>心跳是nacos客户端发送给nacos服务器的</p>
+<p>serverProxy是一个NamingProxy类实例，封装了调用nacos server的api</p>
+<p><code>BeatReactor</code> 心跳发送反应堆。</p>
+<p><strong>NamingProxy.registerService</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerService</span><span class="params">(String serviceName, String groupName, Instance instance)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Map&lt;String, String&gt; params = <span class="keyword">new</span> HashMap&lt;String, String&gt;(<span class="number">9</span>);</span><br><span class="line">    params.put(CommonParams.NAMESPACE_ID, namespaceId);</span><br><span class="line">    params.put(CommonParams.SERVICE_NAME, serviceName);</span><br><span class="line">    params.put(CommonParams.GROUP_NAME, groupName);</span><br><span class="line">    params.put(CommonParams.CLUSTER_NAME, instance.getClusterName());</span><br><span class="line">    params.put(<span class="string">"ip"</span>, instance.getIp());</span><br><span class="line">    params.put(<span class="string">"port"</span>, String.valueOf(instance.getPort()));</span><br><span class="line">    params.put(<span class="string">"weight"</span>, String.valueOf(instance.getWeight()));</span><br><span class="line">    params.put(<span class="string">"enable"</span>, String.valueOf(instance.isEnabled()));</span><br><span class="line">    params.put(<span class="string">"healthy"</span>, String.valueOf(instance.isHealthy()));</span><br><span class="line">    params.put(<span class="string">"ephemeral"</span>, String.valueOf(instance.isEphemeral()));</span><br><span class="line">    params.put(<span class="string">"metadata"</span>, JSON.toJSONString(instance.getMetadata()));</span><br><span class="line">		<span class="comment">// UtilAndComs.NACOS_URL_SERVICE  = /nacos/v1/ns/instance</span></span><br><span class="line">    reqAPI(UtilAndComs.NACOS_URL_INSTANCE, params, HttpMethod.POST);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注册时请求的open api 是/nacos/v1/ns/instance  </p>
+<p>构建的请求参数有：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-1.png" style="zoom:67%;"></p>
+<p><strong>reqAPI</strong></p>
+<p>reqAPI构建POST请求，发送给nacos-server</p>
+<p>api: nacos server open api </p>
+<p>params: 请求参数</p>
+<p>body:</p>
+<p>method: 请求方法类型 </p>
+<p>servers: nacos server地址</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NamingProxy</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">reqAPI</span><span class="params">(String api, Map&lt;String, String&gt; params, String body, List&lt;String&gt; servers, String method)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    params.put(CommonParams.NAMESPACE_ID, getNamespaceId());</span><br><span class="line">    <span class="keyword">if</span> (CollectionUtils.isEmpty(servers) &amp;&amp; StringUtils.isEmpty(nacosDomain)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NacosException(NacosException.INVALID_PARAM, <span class="string">"no server available"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    NacosException exception = <span class="keyword">new</span> NacosException();</span><br><span class="line">  	<span class="comment">// 如果nacos-server服务地址不为null，可能为列表</span></span><br><span class="line">    <span class="keyword">if</span> (servers != <span class="keyword">null</span> &amp;&amp; !servers.isEmpty()) &#123; </span><br><span class="line">        Random random = <span class="keyword">new</span> Random(System.currentTimeMillis());</span><br><span class="line">        <span class="keyword">int</span> index = random.nextInt(servers.size());<span class="comment">//随机获取一个nacos-server节点</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; servers.size(); i++) &#123;</span><br><span class="line">          	<span class="comment">// 确定了server还要用循环处理，为了防止选定的server不靠谱</span></span><br><span class="line">            String server = servers.get(index);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">              	<span class="comment">// 调用指定server的接口，一旦调用成功表示注册成功，返回</span></span><br><span class="line">                <span class="keyword">return</span> callServer(api, params, body, server, method);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (NacosException e) &#123;</span><br><span class="line">                exception = e;</span><br><span class="line">                <span class="keyword">if</span> (NAMING_LOGGER.isDebugEnabled()) &#123;</span><br><span class="line">                    NAMING_LOGGER.debug(<span class="string">"request &#123;&#125; failed."</span>, server, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            index = (index + <span class="number">1</span>) % servers.size(); <span class="comment">//调用失败则轮询调用其他server</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (StringUtils.isNotBlank(nacosDomain)) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT; i++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> callServer(api, params, body, nacosDomain, method);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (NacosException e) &#123;</span><br><span class="line">                exception = e;</span><br><span class="line">                <span class="keyword">if</span> (NAMING_LOGGER.isDebugEnabled()) &#123;</span><br><span class="line">                    NAMING_LOGGER.debug(<span class="string">"request &#123;&#125; failed."</span>, nacosDomain, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">   	<span class="comment">// 失败时 写日志。抛出异常</span></span><br><span class="line">    NAMING_LOGGER.error(<span class="string">"request: &#123;&#125; failed, servers: &#123;&#125;, code: &#123;&#125;, msg: &#123;&#125;"</span>,</span><br><span class="line">        api, servers, exception.getErrCode(), exception.getErrMsg());</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NacosException(exception.getErrCode(), <span class="string">"failed to req API:/api/"</span> + api + <span class="string">" after all servers("</span> + servers + <span class="string">") tried: "</span></span><br><span class="line">        + exception.getMessage());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>callServer</strong></p>
+<p>该方法用于发起nacos-server的api调用</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-2.png" style="zoom:67%;"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">callServer</span><span class="params">(String api, Map&lt;String, String&gt; params, String body, String curServer, String method)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">    <span class="keyword">long</span> end = <span class="number">0</span>;</span><br><span class="line">    injectSecurityInfo(params); <span class="comment">// 添加签名，防止恶意篡改或者网络丢包</span></span><br><span class="line">    List&lt;String&gt; headers = builderHeaders(); <span class="comment">// 添加头信息</span></span><br><span class="line">    String url;  <span class="comment">// 拼接url</span></span><br><span class="line">    <span class="keyword">if</span> (curServer.startsWith(UtilAndComs.HTTPS) || curServer.startsWith(UtilAndComs.HTTP)) &#123;</span><br><span class="line">        url = curServer + api;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!curServer.contains(UtilAndComs.SERVER_ADDR_IP_SPLITER)) &#123;</span><br><span class="line">            curServer = curServer + UtilAndComs.SERVER_ADDR_IP_SPLITER + serverPort;</span><br><span class="line">        &#125;</span><br><span class="line">        url = HttpClient.getPrefix() + curServer + api;</span><br><span class="line">    &#125;</span><br><span class="line">		<span class="comment">//使用HttpClient发起请求</span></span><br><span class="line">    HttpClient.HttpResult result = HttpClient.request(url, headers, params, body, UtilAndComs.ENCODING, method);</span><br><span class="line">    end = System.currentTimeMillis();</span><br><span class="line">    MetricsMonitor.getNamingRequestMonitor(method, url, String.valueOf(result.code))</span><br><span class="line">        .observe(end - start); <span class="comment">// 埋点监控</span></span><br><span class="line">    <span class="keyword">if</span> (HttpURLConnection.HTTP_OK == result.code) &#123; <span class="comment">// 成功 返回服务端结果</span></span><br><span class="line">        <span class="keyword">return</span> result.content;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (HttpURLConnection.HTTP_NOT_MODIFIED == result.code) &#123;</span><br><span class="line">        <span class="keyword">return</span> StringUtils.EMPTY;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NacosException(result.code, result.content);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-nacos-处理注册请求"><a href="#2-nacos-处理注册请求" class="headerlink" title="2. nacos 处理注册请求"></a>2. nacos 处理注册请求</h3><p>处理注册请求的controller在naming子模块中，InstanceController类中的register方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CanDistro</span></span><br><span class="line"><span class="meta">@PostMapping</span></span><br><span class="line"><span class="meta">@Secured</span>(parser = NamingResourceParser.class, action = ActionTypes.WRITE)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">register</span><span class="params">(HttpServletRequest request)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> String namespaceId = WebUtils</span><br><span class="line">            .optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);</span><br><span class="line">    <span class="keyword">final</span> String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);</span><br><span class="line">    NamingUtils.checkServiceNameFormat(serviceName);</span><br><span class="line">    <span class="keyword">final</span> Instance instance = parseInstance(request); <span class="comment">// 从请求中解析出Instance</span></span><br><span class="line">    serviceManager.registerInstance(namespaceId, serviceName, instance); <span class="comment">// 写内存</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>ServiceManager.registerInstance</strong></p>
+<p>serviceManager中有一map，就是文章开头介绍的用于存储服务实例信息的地方，这个map的名字是<code>serviceMap</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerInstance</span><span class="params">(String namespaceId, String serviceName, Instance instance)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    <span class="comment">//serviceMap中如果没有该服务，则创建一个空的服务放进去</span></span><br><span class="line">    createEmptyService(namespaceId, serviceName, instance.isEphemeral());</span><br><span class="line">    <span class="comment">//从serviceMap中，根据namespaceId和serviceName得到一个服务对象</span></span><br><span class="line">    Service service = getService(namespaceId, serviceName);</span><br><span class="line">    <span class="keyword">if</span> (service == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NacosException(NacosException.INVALID_PARAM,</span><br><span class="line">                <span class="string">"service not found, namespace: "</span> + namespaceId + <span class="string">", service: "</span> + serviceName);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    addInstance(namespaceId, serviceName, instance.isEphemeral(), instance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>createServiceIfAbsent</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createServiceIfAbsent</span><span class="params">(String namespaceId, String serviceName, <span class="keyword">boolean</span> local, Cluster cluster)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">   	<span class="comment">//从serviceMap中获取namespaceId, serviceName指定的服务</span></span><br><span class="line">    Service service = getService(namespaceId, serviceName);</span><br><span class="line">    <span class="keyword">if</span> (service == <span class="keyword">null</span>) &#123; <span class="comment">// 没有的话就创建一个</span></span><br><span class="line">        Loggers.SRV_LOG.info(<span class="string">"creating empty service &#123;&#125;:&#123;&#125;"</span>, namespaceId, serviceName);</span><br><span class="line">        service = <span class="keyword">new</span> Service();</span><br><span class="line">        service.setName(serviceName);</span><br><span class="line">        service.setNamespaceId(namespaceId);</span><br><span class="line">        service.setGroupName(NamingUtils.getGroupName(serviceName));</span><br><span class="line">        <span class="comment">// now validate the service. if failed, exception will be thrown</span></span><br><span class="line">        service.setLastModifiedMillis(System.currentTimeMillis());</span><br><span class="line">        service.recalculateChecksum();</span><br><span class="line">        <span class="keyword">if</span> (cluster != <span class="keyword">null</span>) &#123;</span><br><span class="line">            cluster.setService(service);</span><br><span class="line">            service.getClusterMap().put(cluster.getName(), cluster);</span><br><span class="line">        &#125;</span><br><span class="line">        service.validate();</span><br><span class="line">        <span class="comment">// &gt;&gt;</span></span><br><span class="line">        putServiceAndInit(service);</span><br><span class="line">        <span class="keyword">if</span> (!local) &#123;</span><br><span class="line">            addOrReplaceService(service);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>putServiceAndInit</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">putServiceAndInit</span><span class="params">(Service service)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    putService(service); <span class="comment">// 把服务信息保存到serviceMap集合</span></span><br><span class="line">    service.init(); <span class="comment">// 建立心跳检测机制</span></span><br><span class="line">  	<span class="comment">// 实现数据一致性监听，ephemeral=true表示采用raft协议，false表示采用Distro</span></span><br><span class="line">    consistencyService </span><br><span class="line">            .listen(KeyBuilder.buildInstanceListKey(service.getNamespaceId(), service.getName(), <span class="keyword">true</span>), service);</span><br><span class="line">    consistencyService</span><br><span class="line">            .listen(KeyBuilder.buildInstanceListKey(service.getNamespaceId(), service.getName(), <span class="keyword">false</span>), service);</span><br><span class="line">    Loggers.SRV_LOG.info(<span class="string">"[NEW-SERVICE] &#123;&#125;"</span>, service.toJson());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里比较感兴趣的点就是心跳检测，将在进阶篇与客户端的心跳发送一起分析</p>
+<p><strong>addInstance</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addInstance</span><span class="params">(String namespaceId, String serviceName, <span class="keyword">boolean</span> ephemeral, Instance... ips)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    </span><br><span class="line">    String key = KeyBuilder.buildInstanceListKey(namespaceId, serviceName, ephemeral);</span><br><span class="line">    Service service = getService(namespaceId, serviceName);</span><br><span class="line">    <span class="keyword">synchronized</span> (service) &#123;</span><br><span class="line">        List&lt;Instance&gt; instanceList = addIpAddresses(service, ephemeral, ips);</span><br><span class="line">        Instances instances = <span class="keyword">new</span> Instances();</span><br><span class="line">        instances.setInstanceList(instanceList);</span><br><span class="line">        <span class="comment">// nacos数据一致性put</span></span><br><span class="line">        consistencyService.put(key, instances);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果nacos-server是集群部署的话，服务注册的实例信息要同步到所有的nacos-server上，所以这里使用consistencyService来完成一致性需求，这里将在进阶篇分析</p>
+<h3 id="3-服务消费者拉取服务列表"><a href="#3-服务消费者拉取服务列表" class="headerlink" title="3. 服务消费者拉取服务列表"></a>3. 服务消费者拉取服务列表</h3><p>服务注册成功之后，消费者就可以从nacos-server中获取到服务提供者的地址，然后进行服务的调用。</p>
+<p>在服务消费中，有一个核心的类 NacosDiscoveryClient 来负责和nacos交互，去获得服务提供者的地 址信息。之前在分析dubbo源码的时候已经分析过服务的订阅过程。</p>
+<p>NacosDiscoveryClient 中提供了一个 getInstances 方法用来根据服务提供者名称获取服务提供者的 url地址的方法。</p>
+<h4 id="3-1-时机"><a href="#3-1-时机" class="headerlink" title="3.1 时机"></a>3.1 时机</h4><p>应用启动之时，会执行根据配置的依赖服务名称，进行远程服务代理创建并注入Ioc的流程。在创建代理对象时，会执行服务列表拉取的逻辑。详见《dubbo-服务消费过程分析》</p>
+<h4 id="3-2-流程"><a href="#3-2-流程" class="headerlink" title="3.2 流程"></a>3.2 流程</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;ServiceInstance&gt; <span class="title">getInstances</span><span class="params">(String serviceId)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> serviceDiscovery.getInstances(serviceId);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(</span><br><span class="line">            <span class="string">"Can not get hosts from nacos server. serviceId: "</span> + serviceId, e);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;ServiceInstance&gt; <span class="title">getInstances</span><span class="params">(String serviceId)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">		String group = discoveryProperties.getGroup();</span><br><span class="line">		List&lt;Instance&gt; instances = discoveryProperties.namingServiceInstance()</span><br><span class="line">				.selectInstances(serviceId, group, <span class="keyword">true</span>);</span><br><span class="line">		<span class="keyword">return</span> hostToServiceInstanceList(instances, serviceId);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>调用NamingService，根据serviceId、group获得服务实例列表。 然后把instance转化为ServiceInstance对象</p>
+<p><strong>NacosNamingService.selectInstances</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Instance&gt; <span class="title">selectInstances</span><span class="params">(String serviceName, String groupName, List&lt;String&gt; clusters, <span class="keyword">boolean</span> healthy, <span class="keyword">boolean</span> subscribe)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line"></span><br><span class="line">    ServiceInfo serviceInfo;</span><br><span class="line">    <span class="keyword">if</span> (subscribe) &#123;</span><br><span class="line">        serviceInfo = hostReactor.getServiceInfo(NamingUtils.getGroupedName(serviceName, groupName), StringUtils.join(clusters, <span class="string">","</span>));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        serviceInfo = hostReactor.getServiceInfoDirectlyFromServer(NamingUtils.getGroupedName(serviceName, groupName), StringUtils.join(clusters, <span class="string">","</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> selectInstances(serviceInfo, healthy);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>selectInstances首先从hostReactor获取serviceInfo，</p>
+<p>然后再从serviceInfo.getHosts()剔除非healty、 非enabled、weight小于等于0的instance再返回;</p>
+<p>如果subscribe为true，则执行 hostReactor.getServiceInfo获取serviceInfo</p>
+<p>否则执行 hostReactor.getServiceInfoDirectlyFromServer获取serviceInfo</p>
+<p><strong>HostReactor.getServiceInfo</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ServiceInfo <span class="title">getServiceInfo</span><span class="params">(<span class="keyword">final</span> String serviceName, <span class="keyword">final</span> String clusters)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    NAMING_LOGGER.debug(<span class="string">"failover-mode: "</span> + failoverReactor.isFailoverSwitch());</span><br><span class="line">    String key = ServiceInfo.getKey(serviceName, clusters);</span><br><span class="line">    <span class="keyword">if</span> (failoverReactor.isFailoverSwitch()) &#123;</span><br><span class="line">        <span class="keyword">return</span> failoverReactor.getService(key);</span><br><span class="line">    &#125;</span><br><span class="line">		<span class="comment">//从本地缓存中取</span></span><br><span class="line">    ServiceInfo serviceObj = getServiceInfo0(serviceName, clusters);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == serviceObj) &#123;<span class="comment">// 本地没有，两步走</span></span><br><span class="line">        <span class="comment">// 1、创建一个空的ServiceInfo放入缓存</span></span><br><span class="line">        serviceObj = <span class="keyword">new</span> ServiceInfo(serviceName, clusters);</span><br><span class="line">        serviceInfoMap.put(serviceObj.getKey(), serviceObj);</span><br><span class="line">				<span class="comment">// 2、将远程服务信息更新到ServiceInfo中，updatingMap看来只是其到标记作用的</span></span><br><span class="line">        updatingMap.put(serviceName, <span class="keyword">new</span> Object());</span><br><span class="line">      	<span class="comment">// &gt;&gt; 关键点</span></span><br><span class="line">        updateServiceNow(serviceName, clusters); </span><br><span class="line">        updatingMap.remove(serviceName); <span class="comment">//更新完毕删除标记</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (updatingMap.containsKey(serviceName)) &#123;</span><br><span class="line">        ... <span class="comment">// 若有其他线程已经创建了标记说明其他线程正在更新，同步等待</span></span><br><span class="line">    &#125;</span><br><span class="line">		<span class="comment">// 开启定时更新任务</span></span><br><span class="line">    scheduleUpdateIfAbsent(serviceName, clusters);</span><br><span class="line">    <span class="keyword">return</span> serviceInfoMap.get(serviceObj.getKey());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>updateServiceNow(serviceName, clusters)</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateServiceNow</span><span class="params">(String serviceName, String clusters)</span> </span>&#123;</span><br><span class="line">  	<span class="comment">// 获取旧的服务信息，应用启动阶段为null</span></span><br><span class="line">    ServiceInfo oldService = getServiceInfo0(serviceName, clusters);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 拉取nacos-server上的实例信息，该方法传入的参数 pushReceiver.getUDPPort() 有讲究</span></span><br><span class="line">        String result = serverProxy.queryList(serviceName, clusters, pushReceiver.getUDPPort(), <span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotEmpty(result)) &#123;</span><br><span class="line">            processServiceJSON(result); <span class="comment">//&gt;&gt; 处理返回的结果</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      	...</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>processServiceJSON</strong></p>
+<p>很长的方法，大致逻辑就是，获取新信息，如果存在老信息，则进行比较，分别记录修改的，新增的，删除的实例信息，记录日志，并发出服务修改事件；若旧信息不存在，将新信息 添加到本地缓存并发出服务修改事件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ServiceInfo <span class="title">processServiceJSON</span><span class="params">(String json)</span> </span>&#123;</span><br><span class="line">    ServiceInfo serviceInfo = JSON.parseObject(json, ServiceInfo.class);<span class="comment">//解析json</span></span><br><span class="line">    ServiceInfo oldService = serviceInfoMap.get(serviceInfo.getKey());<span class="comment">//本地缓存获取旧服务</span></span><br><span class="line">    <span class="keyword">if</span> (serviceInfo.getHosts() == <span class="keyword">null</span> || !serviceInfo.validate()) &#123;</span><br><span class="line">        <span class="comment">//若nacos-server返回的信息为null或不合法，返回老信息</span></span><br><span class="line">        <span class="keyword">return</span> oldService;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> changed = <span class="keyword">false</span>;</span><br><span class="line">  	<span class="comment">// 旧信息不为null，更新阶段</span></span><br><span class="line">    <span class="keyword">if</span> (oldService != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (oldService.getLastRefTime() &gt; serviceInfo.getLastRefTime()) &#123;<span class="comment">//旧信息时间不能晚于新信息</span></span><br><span class="line">            NAMING_LOGGER.warn(<span class="string">"out of date data received, old-t: "</span> + oldService.getLastRefTime()</span><br><span class="line">                + <span class="string">", new-t: "</span> + serviceInfo.getLastRefTime());</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// 新信息入缓存</span></span><br><span class="line">        serviceInfoMap.put(serviceInfo.getKey(), serviceInfo);</span><br><span class="line">				<span class="comment">// 获取旧信息中所有的实例对象</span></span><br><span class="line">        Map&lt;String, Instance&gt; oldHostMap = <span class="keyword">new</span> HashMap&lt;String, Instance&gt;(oldService.getHosts().size());</span><br><span class="line">        <span class="keyword">for</span> (Instance host : oldService.getHosts()) &#123;</span><br><span class="line">            oldHostMap.put(host.toInetAddr(), host);</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// 获取信息中所有的实例对象</span></span><br><span class="line">        Map&lt;String, Instance&gt; newHostMap = <span class="keyword">new</span> HashMap&lt;String, Instance&gt;(serviceInfo.getHosts().size());</span><br><span class="line">        <span class="keyword">for</span> (Instance host : serviceInfo.getHosts()) &#123;</span><br><span class="line">            newHostMap.put(host.toInetAddr(), host);</span><br><span class="line">        &#125;</span><br><span class="line">				</span><br><span class="line">        Set&lt;Instance&gt; modHosts = <span class="keyword">new</span> HashSet&lt;Instance&gt;();</span><br><span class="line">        Set&lt;Instance&gt; newHosts = <span class="keyword">new</span> HashSet&lt;Instance&gt;();</span><br><span class="line">        Set&lt;Instance&gt; remvHosts = <span class="keyword">new</span> HashSet&lt;Instance&gt;();</span><br><span class="line"></span><br><span class="line">        List&lt;Map.Entry&lt;String, Instance&gt;&gt; newServiceHosts = <span class="keyword">new</span> ArrayList&lt;Map.Entry&lt;String, Instance&gt;&gt;(</span><br><span class="line">            newHostMap.entrySet());</span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;String, Instance&gt; entry : newServiceHosts) &#123;</span><br><span class="line">            Instance host = entry.getValue();</span><br><span class="line">            String key = entry.getKey();</span><br><span class="line">            <span class="keyword">if</span> (oldHostMap.containsKey(key) &amp;&amp; !StringUtils.equals(host.toString(),</span><br><span class="line">                oldHostMap.get(key).toString())) &#123;</span><br><span class="line">                modHosts.add(host); <span class="comment">// 记录前后不一致的实例</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!oldHostMap.containsKey(key)) &#123;</span><br><span class="line">                newHosts.add(host); <span class="comment">// 记录新增实例</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;String, Instance&gt; entry : oldHostMap.entrySet()) &#123;</span><br><span class="line">            Instance host = entry.getValue();</span><br><span class="line">            String key = entry.getKey();</span><br><span class="line">            <span class="keyword">if</span> (newHostMap.containsKey(key)) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!newHostMap.containsKey(key)) &#123;</span><br><span class="line">                remvHosts.add(host); <span class="comment">// 记录删除实例</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (newHosts.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            changed = <span class="keyword">true</span>;</span><br><span class="line">            NAMING_LOGGER.info(<span class="string">"new ips("</span> + newHosts.size() + <span class="string">") service: "</span></span><br><span class="line">                + serviceInfo.getKey() + <span class="string">" -&gt; "</span> + JSON.toJSONString(newHosts));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (remvHosts.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            changed = <span class="keyword">true</span>;</span><br><span class="line">            NAMING_LOGGER.info(<span class="string">"removed ips("</span> + remvHosts.size() + <span class="string">") service: "</span></span><br><span class="line">                + serviceInfo.getKey() + <span class="string">" -&gt; "</span> + JSON.toJSONString(remvHosts));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (modHosts.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            changed = <span class="keyword">true</span>;</span><br><span class="line">            NAMING_LOGGER.info(<span class="string">"modified ips("</span> + modHosts.size() + <span class="string">") service: "</span></span><br><span class="line">                + serviceInfo.getKey() + <span class="string">" -&gt; "</span> + JSON.toJSONString(modHosts));</span><br><span class="line">        &#125;</span><br><span class="line">        serviceInfo.setJsonFromServer(json);</span><br><span class="line">        <span class="keyword">if</span> (newHosts.size() &gt; <span class="number">0</span> || remvHosts.size() &gt; <span class="number">0</span> || modHosts.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            eventDispatcher.serviceChanged(serviceInfo);</span><br><span class="line">            DiskCache.write(serviceInfo, cacheDir);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 旧信息为null</span></span><br><span class="line">        changed = <span class="keyword">true</span>;</span><br><span class="line">        ...<span class="comment">//log</span></span><br><span class="line">        serviceInfoMap.put(serviceInfo.getKey(), serviceInfo); <span class="comment">// 新信息添加到缓存</span></span><br><span class="line">        eventDispatcher.serviceChanged(serviceInfo); <span class="comment">// 发布服务changed事件</span></span><br><span class="line">        serviceInfo.setJsonFromServer(json); </span><br><span class="line">        DiskCache.write(serviceInfo, cacheDir); <span class="comment">// 磁盘缓存</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    MetricsMonitor.getServiceInfoMapSizeMonitor().set(serviceInfoMap.size());</span><br><span class="line">    <span class="keyword">if</span> (changed) &#123;</span><br><span class="line">        NAMING_LOGGER.info(<span class="string">"current ips:("</span> + serviceInfo.ipCount() + <span class="string">") service: "</span> + serviceInfo.getKey() +</span><br><span class="line">            <span class="string">" -&gt; "</span> + JSON.toJSONString(serviceInfo.getHosts()));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> serviceInfo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结：到此为止，服务信息已经拿到了，并存放在HostReactor的本地缓存中，但存在这里没用啊，应用要使用这些信息，还需要将其进行一些列处理后注入到spring容器中，所以这里需要发送一个事件通知spring，此处的数据已经进行了修改。</p>
+<p>接下来我们看看事件是怎发出和处理的，非常巧妙</p>
+<p>EventDispatcher.serviceChanged(serviceInfo)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serviceChanged</span><span class="params">(ServiceInfo serviceInfo)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (serviceInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">		<span class="comment">// 仅仅只是将服务信息添加到了一个List中</span></span><br><span class="line">    changedServices.add(serviceInfo);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>changedServices</code>是一个<code>LinkedBlockingQueue</code>阻塞对列，EventDispatcher在构造的时候啊，启动了一个线程来处理这个阻塞队列中的元素</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Notifier</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            ServiceInfo serviceInfo = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">               <span class="comment">// 取出元素</span></span><br><span class="line">                serviceInfo = changedServices.poll(<span class="number">5</span>, TimeUnit.MINUTES);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception ignore) &#123;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (serviceInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">              	<span class="comment">// 从observerMap中取出监听器，并执行</span></span><br><span class="line">                List&lt;EventListener&gt; listeners = observerMap.get(serviceInfo.getKey());</span><br><span class="line">                <span class="keyword">if</span> (!CollectionUtils.isEmpty(listeners)) &#123;</span><br><span class="line">                    <span class="keyword">for</span> (EventListener listener : listeners) &#123;</span><br><span class="line">                        List&lt;Instance&gt; hosts = Collections.unmodifiableList(serviceInfo.getHosts());</span><br><span class="line">                        listener.onEvent(<span class="keyword">new</span> NamingEvent(serviceInfo.getName(), serviceInfo.getGroupName(), serviceInfo.getClusters(), hosts));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                NAMING_LOGGER.error(<span class="string">"[NA] notify error for service: "</span></span><br><span class="line">                    + serviceInfo.getName() + <span class="string">", clusters: "</span> + serviceInfo.getClusters(), e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>observerMap</code>中的监听器是什么时候加进去的呢？</p>
+<p>在<code>DubboServiceDiscoveryAutoConfiguration.NacosConfiguration</code>中注册了一个事件监听，监听<code>SubscribedServicesChangedEvent</code>事件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EventListener</span>(SubscribedServicesChangedEvent.class)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubscribedServicesChangedEvent</span><span class="params">(SubscribedServicesChangedEvent event)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   <span class="comment">// subscribe EventListener for each service</span></span><br><span class="line">   event.getNewSubscribedServices().forEach(<span class="keyword">this</span>::subscribeEventListener);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当接受到事件时，会执行<code>subscribeEventListener</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">subscribeEventListener</span><span class="params">(String serviceName)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (listeningServices.add(serviceName)) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">         String group = nacosDiscoveryProperties.getGroup();</span><br><span class="line">         namingService.subscribe(serviceName, group, event -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (event <span class="keyword">instanceof</span> NamingEvent) &#123;</span><br><span class="line">               NamingEvent namingEvent = (NamingEvent) event;</span><br><span class="line">               List&lt;ServiceInstance&gt; serviceInstances = hostToServiceInstanceList(</span><br><span class="line">                     namingEvent.getInstances(), serviceName);</span><br><span class="line">               <span class="comment">// 将Changed事件转发给spring-boot</span></span><br><span class="line">               dispatchServiceInstancesChangedEvent(serviceName,serviceInstances); </span><br><span class="line">            &#125;</span><br><span class="line">         &#125;);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">catch</span> (NacosException e) &#123;</span><br><span class="line">         ReflectionUtils.rethrowRuntimeException(e);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看subscribe方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span><span class="comment">//NacosNamingService</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(String serviceName, String groupName, List&lt;String&gt; clusters, EventListener listener)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    eventDispatcher.addListener(hostReactor.getServiceInfo(NamingUtils.getGroupedName(serviceName, groupName),</span><br><span class="line">        StringUtils.join(clusters, <span class="string">","</span>)), StringUtils.join(clusters, <span class="string">","</span>), listener);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>subscribe做了两件事：</p>
+<ol>
+<li><p>主要的工作是将hostReactor中的服务实例信息取出来</p>
+</li>
+<li><p>兼职是向<code>eventDispatcher</code>添加了一个Listener，该Listener是通过lamda表达式定义的，见上上段代码。</p>
+<p>这个Listener监听NamingEvent类型的事件。</p>
+</li>
+</ol>
+<p>那我们再回到<code>EventDispatcher</code>的监听逻辑中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Notifier</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            ServiceInfo serviceInfo = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">               <span class="comment">// 取出元素</span></span><br><span class="line">                serviceInfo = changedServices.poll(<span class="number">5</span>, TimeUnit.MINUTES);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception ignore) &#123;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (serviceInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">              	<span class="comment">// 从observerMap中取出监听器，并执行</span></span><br><span class="line">                List&lt;EventListener&gt; listeners = observerMap.get(serviceInfo.getKey());</span><br><span class="line">                <span class="keyword">if</span> (!CollectionUtils.isEmpty(listeners)) &#123;</span><br><span class="line">                    <span class="keyword">for</span> (EventListener listener : listeners) &#123;</span><br><span class="line">                        List&lt;Instance&gt; hosts = Collections.unmodifiableList(serviceInfo.getHosts());</span><br><span class="line">                        <span class="comment">// 向监听器发出NamingEvent</span></span><br><span class="line">                        listener.onEvent(<span class="keyword">new</span> NamingEvent(serviceInfo.getName(), serviceInfo.getGroupName(), serviceInfo.getClusters(), hosts));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                NAMING_LOGGER.error(<span class="string">"[NA] notify error for service: "</span></span><br><span class="line">                    + serviceInfo.getName() + <span class="string">", clusters: "</span> + serviceInfo.getClusters(), e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，<code>EventDispatcher</code>向监听器发出的正是<code>NamingEvent</code></p>
+<p>这个<code>NamingEvent</code>被接收后，响应逻辑会创建出一个<code>SubscribedServicesChangedEvent</code>发出：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchServiceInstancesChangedEvent</span><span class="params">(String serviceName,</span></span></span><br><span class="line"><span class="function"><span class="params">      Collection&lt;ServiceInstance&gt; serviceInstances)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (!hasText(serviceName) || serviceInstances == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 创建事件并发布</span></span><br><span class="line">   ServiceInstancesChangedEvent event = <span class="keyword">new</span> ServiceInstancesChangedEvent(serviceName,</span><br><span class="line">         serviceInstances);</span><br><span class="line">   。。。</span><br><span class="line">   applicationEventPublisher.publishEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后被Spring-boot接收到处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EventListener</span>(SubscribedServicesChangedEvent.class)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubscribedServicesChangedEvent</span><span class="params">(SubscribedServicesChangedEvent event)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   <span class="comment">// subscribe EventListener for each service</span></span><br><span class="line">   event.getNewSubscribedServices().forEach(<span class="keyword">this</span>::subscribeEventListener);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的事件发送监听形成了一个闭环。</p>
+<p><strong>scheduleUpdateIfAbsent</strong></p>
+<p>添加一个定时任务，更新服务信息</p>
+<h3 id="4-核心对象"><a href="#4-核心对象" class="headerlink" title="4. 核心对象"></a>4. 核心对象</h3><h4 id="NacosNamingService"><a href="#NacosNamingService" class="headerlink" title="NacosNamingService"></a>NacosNamingService</h4><p>NacosNamingService是NamingService接口的实现类。实现了上面提到的那些方法。<br>此外，NacosNamingService还起到了初始化其他核心类的作用，因为对外提供的方法都是委托给其他核心类处理的。按顺序将依次初始化EventDispatcher、NamingProxy、BeatReactor、HostReactor。<br>从NacosNamingService的构造函数我们也可以了解到，可以进行一些参数的自定义，总结如下（部分概念的含义可参考<a href="https://nacos.io/zh-cn/docs/concepts.html" target="_blank" rel="noopener">官方文档</a>）：</p>
+<h4 id="EventDispatcher"><a href="#EventDispatcher" class="headerlink" title="EventDispatcher"></a>EventDispatcher</h4><p>EventDispatcher与其他事件分发的组件没什么不同，用于处理subscribe、unsubscribe等等与服务监听相关的方法，并分发NamingEvent到各Listener。<br>成员变量ConcurrentMap&lt;String, List<eventlistener>&gt; observerMap保存了注册的Listener，key为{服务名}@@{集群名}，value为各个EventListener的列表。<br>EventDispatcher会启动<strong>1</strong>个名为com.alibaba.nacos.naming.client.listener的线程用于处理事件的分发。</eventlistener></p>
+<blockquote>
+<p>注意点：</p>
+<ul>
+<li>分发NamingEvent时，按照subscribe(…)方法的调用顺序串行依次调用EventListener的onEvent(…)方法。</li>
+<li>调用subscribe(…)方法会引起对应Service的事件分发。</li>
+</ul>
+</blockquote>
+<h4 id="NamingProxy"><a href="#NamingProxy" class="headerlink" title="NamingProxy"></a>NamingProxy</h4><p>NamingProxy用于与Nacos服务端通信，注册服务、注销服务、发送心跳等都经由NamingProxy来请求服务端。<br>NamingProxy会启动<strong>1</strong>个名为com.alibaba.nacos.client.naming.serverlist.updater的线程，用于定期调用refreshSrvIfNeed()方法更新Nacos服务端地址，默认间隔为<strong>30秒</strong>，<br>对服务端API的调用将在后文总结。</p>
+<blockquote>
+<p>注意点：refreshSrvIfNeed()方法对Nacos服务端地址的更新仅在使用endpoint的时候才会进行实际更新，如果是通过serverAddr配置的Nacos服务端地址，refreshSrvIfNeed()方法将不会进行任何操作。</p>
+</blockquote>
+<h4 id="BeatReactor"><a href="#BeatReactor" class="headerlink" title="BeatReactor"></a>BeatReactor</h4><p>BeatReactor用于向Nacos服务端发送已注册服务的心跳。<br>成员变量Map&lt;String, BeatInfo&gt; dom2Beat中保存了需要发送的BeatInfo，key为{serviceName}#{ip}#{port}，value为对应的BeatInfo。<br>BeatReactor会启动名为com.alibaba.nacos.naming.beat.sender的线程来发送心跳，默认线程数为1~CPU核心数的一半，可由namingClientBeatThreadCount参数指定。<br>默认情况下每<strong>5秒</strong>发送一次心跳，可根据Nacos服务端返回的clientBeatInterval的值调整心跳间隔。</p>
+<p>心跳请求的是nacos-server的注册接口，这也就是意味着，每隔5秒，服务都会重新注册一次。</p>
+<h4 id="HostReactor"><a href="#HostReactor" class="headerlink" title="HostReactor"></a>HostReactor</h4><p>HostReactor用于获取、保存、更新各Service实例信息。<br>成员变量Map&lt;String, ServiceInfo&gt; serviceInfoMap中保存了已获取到的服务的信息，key为{服务名}@@{集群名}。<br>HostReactor会启动名为com.alibaba.nacos.client.naming.updater的线程来更新服务信息，默认线程数为1~CPU核心数的一半，可由namingPollingThreadCount参数指定。定时任务UpdateTask会根据服务的cacheMillis值定时更新服务信息，默认值为<strong>10秒</strong>。该定时任务会在获取某一服务信息时创建，保存在成员变量Map&lt;String, ScheduledFuture&lt;?&gt;&gt; futureMap中。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    netty源码分析之executionMask
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/08/10/SpringCloud-nacos注册中心使用/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">SpringCloud-注册中心nacos</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2021 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

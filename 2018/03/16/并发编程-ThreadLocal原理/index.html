@@ -6,21 +6,21 @@
     <title>并发编程-ThreadLocal原理 | 黑风雅过吟</title>
     
     
-        <meta name="keywords" content="JDK">
+        <meta name="keywords" content="并发编程">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。 1. 我是什么 是让线程拥有独占的变量 它通过set、get方法进行设值和取值操作 它可以覆盖initialValue方法设">
-<meta name="keywords" content="JDK">
+    <meta name="description" content="ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。 1. 是什么 是让线程拥有独占的变量 它通过set、get方法进行设值和取值操作 它可以覆盖initialValue方法设置">
+<meta name="keywords" content="并发编程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="并发编程-ThreadLocal原理">
-<meta property="og:url" content="http://yoursite.com/child/2018/05/03/并发编程-ThreadLocal原理/index.html">
+<meta property="og:url" content="http://yoursite.com/child/2018/03/16/并发编程-ThreadLocal原理/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
-<meta property="og:description" content="ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。 1. 我是什么 是让线程拥有独占的变量 它通过set、get方法进行设值和取值操作 它可以覆盖initialValue方法设">
+<meta property="og:description" content="ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。 1. 是什么 是让线程拥有独占的变量 它通过set、get方法进行设值和取值操作 它可以覆盖initialValue方法设置">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-08T08:03:07.387Z">
+<meta property="og:updated_time" content="2021-01-11T08:45:08.260Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发编程-ThreadLocal原理">
-<meta name="twitter:description" content="ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。 1. 我是什么 是让线程拥有独占的变量 它通过set、get方法进行设值和取值操作 它可以覆盖initialValue方法设">
+<meta name="twitter:description" content="ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。 1. 是什么 是让线程拥有独占的变量 它通过set、get方法进行设值和取值操作 它可以覆盖initialValue方法设置">
     
 
     
@@ -168,11 +168,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                150
+                151
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                38
+                39
                 <span>标签</span>
             </div>
         </div>
@@ -272,7 +272,7 @@
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/SpringCloud-nacos注册中心使用/">SpringCloud-注册中心nacos</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/SpringCloud-nacos注册中心使用/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/SpringCloud-nacos核心源码分析/">SpringCloud-nacos核心源码分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -333,9 +333,18 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder-open"></i>
                             &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
                             并发编程的艺术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-基础学习</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/01/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/19/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -454,20 +463,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程/">并发编程</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/并发编程/">并发编程</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/05/03/并发编程-ThreadLocal原理/">
-            <time datetime="2018-05-03T12:58:11.000Z" itemprop="datePublished">2018-05-03</time>
+        <a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">
+            <time datetime="2018-03-15T16:00:00.000Z" itemprop="datePublished">2018-03-16</time>
         </a>
     </div>
 
@@ -496,21 +505,27 @@
         
         
             <p>ThreadLocal是一个本地线程副本变量工具类，ThreadLocal的实例代表了一个线程局部的变量，主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于各个线程依赖不通的变量值完成操作的场景。</p>
-<h3 id="1-我是什么"><a href="#1-我是什么" class="headerlink" title="1. 我是什么"></a>1. 我是什么</h3><ul>
+<h3 id="1-是什么"><a href="#1-是什么" class="headerlink" title="1. 是什么"></a>1. 是什么</h3><ul>
 <li>是让线程拥有独占的变量</li>
 <li>它通过set、get方法进行设值和取值操作</li>
 <li>它可以覆盖initialValue方法设置初始值，在没进行set之前调用get会调用初始化方法，一个线程只会调用一次</li>
 <li>每个线程都会有一个指向threadLocal的弱引用，只要线程一直存活或者该threadLocal实例能被访问到，就不会被GC清理掉。当jvm内存溢出时，会清理掉值为Null的弱引用。</li>
 </ul>
 <h3 id="2-使用方法"><a href="#2-使用方法" class="headerlink" title="2. 使用方法"></a>2. 使用方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">    ThreadLocal&lt;String&gt; stringThreadLocal = <span class="keyword">new</span> ThreadLocal&lt;String&gt;()&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> String <span class="title">initialValue</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"default string"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i&lt; <span class="number">10</span>; i++)&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            stringThreadLocal.set(Thread.currentThread().getName());</span><br><span class="line">            System.out.println(stringThreadLocal.get());</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="3-我在一个map里"><a href="#3-我在一个map里" class="headerlink" title="3. 我在一个map里"></a>3. 我在一个map里</h3><p>每个线程都有一个ThreadLocalMap对象，map中存放了(ThreadLocal<t>,t)键值对</t></p>
-<h4 id="3-1-get源码"><a href="#3-1-get源码" class="headerlink" title="3.1 get源码"></a>3.1 get源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t);</span><br><span class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123;</span><br><span class="line">        ThreadLocalMap.Entry e = map.getEntry(<span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">            T result = (T)e.value;</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> setInitialValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-在一个map里"><a href="#3-在一个map里" class="headerlink" title="3. 在一个map里"></a>3. 在一个map里</h3><p>每个线程都有一个ThreadLocalMap对象，map中存放了(ThreadLocal<t>,t)键值对</t></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ThreadLocal values pertaining to this thread. This map is maintained</span></span><br><span class="line"><span class="comment"> * by the ThreadLocal class. */</span></span><br><span class="line">ThreadLocal.ThreadLocalMap threadLocals = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * InheritableThreadLocal values pertaining to this thread. This map is</span></span><br><span class="line"><span class="comment"> * maintained by the InheritableThreadLocal class.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ThreadLocal.ThreadLocalMap inheritableThreadLocals = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+<p>看看ThreadLocalMap的Entry定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ThreadLocal.ThreadLocalMap</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalMap</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 存放条目的数组</span></span><br><span class="line">  <span class="keyword">private</span> Entry[] table;</span><br><span class="line">  <span class="comment">//Entry定义</span></span><br><span class="line">  <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakRefezrence</span>&lt;<span class="title">ThreadLocal</span>&lt;?&gt;&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/** The value associated with this ThreadLocal. */</span></span><br><span class="line">    Object value;</span><br><span class="line">    Entry(ThreadLocal&lt;?&gt; k, Object v) &#123;</span><br><span class="line">      <span class="keyword">super</span>(k);</span><br><span class="line">      value = v;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ThreadLocalMap的Key是ThreadLocal&lt;?&gt; 引用，value是？类型的值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ThreadLocal&lt;String&gt; stringThreadLocal = <span class="keyword">new</span> ThreadLocal&lt;String&gt;()&#123;</span><br></pre></td></tr></table></figure>
+<p>当我们在代码中创建了一个ThreadLocal变量时，此时并没有与某个指定的线程对象关联，那么是什么时候关联起来的呢？</p>
+<h4 id="3-1-get源码"><a href="#3-1-get源码" class="headerlink" title="3.1 get源码"></a>3.1 get源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ThreadLocal.get()</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Thread t = Thread.currentThread(); <span class="comment">// 获取当前线程</span></span><br><span class="line">    ThreadLocalMap map = getMap(t); <span class="comment">//获取线程的ThreadLocalMap</span></span><br><span class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123; <span class="comment">// 若当前操作的ThreadLocal变量第一个的话，那么map肯定返回null</span></span><br><span class="line">        ThreadLocalMap.Entry e = map.getEntry(<span class="keyword">this</span>); <span class="comment">// 从Entry数组中获得本Local变量的Entry</span></span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">            T result = (T)e.value; <span class="comment">// 获取值</span></span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> setInitialValue(); <span class="comment">// 没有获取到则进行初始化，并返回默认值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>获取当前线程内部的ThreadLocalMap</li>
 <li>map存在则获取当前ThreadLocal对应的值</li>
 <li>不存在则调用setInitialValue进行初始化</li>
 </ul>
-<h4 id="3-2-setInitialValue-源码"><a href="#3-2-setInitialValue-源码" class="headerlink" title="3.2 setInitialValue()源码"></a>3.2 setInitialValue()源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> T <span class="title">setInitialValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    T value = initialValue();</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t);</span><br><span class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>)</span><br><span class="line">        map.set(<span class="keyword">this</span>, value);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        createMap(t, value);</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-2-setInitialValue-源码"><a href="#3-2-setInitialValue-源码" class="headerlink" title="3.2 setInitialValue()源码"></a>3.2 setInitialValue()源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> T <span class="title">setInitialValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    T value = initialValue(); </span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t); </span><br><span class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>)</span><br><span class="line">        map.set(<span class="keyword">this</span>, value);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        createMap(t, value); <span class="comment">// 为Thread创建map，并将当前的k-v放进去</span></span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>调用重载的initialValue方法获取初始值</li>
 <li>获取当前线程的ThreadLocalMap</li>
@@ -523,22 +538,13 @@
 <li>map存在则把当前ThreadLocal和value添加到map中</li>
 <li>map不存在则创建一个ThreadLocalMap，保存到当前线程内部</li>
 </ul>
-<p><strong>小结</strong><br>每个线程都有一个ThreadLocalMap类型的私有变量，当为线程添加ThreadLocal对象时，就是保存到了这个map中，所以线程之间不会相互干扰。</p>
+<p>总结：<br>每个线程都有一个ThreadLocalMap类型的私有变量，当为线程添加ThreadLocal对象时，就是保存到了这个map中，所以线程之间不会相互干扰。</p>
 <h3 id="4-我还有一个大坑"><a href="#4-我还有一个大坑" class="headerlink" title="4. 我还有一个大坑"></a>4. 我还有一个大坑</h3><p>ThreadLocal使用不当，会引发内存泄露的问题 </p>
 <p>ThreadLocal对象存在thread对象中，只要线程没有死亡，该对象就不会被回收</p>
 <p>remove()源码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     ThreadLocalMap m = getMap(Thread.currentThread());</span><br><span class="line">     <span class="keyword">if</span> (m != <span class="keyword">null</span>)</span><br><span class="line">         m.remove(<span class="keyword">this</span>);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>获取当前线程内部的ThreadLocalMap，存在则从map中删除这个ThreadLocal对象。</li>
 </ul>
-<h3 id="5-无处不在的map"><a href="#5-无处不在的map" class="headerlink" title="5. 无处不在的map"></a>5. 无处不在的map</h3><p>分析完4个公开方法的源码，发现每个方法都离不开ThreadLocalMap类，下面分析一下这个无处不在的map。</p>
-<ul>
-<li>ThreadLocalMap是一个自定义的Hashmap，专门用来保存线程的ThreadLocal变量</li>
-<li>它的操作仅限于ThreadLocal类中，不对外暴露</li>
-<li>这个类被用在Thread类的私有变量threadLocals和inheritableThreadLocals上</li>
-<li>为了能够保存大量且存活时间较长的threadLocal实例，hash table entries采用了WeakReferences作为key的类型</li>
-<li>一旦hash table运行空间不足，key为null的entry就会被清理掉</li>
-</ul>
-<p><strong>源码</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalMap</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakReference</span>&lt;<span class="title">ThreadLocal</span>&lt;?&gt;&gt; </span>&#123;</span><br><span class="line">        Object value;</span><br><span class="line">        Entry(ThreadLocal&lt;?&gt; k, Object v) &#123;</span><br><span class="line">            <span class="keyword">super</span>(k);</span><br><span class="line">            value = v;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> INITIAL_CAPACITY = <span class="number">16</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Entry[] table;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> size = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> threshold; <span class="comment">// Default to 0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setThreshold</span><span class="params">(<span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">        threshold = len * <span class="number">2</span> / <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ThreadLocalMap(ThreadLocal&lt;?&gt; firstKey, Object firstValue) &#123;</span><br><span class="line">        table = <span class="keyword">new</span> Entry[INITIAL_CAPACITY];</span><br><span class="line">        <span class="keyword">int</span> i = firstKey.threadLocalHashCode &amp; (INITIAL_CAPACITY - <span class="number">1</span>);</span><br><span class="line">        table[i] = <span class="keyword">new</span> Entry(firstKey, firstValue);</span><br><span class="line">        size = <span class="number">1</span>;</span><br><span class="line">        setThreshold(INITIAL_CAPACITY);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 
             </div>
         
@@ -551,19 +557,19 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2018/05/15/并发编程-线程池源码详解/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    并发编程-线程池源码详解
+                    并发编程-线程中断
                 
             </div>
         </a>
     
     
-        <a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">并发编程-阻塞队列BQ</div>
+            <div class="article-nav-title">并发编程-并发的基础知识</div>
         </a>
     
 </nav>
