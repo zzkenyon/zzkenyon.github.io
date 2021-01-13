@@ -3,23 +3,23 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     
-    <title>并发编程-阻塞队列BQ | 黑风雅过吟</title>
+    <title>并发编程-容器阻塞队列BlockingQueue | 黑风雅过吟</title>
     
     
-        <meta name="keywords" content="JDK">
+        <meta name="keywords" content="并发编程">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="description" content="阻塞队列常用于生产者-消费者场景。 BQ有4套出队入队操作：  offer(e) &amp;amp; poll() 这套操作不会阻塞线程，队列满/空的时候返回特殊值 false/null add(e) &amp;amp; remove() 该操作对offer(e) &amp;amp; pool()返回的特殊值抛出异常 put(e) &amp;amp; take() 阻塞方法，遇到队列满/空的时候会阻塞，直到收到通知可以继续执行">
-<meta name="keywords" content="JDK">
+<meta name="keywords" content="并发编程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="并发编程-阻塞队列BQ">
-<meta property="og:url" content="http://yoursite.com/child/2018/04/27/并发编程-阻塞队列BQ/index.html">
+<meta property="og:title" content="并发编程-容器阻塞队列BlockingQueue">
+<meta property="og:url" content="http://yoursite.com/child/2018/03/29/并发编程-容器阻塞队列BlockingQueue/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="阻塞队列常用于生产者-消费者场景。 BQ有4套出队入队操作：  offer(e) &amp;amp; poll() 这套操作不会阻塞线程，队列满/空的时候返回特殊值 false/null add(e) &amp;amp; remove() 该操作对offer(e) &amp;amp; pool()返回的特殊值抛出异常 put(e) &amp;amp; take() 阻塞方法，遇到队列满/空的时候会阻塞，直到收到通知可以继续执行">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-08T08:36:17.433Z">
+<meta property="og:updated_time" content="2021-01-13T01:32:26.183Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="并发编程-阻塞队列BQ">
+<meta name="twitter:title" content="并发编程-容器阻塞队列BlockingQueue">
 <meta name="twitter:description" content="阻塞队列常用于生产者-消费者场景。 BQ有4套出队入队操作：  offer(e) &amp;amp; poll() 这套操作不会阻塞线程，队列满/空的时候返回特殊值 false/null add(e) &amp;amp; remove() 该操作对offer(e) &amp;amp; pool()返回的特殊值抛出异常 put(e) &amp;amp; take() 阻塞方法，遇到队列满/空的时候会阻塞，直到收到通知可以继续执行">
     
 
@@ -168,11 +168,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                151
+                154
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                39
+                38
                 <span>标签</span>
             </div>
         </div>
@@ -263,7 +263,7 @@
                             &nbsp;
                             SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/springBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -272,7 +272,7 @@
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/SpringCloud-nacos注册中心使用/">SpringCloud-注册中心nacos</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/SpringCloud-nacos核心源码分析/">SpringCloud-nacos核心源码分析</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/20/Nacos(4)集群选举与数据同步/">Nacos(四)集群选举与数据同步</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -291,6 +291,15 @@
                             tools
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            不知如何分类
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -329,22 +338,22 @@
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
                     </li> 
                     
-                    <li class="directory">
-                        <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
-                            &nbsp;
-                            并发编程
-                        </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-CHM源码分析/">并发编程-ConcurrentHashMap源码分析</a></li>  </ul> 
-                    </li> 
-                    
                     <li class="directory open">
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder-open"></i>
                             &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
                             并发编程的艺术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">并发编程-阻塞队列BQ</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/26/并发编程-CopyOnWrite容器/">并发编程-并发容器CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
@@ -382,7 +391,7 @@
                         </a>
                          <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
                     </li> 
-                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/Java编程-移位操作符/">java编程-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/jdk-SimpleDateFormat的用法以及线程安全/">源码分析-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/jdk-会用HashMap/">源码分析-会用HashMap</a></li>  </ul> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
     </div>
     <script>
         $(document).ready(function() {
@@ -453,7 +462,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><article id="post-并发编程-阻塞队列BQ" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-并发编程-容器阻塞队列BlockingQueue" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -463,20 +472,20 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程的艺术/">并发编程的艺术</a>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/并发编程/">并发编程</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/JDK/">JDK</a>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/并发编程/">并发编程</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2018/04/27/并发编程-阻塞队列BQ/">
-            <time datetime="2018-04-27T07:37:41.000Z" itemprop="datePublished">2018-04-27</time>
+        <a href="/zzkenyon.github.io/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">
+            <time datetime="2018-03-28T16:00:00.000Z" itemprop="datePublished">2018-03-29</time>
         </a>
     </div>
 
@@ -491,7 +500,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            并发编程-阻塞队列BQ
+            并发编程-容器阻塞队列BlockingQueue
         </h1>
     
 
@@ -516,7 +525,7 @@
 <ul>
 <li>ArrayBlockingQueue  数组实现的有界阻塞队列, 此队列按照先进先出（FIFO）的原则对元素进行排序。</li>
 <li>LinkedBlockingQueue  链表实现的有界阻塞队列, 此队列的默认和最大长度为<code>Integer.MAX_VALUE</code>。此队列按照先进先出的原则对元素进行排序</li>
-<li>priorityBlockingQueue  支持优先级排序的无界阻塞队列, 默认情况下元素采取自然顺序升序排列。也可以自定义类实现 compareTo()方法来指定元素排序规则，或者初始化 PriorityBlockingQueue 时，指定构造参数 Comparator 来对元素进行排序。</li>
+<li>PriorityBlockingQueue  支持优先级排序的无界阻塞队列, 默认情况下元素采取自然顺序升序排列。也可以自定义类实现 compareTo()方法来指定元素排序规则，或者初始化 PriorityBlockingQueue 时，指定构造参数 Comparator 来对元素进行排序。</li>
 <li>DelayQueue  优先级队列实现的无界阻塞队列</li>
 <li>SynchronousQueue  不存储元素的阻塞队列, 每一个 put 操作必须等待一个 take 操作，否则不能继续添加元素。</li>
 <li>LinkenTransferQueue</li>
@@ -537,7 +546,7 @@
 </li>
 </ul>
 <p>具体如何使用的，见下文LBQ源码分析</p>
-<h3 id="2-offer-e-amp-poll"><a href="#2-offer-e-amp-poll" class="headerlink" title="2. offer(e) &amp; poll()"></a>2. offer(e) &amp; poll()</h3><p>这套方法是在接口 Queue<e> 中定义<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">以下代码摘自： java.util.concurrent.LinkedBlockingQueue</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">final</span> AtomicInteger count = <span class="keyword">this</span>.count;</span><br><span class="line">    <span class="comment">//满了直接返回失败</span></span><br><span class="line">    <span class="keyword">if</span> (count.get() == capacity)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">int</span> c = -<span class="number">1</span>;</span><br><span class="line">    Node&lt;E&gt; node = <span class="keyword">new</span> Node&lt;E&gt;(e);</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock putLock = <span class="keyword">this</span>.putLock;</span><br><span class="line">    putLock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (count.get() &lt; capacity) &#123;</span><br><span class="line">            enqueue(node);</span><br><span class="line">            c = count.getAndIncrement();</span><br><span class="line">            <span class="comment">//c是更新之前的计数</span></span><br><span class="line">            <span class="keyword">if</span> (c + <span class="number">1</span> &lt; capacity)</span><br><span class="line">                <span class="comment">//更新之后还未满，唤醒一个入队线程</span></span><br><span class="line">                notFull.signal();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        putLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>)</span><br><span class="line">        <span class="comment">//更新之前是空的，更新完就不空了，唤醒一个阻塞的出队线程</span></span><br><span class="line">        signalNotEmpty();</span><br><span class="line">    <span class="keyword">return</span> c &gt;= <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></e></p>
+<h3 id="2-offer-e-amp-poll"><a href="#2-offer-e-amp-poll" class="headerlink" title="2. offer(e) &amp; poll()"></a>2. offer(e) &amp; poll()</h3><p>这套方法是在接口 Queue<e> 中定义<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下代码摘自： java.util.concurrent.LinkedBlockingQueue</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">final</span> AtomicInteger count = <span class="keyword">this</span>.count;</span><br><span class="line">    <span class="comment">//满了直接返回失败</span></span><br><span class="line">    <span class="keyword">if</span> (count.get() == capacity)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">int</span> c = -<span class="number">1</span>;</span><br><span class="line">    Node&lt;E&gt; node = <span class="keyword">new</span> Node&lt;E&gt;(e);</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock putLock = <span class="keyword">this</span>.putLock;</span><br><span class="line">    putLock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (count.get() &lt; capacity) &#123;</span><br><span class="line">            enqueue(node);</span><br><span class="line">            c = count.getAndIncrement();</span><br><span class="line">            <span class="comment">//c是更新之前的计数</span></span><br><span class="line">            <span class="keyword">if</span> (c + <span class="number">1</span> &lt; capacity)</span><br><span class="line">                <span class="comment">//更新之后还未满，唤醒一个入队线程</span></span><br><span class="line">                notFull.signal();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        putLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>)</span><br><span class="line">        <span class="comment">//更新之前是空的，更新完就不空了，唤醒一个阻塞的出队线程</span></span><br><span class="line">        signalNotEmpty();</span><br><span class="line">    <span class="keyword">return</span> c &gt;= <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></e></p>
 <p>offer(e)方法总结：  </p>
 <ol>
 <li>开始先检查参数是否为null，null则抛出NPE异常；</li>
@@ -556,7 +565,7 @@
 <li>释放锁，然后判断此次出队前队列是否满的，若出队前满则此次出队结束就有余位了，唤醒一个阻塞入队线程执行</li>
 </ol>
 <h3 id="3-add-e-amp-remove"><a href="#3-add-e-amp-remove" class="headerlink" title="3. add(e) &amp; remove()"></a>3. add(e) &amp; remove()</h3><p>这套方法也是在 Queue<e> 中定义，add方法继承自Collection接口，内部调用了offer(e) &amp; pool()，对队空或队满返回的特殊值做异常处理，队满执行入队操作抛 IllegalStateException 异常；队空做出队操作抛 NoSuchElementException 异常 。源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">以下代码摘自： java.util.AbstractQueue</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (offer(e))</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Queue full"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    E x = poll();</span><br><span class="line">    <span class="keyword">if</span> (x != <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> x;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></e></p>
-<h3 id="4-put-e-amp-take"><a href="#4-put-e-amp-take" class="headerlink" title="4. put(e) &amp; take()"></a>4. put(e) &amp; take()</h3><p>这是阻塞接口，定义在 BlockingQueue<e> 接口中<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">以下代码摘自： java.util.concurrent.LinkedBlockingQueue</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="comment">// 除非设置，否则保持计数器的值为-1表示失败</span></span><br><span class="line">    <span class="keyword">int</span> c = -<span class="number">1</span>;</span><br><span class="line">    Node&lt;E&gt; node = <span class="keyword">new</span> Node&lt;E&gt;(e);</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock putLock = <span class="keyword">this</span>.putLock;</span><br><span class="line">    <span class="keyword">final</span> AtomicInteger count = <span class="keyword">this</span>.count;</span><br><span class="line">    putLock.lockInterruptibly();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">//这里使用while进行判断，是因为await的线程被唤醒时从await返回，需要再进行一次判断</span></span><br><span class="line">        <span class="comment">//如果使用if的话就直接往下运行了，运行结果会不稳定。</span></span><br><span class="line">        <span class="keyword">while</span> (count.get() == capacity) &#123;</span><br><span class="line">            notFull.await();</span><br><span class="line">        &#125;</span><br><span class="line">        enqueue(node);</span><br><span class="line">        <span class="comment">//返回旧的计数然后计数+1</span></span><br><span class="line">        c = count.getAndIncrement();</span><br><span class="line">        <span class="comment">//入队之后如果还有位置，给notFull队列发信号，唤醒put线程</span></span><br><span class="line">        <span class="keyword">if</span> (c + <span class="number">1</span> &lt; capacity)</span><br><span class="line">            notFull.signal();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        putLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//这个c是入队之前的计数，入队之前为空，入队后有元素了，所以要唤醒一个出队线程</span></span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>)</span><br><span class="line">        signalNotEmpty();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></e></p>
+<h3 id="4-put-e-amp-take"><a href="#4-put-e-amp-take" class="headerlink" title="4. put(e) &amp; take()"></a>4. put(e) &amp; take()</h3><p>这是阻塞接口，定义在 BlockingQueue<e> 接口中<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下代码摘自： java.util.concurrent.LinkedBlockingQueue</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="comment">// 除非设置，否则保持计数器的值为-1表示失败</span></span><br><span class="line">    <span class="keyword">int</span> c = -<span class="number">1</span>;</span><br><span class="line">    Node&lt;E&gt; node = <span class="keyword">new</span> Node&lt;E&gt;(e);</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock putLock = <span class="keyword">this</span>.putLock;</span><br><span class="line">    <span class="keyword">final</span> AtomicInteger count = <span class="keyword">this</span>.count;</span><br><span class="line">    putLock.lockInterruptibly();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">//这里使用while进行判断，是因为await的线程被唤醒时从await返回，需要再进行一次判断</span></span><br><span class="line">        <span class="comment">//如果使用if的话就直接往下运行了，运行结果会不稳定。</span></span><br><span class="line">        <span class="keyword">while</span> (count.get() == capacity) &#123;</span><br><span class="line">            notFull.await();</span><br><span class="line">        &#125;</span><br><span class="line">        enqueue(node);</span><br><span class="line">        <span class="comment">//返回旧的计数然后计数+1</span></span><br><span class="line">        c = count.getAndIncrement();</span><br><span class="line">        <span class="comment">//入队之后如果还有位置，给notFull队列发信号，唤醒put线程</span></span><br><span class="line">        <span class="keyword">if</span> (c + <span class="number">1</span> &lt; capacity)</span><br><span class="line">            notFull.signal();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        putLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//这个c是入队之前的计数，入队之前为空，入队后有元素了，所以要唤醒一个出队线程</span></span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>)</span><br><span class="line">        signalNotEmpty();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></e></p>
 <p>put(e)方法总结：  </p>
 <ol>
 <li>检查参数为空抛NPE异常</li>
@@ -583,7 +592,7 @@
 <h3 id="6-await之前的判断为什么用while"><a href="#6-await之前的判断为什么用while" class="headerlink" title="6. await之前的判断为什么用while"></a>6. await之前的判断为什么用while</h3><p>用put作为例子解释一下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">putLock.lockInterruptibly();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (count.get() == capacity) &#123;</span><br><span class="line">        notFull.await();<span class="comment">//1</span></span><br><span class="line">    &#125;</span><br><span class="line">    enqueue(node);</span><br><span class="line">    c = count.getAndIncrement(); <span class="comment">//2</span></span><br><span class="line">    <span class="keyword">if</span> (c + <span class="number">1</span> &lt; capacity)</span><br><span class="line">        notFull.signal();<span class="comment">//3</span></span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    putLock.unlock();<span class="comment">//4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <ol>
 <li>假设A线程入队操作结束后(执行到2位置)，队列还剩一个空位，那么程序会唤醒阻塞队列中的put线程（3位置）B线程</li>
-<li>B线程从await返回前需要竞争put锁（await会释放锁），但这时候有个C线程也来竞争put锁并且成功，C执行入队之后队列已经满了</li>
+<li>B线程从await返回后需要竞争put锁（从等待池进入锁池），但这时候有个C线程也来竞争put锁并且成功，C执行入队之后队列已经满了</li>
 <li>C释放锁之后B获得锁，从await返回（位置1），如果这里使用 if 判断，1位置之后继续向下执行入队操作，显然会出错，因为最后一个空位让C线程用掉了</li>
 <li>但是使用 while 判断，await返回之后，还在循环体内，继续循环判断队列是否满，发现满了，再次await。</li>
 </ol>
@@ -610,19 +619,19 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2018/03/29/并发编程-容器之CopyOnWrite/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
-                    并发编程-并发工具类
+                    并发编程-容器之CopyOnWrite
                 
             </div>
         </a>
     
     
-        <a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/zzkenyon.github.io/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
-            <div class="article-nav-title">并发编程-共享式AQS源码详解</div>
+            <div class="article-nav-title">并发编程-容器ConcurrentHashMap源码分析</div>
         </a>
     
 </nav>

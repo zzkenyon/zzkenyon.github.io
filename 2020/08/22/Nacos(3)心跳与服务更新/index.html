@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>Nacos(三)心跳与服务更新 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="SpringCloud">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="nacos通过pull+push结合的方式，来保证服务状态的更新，大致流程如下图所示   消费者应用启动时，会开启一个UpdateTask，每隔10s会向nacos-server发送一个pull请求，拉取最新的服务实例信息  服务提供者，注册时与nacos-server建立了心跳检查，默认是5s发送一次心跳，nacos-server会开启一个心跳检查任务，不停的检查服务心跳，超过15秒没有收到心跳">
+<meta name="keywords" content="SpringCloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nacos(三)心跳与服务更新">
+<meta property="og:url" content="http://yoursite.com/child/2020/08/22/Nacos(3)心跳与服务更新/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="nacos通过pull+push结合的方式，来保证服务状态的更新，大致流程如下图所示   消费者应用启动时，会开启一个UpdateTask，每隔10s会向nacos-server发送一个pull请求，拉取最新的服务实例信息  服务提供者，注册时与nacos-server建立了心跳检查，默认是5s发送一次心跳，nacos-server会开启一个心跳检查任务，不停的检查服务心跳，超过15秒没有收到心跳">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/Users/zhaozhengkang/Desktop/截屏2021-01-13%2010.30.52.png">
+<meta property="og:updated_time" content="2021-01-13T05:53:13.225Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nacos(三)心跳与服务更新">
+<meta name="twitter:description" content="nacos通过pull+push结合的方式，来保证服务状态的更新，大致流程如下图所示   消费者应用启动时，会开启一个UpdateTask，每隔10s会向nacos-server发送一个pull请求，拉取最新的服务实例信息  服务提供者，注册时与nacos-server建立了心跳检查，默认是5s发送一次心跳，nacos-server会开启一个心跳检查任务，不停的检查服务心跳，超过15秒没有收到心跳">
+<meta name="twitter:image" content="http://yoursite.com/Users/zhaozhengkang/Desktop/截屏2021-01-13%2010.30.52.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                154
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                38
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/20/Nacos(4)集群选举与数据同步/">Nacos(四)集群选举与数据同步</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            不知如何分类
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-Nacos(3)心跳与服务更新" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/08/22/Nacos(3)心跳与服务更新/">
+            <time datetime="2020-08-21T16:00:00.000Z" itemprop="datePublished">2020-08-22</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Nacos(三)心跳与服务更新
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>nacos通过pull+push结合的方式，来保证服务状态的更新，大致流程如下图所示</p>
+<p><img src="/Users/zhaozhengkang/Desktop/截屏2021-01-13 10.30.52.png" alt></p>
+<ul>
+<li><p>消费者应用启动时，会开启一个UpdateTask，每隔10s会向nacos-server发送一个pull请求，拉取最新的服务实例信息</p>
+</li>
+<li><p>服务提供者，注册时与nacos-server建立了心跳检查，默认是5s发送一次心跳，nacos-server会开启一个心跳检查任务，不停的检查服务心跳，超过15秒没有收到心跳，则将对应实例设置为非健康状态，超过30秒还没有收到心跳，做下线处理，删除实例。</p>
+</li>
+</ul>
+<p>下面，分别对以上两个流程进行源码分析</p>
+<h3 id="1-pull请求更新"><a href="#1-pull请求更新" class="headerlink" title="1 pull请求更新"></a>1 pull请求更新</h3><p>在上一篇笔记《Nacos(二)注册中心核心源码分析》中，讲到<code>HostReactor.getServiceInfo()</code>方法，在获取到nacos-server的服务实例信息之后，通过一套事件发送响应机制，将实例信息注入到Spring-Boot中，那么在首次获取到实例信息之后，考虑到服务端的实例信息可能会发生改变，所以要建立一个任务，定时的pull服务端信息。</p>
+<p><strong>HostReactor.getServiceInfo</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ServiceInfo <span class="title">getServiceInfo</span><span class="params">(<span class="keyword">final</span> String serviceName, <span class="keyword">final</span> String clusters)</span> </span>&#123;</span><br><span class="line">    NAMING_LOGGER.debug(<span class="string">"failover-mode: "</span> + failoverReactor.isFailoverSwitch());</span><br><span class="line">    String key = ServiceInfo.getKey(serviceName, clusters);</span><br><span class="line">    <span class="keyword">if</span> (failoverReactor.isFailoverSwitch()) &#123;</span><br><span class="line">        <span class="keyword">return</span> failoverReactor.getService(key);</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="comment">//从本地缓存中取</span></span><br><span class="line">    ServiceInfo serviceObj = getServiceInfo0(serviceName, clusters);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == serviceObj) &#123;<span class="comment">// 本地没有，两步走</span></span><br><span class="line">        <span class="comment">// 1、创建一个空的ServiceInfo放入缓存</span></span><br><span class="line">        serviceObj = <span class="keyword">new</span> ServiceInfo(serviceName, clusters);</span><br><span class="line">        serviceInfoMap.put(serviceObj.getKey(), serviceObj);</span><br><span class="line">          <span class="comment">// 2、将远程服务信息更新到ServiceInfo中，updatingMap看来只是其到标记作用的</span></span><br><span class="line">        updatingMap.put(serviceName, <span class="keyword">new</span> Object());</span><br><span class="line">        <span class="comment">// &gt;&gt; 关键点</span></span><br><span class="line">        updateServiceNow(serviceName, clusters); </span><br><span class="line">        updatingMap.remove(serviceName); <span class="comment">//更新完毕删除标记</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (updatingMap.containsKey(serviceName)) &#123;</span><br><span class="line">        ... <span class="comment">// 若有其他线程已经创建了标记说明其他线程正在更新，同步等待</span></span><br><span class="line">    &#125;</span><br><span class="line">      <span class="comment">// 开启定时更新任务</span></span><br><span class="line">    scheduleUpdateIfAbsent(serviceName, clusters);</span><br><span class="line">    <span class="keyword">return</span> serviceInfoMap.get(serviceObj.getKey());</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码已经分析过了，直接看到倒数第二行：</p>
+<p><strong>scheduleUpdateIfAbsent(serviceName, clusters)</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scheduleUpdateIfAbsent</span><span class="params">(String serviceName, String clusters)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (futureMap.get(ServiceInfo.getKey(serviceName, clusters)) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (futureMap) &#123;</span><br><span class="line">        <span class="keyword">if</span> (futureMap.get(ServiceInfo.getKey(serviceName, clusters)) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ScheduledFuture&lt;?&gt; future = addTask(<span class="keyword">new</span> UpdateTask(serviceName, clusters));</span><br><span class="line">        futureMap.put(ServiceInfo.getKey(serviceName, clusters), future);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>futureMap</code>是存放serviceName与定时更新任务异步结果Future映射关系的地方，<code>futureMap</code>中要是存在serviceName对应的Future说明定时任务已经开启了，直接返回，这里做了双重校验。</p>
+<p>调用<code>addTask</code>添加一个UpdateTask给定时任务执行，看主要看UpdateTask的run函数做了些什么</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 从本地缓存获取ServiceInfo</span></span><br><span class="line">        ServiceInfo serviceObj = serviceInfoMap.get(ServiceInfo.getKey(serviceName, clusters));</span><br><span class="line">				<span class="comment">// 本地没有，立即执行更新</span></span><br><span class="line">        <span class="keyword">if</span> (serviceObj == <span class="keyword">null</span>) &#123;</span><br><span class="line">            updateServiceNow(serviceName, clusters);</span><br><span class="line">            <span class="comment">// DEFAULT_DELAY = 1000L ，1s后再次执行这个任务</span></span><br><span class="line">            executor.schedule(<span class="keyword">this</span>, DEFAULT_DELAY, TimeUnit.MILLISECONDS);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// 本地有但是过期了，立即更新 lastRefTime默认值是MaxValue</span></span><br><span class="line">        <span class="keyword">if</span> (serviceObj.getLastRefTime() &lt;= lastRefTime) &#123;</span><br><span class="line">            updateServiceNow(serviceName, clusters);</span><br><span class="line">            serviceObj = serviceInfoMap.get(ServiceInfo.getKey(serviceName, clusters));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// if serviceName already updated by push, we should not override it</span></span><br><span class="line">            <span class="comment">// since the push data may be different from pull through force push</span></span><br><span class="line">          <span class="comment">// 如果服务被基于push机制的流程做了更新，那么我们不需要覆盖本地服务</span></span><br><span class="line">          <span class="comment">// 因为push过来的数据和pull来的数据不同，所以这里只是调用接口刷新服务</span></span><br><span class="line">            refreshOnly(serviceName, clusters);</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// 最后刷新时间</span></span><br><span class="line">        lastRefTime = serviceObj.getLastRefTime();</span><br><span class="line">				<span class="comment">// 如果没有完成订阅或者futureMap中不包含指定服务信息，则中断更新</span></span><br><span class="line">        <span class="keyword">if</span> (!eventDispatcher.isSubscribed(serviceName, clusters) &amp;&amp;</span><br><span class="line">            !futureMap.containsKey(ServiceInfo.getKey(serviceName, clusters))) &#123;</span><br><span class="line">            <span class="comment">// abort the update task:</span></span><br><span class="line">            NAMING_LOGGER.info(<span class="string">"update task is stopped, service:"</span> + serviceName + <span class="string">", clusters:"</span> + clusters);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// 10s后再次执行本任务</span></span><br><span class="line">        executor.schedule(<span class="keyword">this</span>, serviceObj.getCacheMillis(), TimeUnit.MILLISECONDS);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        NAMING_LOGGER.warn(<span class="string">"[NA] failed to update serviceName: "</span> + serviceName, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看一下两个更新接口</p>
+<p><strong>updateServiceNow</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateServiceNow</span><span class="params">(String serviceName, String clusters)</span> </span>&#123;</span><br><span class="line">    ServiceInfo oldService = getServiceInfo0(serviceName, clusters);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 发送http请求获取实例信息列表</span></span><br><span class="line">        String result = serverProxy.queryList(serviceName, clusters, pushReceiver.getUDPPort(), <span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotEmpty(result)) &#123;</span><br><span class="line">            processServiceJSON(result); <span class="comment">// 处理结果，更新本地缓存</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        NAMING_LOGGER.error(<span class="string">"[NA] failed to update serviceName: "</span> + serviceName, e);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (oldService != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (oldService) &#123;</span><br><span class="line">                oldService.notifyAll();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>refreshOnly</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refreshOnly</span><span class="params">(String serviceName, String clusters)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        serverProxy.queryList(serviceName, clusters, pushReceiver.getUDPPort(), <span class="keyword">false</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        NAMING_LOGGER.error(<span class="string">"[NA] failed to update serviceName: "</span> + serviceName, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>refreshOnly</code>并没有处理结果，那么这里好像唯一的作用，就是将pushReceiver.getUDPPort()传给了server</p>
+<p>因为nacos-server不会永久存储消费者的udp信息，后面的分析会详细介绍。</p>
+<h3 id="2-push推送更新"><a href="#2-push推送更新" class="headerlink" title="2. push推送更新"></a>2. push推送更新</h3><p>还记得上一篇笔记《Nacos(二)注册中心核心源码分析》分析过，在服务提供者发起服务注册时，nacos-server收到注册请求，处理请求时，会调用createEmptyService方法来创建一个空的服务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerInstance</span><span class="params">(String namespaceId, String serviceName, Instance instance)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">    <span class="comment">// &gt;&gt;</span></span><br><span class="line">    createEmptyService(namespaceId, serviceName, instance.isEphemeral());</span><br><span class="line">    Service service = getService(namespaceId, serviceName);</span><br><span class="line">    <span class="keyword">if</span> (service == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NacosException(NacosException.INVALID_PARAM,</span><br><span class="line">                <span class="string">"service not found, namespace: "</span> + namespaceId + <span class="string">", service: "</span> + serviceName);</span><br><span class="line">    &#125;    </span><br><span class="line">    addInstance(namespaceId, serviceName, instance.isEphemeral(), instance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>createEmptyService方法最终会调用到<code>service.init()</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 开启心跳检查任务</span></span><br><span class="line">    HealthCheckReactor.scheduleCheck(clientBeatCheckTask);</span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;String, Cluster&gt; entry : clusterMap.entrySet()) &#123;</span><br><span class="line">        entry.getValue().setService(<span class="keyword">this</span>);</span><br><span class="line">        entry.getValue().init();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面就来看一下这个健康检查任务时怎么执行的.</p>
+<p><strong>lientBeatCheckTask.run</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        List&lt;Instance&gt; instances = service.allIPs(<span class="keyword">true</span>);   </span><br><span class="line">        <span class="comment">// first set health status of instances:</span></span><br><span class="line">        <span class="keyword">for</span> (Instance instance : instances) &#123; <span class="comment">// 遍历服务节点心跳检测</span></span><br><span class="line">            <span class="keyword">if</span> (System.currentTimeMillis() - instance.getLastBeat() &gt; instance.getInstanceHeartBeatTimeOut()) &#123; <span class="comment">// getInstanceHeartBeatTimeOut 默认15秒</span></span><br><span class="line">                <span class="keyword">if</span> (!instance.isMarked()) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (instance.isHealthy()) &#123;</span><br><span class="line">                        instance.setHealthy(<span class="keyword">false</span>);</span><br><span class="line">                        ..<span class="comment">//log</span></span><br><span class="line">                        getPushService().serviceChanged(service); <span class="comment">// 推送服务变更事件</span></span><br><span class="line">                        ApplicationUtils.publishEvent(<span class="keyword">new</span> InstanceHeartbeatTimeoutEvent(<span class="keyword">this</span>, instance));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!getGlobalConfig().isExpireInstance()) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// then remove obsolete instances:</span></span><br><span class="line">        <span class="keyword">for</span> (Instance instance : instances) &#123;</span><br><span class="line">            <span class="keyword">if</span> (instance.isMarked()) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (System.currentTimeMillis() - instance.getLastBeat() &gt; instance.getIpDeleteTimeout()) &#123;  <span class="comment">// getIpDeleteTimeout 默认30s</span></span><br><span class="line">                <span class="comment">// delete instance</span></span><br><span class="line">                ...<span class="comment">//log</span></span><br><span class="line">                deleteIp(instance);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;      </span><br><span class="line">    &#125; </span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>getPushService().serviceChanged(service)</strong></p>
+<p>监听服务状态变更事件，然后遍历所有的客户端，通过udp协议进行消息的广播通知</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serviceChanged</span><span class="params">(Service service)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// merge some change events to reduce the push frequency:</span></span><br><span class="line">    <span class="keyword">if</span> (futureMap</span><br><span class="line">            .containsKey(UtilsAndCommons.assembleFullServiceName(service.getNamespaceId(), service.getName()))) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">this</span>.applicationContext.publishEvent(<span class="keyword">new</span> ServiceChangeEvent(<span class="keyword">this</span>, service));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发出了<code>ServiceChangeEvent</code>事件，该事件时Spring事件</p>
+<p><code>PushService</code>既是事件发送方，也是事件监听方，所以定位到响应函数</p>
+<p><code>clientMap</code>  nacos-client在调用queryList时，会传一个udp端口号给nacos-server，nacos-server会创建一个udp连接连接到nacos-client，存放在<code>clientMap</code>  中</p>
+<p><code>clientMap</code>  是一个两层的map结构</p>
+<p>第一层的key是：namespaceId##serviceName，将不同的namespace分开</p>
+<p>第二层的key是：serviceName:xxx,clusters:xxx,address:xxx,agent:xxx，通过address能够定位到一个服务消费者的ip地址，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ServiceChangeEvent event)</span> </span>&#123;</span><br><span class="line">    Service service = event.getService();</span><br><span class="line">    String serviceName = service.getName();</span><br><span class="line">    String namespaceId = service.getNamespaceId();</span><br><span class="line">    </span><br><span class="line">    Future future = GlobalExecutor.scheduleUdpSender(() -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Loggers.PUSH.info(serviceName + <span class="string">" is changed, add it to push queue."</span>);</span><br><span class="line">          	<span class="comment">//拿到服务对应的PushClient  key 是namespaceId##serviceName</span></span><br><span class="line">            ConcurrentMap&lt;String, PushClient&gt; clients = clientMap</span><br><span class="line">                    .get(UtilsAndCommons.assembleFullServiceName(namespaceId, serviceName));</span><br><span class="line">            <span class="keyword">if</span> (MapUtils.isEmpty(clients)) &#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            Map&lt;String, Object&gt; cache = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">            <span class="keyword">long</span> lastRefTime = System.nanoTime();</span><br><span class="line">            <span class="keyword">for</span> (PushClient client : clients.values()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (client.zombie()) &#123; <span class="comment">// 距离上次推送超过10秒</span></span><br><span class="line">                    Loggers.PUSH.debug(<span class="string">"client is zombie: "</span> + client.toString());</span><br><span class="line">                    clients.remove(client.toString()); <span class="comment">//移除client</span></span><br><span class="line">                    Loggers.PUSH.debug(<span class="string">"client is zombie: "</span> + client.toString());</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                Receiver.AckEntry ackEntry;</span><br><span class="line">                Loggers.PUSH.debug(<span class="string">"push serviceName: &#123;&#125; to client: &#123;&#125;"</span>, serviceName, client.toString());</span><br><span class="line">                String key = getPushCacheKey(serviceName, client.getIp(), client.getAgent());</span><br><span class="line">                <span class="keyword">byte</span>[] compressData = <span class="keyword">null</span>;</span><br><span class="line">                Map&lt;String, Object&gt; data = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">if</span> (switchDomain.getDefaultPushCacheMillis() &gt;= <span class="number">20000</span> &amp;&amp; cache.containsKey(key)) &#123;</span><br><span class="line">                    org.javatuples.Pair pair = (org.javatuples.Pair) cache.get(key);</span><br><span class="line">                    compressData = (<span class="keyword">byte</span>[]) (pair.getValue0());</span><br><span class="line">                    data = (Map&lt;String, Object&gt;) pair.getValue1();</span><br><span class="line">                    </span><br><span class="line">                    Loggers.PUSH.debug(<span class="string">"[PUSH-CACHE] cache hit: &#123;&#125;:&#123;&#125;"</span>, serviceName, client.getAddrStr());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 收到nacos-client的响应数据，</span></span><br><span class="line">                <span class="keyword">if</span> (compressData != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    ackEntry = prepareAckEntry(client, compressData, data, lastRefTime);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    ackEntry = prepareAckEntry(client, prepareHostsData(client), lastRefTime);</span><br><span class="line">                    <span class="keyword">if</span> (ackEntry != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        cache.put(key, <span class="keyword">new</span> org.javatuples.Pair&lt;&gt;(ackEntry.origin.getData(), ackEntry.data));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                Loggers.PUSH.info(<span class="string">"serviceName: &#123;&#125; changed, schedule push for: &#123;&#125;, agent: &#123;&#125;, key: &#123;&#125;"</span>,</span><br><span class="line">                        client.getServiceName(), client.getAddrStr(), client.getAgent(),</span><br><span class="line">                        (ackEntry == <span class="keyword">null</span> ? <span class="keyword">null</span> : ackEntry.key));</span><br><span class="line">                </span><br><span class="line">                udpPush(ackEntry);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            Loggers.PUSH.error(<span class="string">"[NACOS-PUSH] failed to push serviceName: &#123;&#125; to client, error: &#123;&#125;"</span>, serviceName, e);</span><br><span class="line">            </span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            futureMap.remove(UtilsAndCommons.assembleFullServiceName(namespaceId, serviceName));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;, <span class="number">1000</span>, TimeUnit.MILLISECONDS);</span><br><span class="line">    </span><br><span class="line">    futureMap.put(UtilsAndCommons.assembleFullServiceName(namespaceId, serviceName), future);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从代码中可以了解到</p>
+<p>nacos-server端保存的消费者udp连接，并不是一直存储的，当超过一定时间（10秒）没有更新（client请求queryList的时候会创建一个udp连接放到clientsMap中），就会被移除。</p>
+<p>因此，面pull更新的时候，有一个refreshOnly接口，就是专门用于刷新server端的udp。</p>
+<p>那么，server端push了数据之后，client端又是怎么处理的呢？</p>
+<p>在Client端构造HostReactor的时候：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">HostReactor</span><span class="params">(EventDispatcher eventDispatcher, NamingProxy serverProxy, String cacheDir,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">boolean</span> loadCacheAtStart, <span class="keyword">int</span> pollingThreadCount)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    executor = <span class="keyword">new</span> ScheduledThreadPoolExecutor(pollingThreadCount, <span class="keyword">new</span> ThreadFactory() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Thread <span class="title">newThread</span><span class="params">(Runnable r)</span> </span>&#123;</span><br><span class="line">            Thread thread = <span class="keyword">new</span> Thread(r);</span><br><span class="line">            thread.setDaemon(<span class="keyword">true</span>);</span><br><span class="line">            thread.setName(<span class="string">"com.alibaba.nacos.client.naming.updater"</span>);</span><br><span class="line">            <span class="keyword">return</span> thread;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.eventDispatcher = eventDispatcher;</span><br><span class="line">    <span class="keyword">this</span>.serverProxy = serverProxy;</span><br><span class="line">    <span class="keyword">this</span>.cacheDir = cacheDir;</span><br><span class="line">    <span class="keyword">if</span> (loadCacheAtStart) &#123;</span><br><span class="line">        <span class="keyword">this</span>.serviceInfoMap = <span class="keyword">new</span> ConcurrentHashMap&lt;String, ServiceInfo&gt;(DiskCache.read(<span class="keyword">this</span>.cacheDir));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.serviceInfoMap = <span class="keyword">new</span> ConcurrentHashMap&lt;String, ServiceInfo&gt;(<span class="number">16</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.updatingMap = <span class="keyword">new</span> ConcurrentHashMap&lt;String, Object&gt;();</span><br><span class="line">    <span class="keyword">this</span>.failoverReactor = <span class="keyword">new</span> FailoverReactor(<span class="keyword">this</span>, cacheDir);</span><br><span class="line">    <span class="keyword">this</span>.pushReceiver = <span class="keyword">new</span> PushReceiver(<span class="keyword">this</span>); <span class="comment">//</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到最后一行，创建了一个<code>PushReceiver</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PushReceiver</span><span class="params">(HostReactor hostReactor)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.hostReactor = hostReactor;</span><br><span class="line">        udpSocket = <span class="keyword">new</span> DatagramSocket();</span><br><span class="line">				<span class="comment">//创建了一个</span></span><br><span class="line">        executorService = <span class="keyword">new</span> ScheduledThreadPoolExecutor(<span class="number">1</span>, <span class="keyword">new</span> ThreadFactory() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> Thread <span class="title">newThread</span><span class="params">(Runnable r)</span> </span>&#123;</span><br><span class="line">                Thread thread = <span class="keyword">new</span> Thread(r);</span><br><span class="line">                thread.setDaemon(<span class="keyword">true</span>);</span><br><span class="line">                thread.setName(<span class="string">"com.alibaba.nacos.naming.push.receiver"</span>);</span><br><span class="line">                <span class="keyword">return</span> thread;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        executorService.execute(<span class="keyword">this</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        NAMING_LOGGER.error(<span class="string">"[NA] init udp socket failed"</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>PushReceiver中开启了一个线程池，任务逻辑就是PushReceiver的run函数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// byte[] is initialized with 0 full filled by default</span></span><br><span class="line">            <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[UDP_MSS];</span><br><span class="line">            DatagramPacket packet = <span class="keyword">new</span> DatagramPacket(buffer, buffer.length);</span><br><span class="line"></span><br><span class="line">            udpSocket.receive(packet);</span><br><span class="line"></span><br><span class="line">            String json = <span class="keyword">new</span> String(IoUtils.tryDecompress(packet.getData()), <span class="string">"UTF-8"</span>).trim();</span><br><span class="line">            NAMING_LOGGER.info(<span class="string">"received push data: "</span> + json + <span class="string">" from "</span> + packet.getAddress().toString());</span><br><span class="line"></span><br><span class="line">            PushPacket pushPacket = JSON.parseObject(json, PushPacket.class);</span><br><span class="line">            String ack;</span><br><span class="line">            <span class="keyword">if</span> (<span class="string">"dom"</span>.equals(pushPacket.type) || <span class="string">"service"</span>.equals(pushPacket.type)) &#123;</span><br><span class="line">                hostReactor.processServiceJSON(pushPacket.data);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// send ack to server</span></span><br><span class="line">                ack = <span class="string">"&#123;\"type\": \"push-ack\""</span></span><br><span class="line">                    + <span class="string">", \"lastRefTime\":\""</span> + pushPacket.lastRefTime</span><br><span class="line">                    + <span class="string">"\", \"data\":"</span> + <span class="string">"\"\"&#125;"</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"dump"</span>.equals(pushPacket.type)) &#123;</span><br><span class="line">                <span class="comment">// dump data to server</span></span><br><span class="line">                ack = <span class="string">"&#123;\"type\": \"dump-ack\""</span></span><br><span class="line">                    + <span class="string">", \"lastRefTime\": \""</span> + pushPacket.lastRefTime</span><br><span class="line">                    + <span class="string">"\", \"data\":"</span> + <span class="string">"\""</span></span><br><span class="line">                    + StringUtils.escapeJavaScript(JSON.toJSONString(hostReactor.getServiceInfoMap()))</span><br><span class="line">                    + <span class="string">"\"&#125;"</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// do nothing send ack only</span></span><br><span class="line">                ack = <span class="string">"&#123;\"type\": \"unknown-ack\""</span></span><br><span class="line">                    + <span class="string">", \"lastRefTime\":\""</span> + pushPacket.lastRefTime</span><br><span class="line">                    + <span class="string">"\", \"data\":"</span> + <span class="string">"\"\"&#125;"</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            udpSocket.send(<span class="keyword">new</span> DatagramPacket(ack.getBytes(Charset.forName(<span class="string">"UTF-8"</span>)),</span><br><span class="line">                ack.getBytes(Charset.forName(<span class="string">"UTF-8"</span>)).length, packet.getSocketAddress()));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            NAMING_LOGGER.error(<span class="string">"[NA] error while receiving push data"</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>开启了一个udp监听，收到DatagramPacket后进行反序列化，解析，通过<code>processServiceJSON()</code>方法进行处理，最后还响应出一个ack。</p>
+<p>大致的流程就分析完了，一些细节部分略过了，有时间会继续跟。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    netty源码分析之executionMask
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/08/20/Nacos(4)集群选举与数据同步/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Nacos(四)集群选举与数据同步</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2021 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>

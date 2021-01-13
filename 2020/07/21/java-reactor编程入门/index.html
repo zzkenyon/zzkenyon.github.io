@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>java-Reactor编程入门 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="java">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="https://developer.ibm.com/zh/articles/j-cn-with-reactor-response-encode/ 1. 理论基础反应式编程来源于数据流和变化的传播，意味着由底层的执行模型负责通过数据流来自动传播变化。比如求值一个简单的表达式 c=a+b，当 a 或者 b 的值发生变化时，传统的编程范式需要对 a+b 进行重新计算来得到 c 的值。如果使用反应式编程，">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java-Reactor编程入门">
+<meta property="og:url" content="http://yoursite.com/child/2020/07/21/java-reactor编程入门/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="https://developer.ibm.com/zh/articles/j-cn-with-reactor-response-encode/ 1. 理论基础反应式编程来源于数据流和变化的传播，意味着由底层的执行模型负责通过数据流来自动传播变化。比如求值一个简单的表达式 c=a+b，当 a 或者 b 的值发生变化时，传统的编程范式需要对 a+b 进行重新计算来得到 c 的值。如果使用反应式编程，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-01-12T07:25:35.678Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java-Reactor编程入门">
+<meta name="twitter:description" content="https://developer.ibm.com/zh/articles/j-cn-with-reactor-response-encode/ 1. 理论基础反应式编程来源于数据流和变化的传播，意味着由底层的执行模型负责通过数据流来自动传播变化。比如求值一个简单的表达式 c=a+b，当 a 或者 b 的值发生变化时，传统的编程范式需要对 a+b 进行重新计算来得到 c 的值。如果使用反应式编程，">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
+    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/zzkenyon.github.io/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/zzkenyon.github.io/',
+        CONTENT_URL: '/zzkenyon.github.io/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/zzkenyon.github.io/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                154
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                38
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/20/Nacos(4)集群选举与数据同步/">Nacos(四)集群选举与数据同步</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            不知如何分类
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-java-reactor编程入门" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/zzkenyon.github.io/categories/不知如何分类/">不知如何分类</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/zzkenyon.github.io/tags/java/">java</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/zzkenyon.github.io/2020/07/21/java-reactor编程入门/">
+            <time datetime="2020-07-20T16:00:00.000Z" itemprop="datePublished">2020-07-21</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            java-Reactor编程入门
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p><a href="https://developer.ibm.com/zh/articles/j-cn-with-reactor-response-encode/" target="_blank" rel="noopener">https://developer.ibm.com/zh/articles/j-cn-with-reactor-response-encode/</a></p>
+<h3 id="1-理论基础"><a href="#1-理论基础" class="headerlink" title="1. 理论基础"></a>1. 理论基础</h3><p>反应式编程来源于数据流和变化的传播，意味着由底层的执行模型负责通过数据流来自动传播变化。比如求值一个简单的表达式 c=a+b，当 a 或者 b 的值发生变化时，传统的编程范式需要对 a+b 进行重新计算来得到 c 的值。如果使用反应式编程，当 a 或者 b 的值发生变化时，c 的值会自动更新。反应式编程最早由 .NET 平台上的 Reactive Extensions (Rx) 库来实现。后来迁移到 Java 平台之后就产生了著名的 RxJava 库，并产生了很多其他编程语言上的对应实现。在这些实现的基础上产生了后来的反应式流（Reactive Streams）规范。该规范定义了反应式流的相关接口，并将集成到 Java 9 中。</p>
+<p>在传统的编程范式中，我们一般通过迭代器（Iterator）模式来遍历一个序列。这种遍历方式是由调用者来控制节奏的，采用的是拉的方式。每次由调用者通过 next()方法来获取序列中的下一个值。使用反应式流时采用的则是推的方式，即常见的发布者-订阅者模式。当发布者有新的数据产生时，这些数据会被推送到订阅者来进行处理。在反应式流上可以添加各种不同的操作来对数据进行处理，形成数据处理链。这个以声明式的方式添加的处理链只在订阅者进行订阅操作时才会真正执行。</p>
+<p>反应式流中第一个重要概念是负压（backpressure）。在基本的消息推送模式中，当消息发布者产生数据的速度过快时，会使得消息订阅者的处理速度无法跟上产生的速度，从而给订阅者造成很大的压力。当压力过大时，有可能造成订阅者本身的奔溃，所产生的级联效应甚至可能造成整个系统的瘫痪。负压的作用在于提供一种从订阅者到生产者的反馈渠道。订阅者可以通过 request()方法来声明其一次所能处理的消息数量，而生产者就只会产生相应数量的消息，直到下一次 request()方法调用。这实际上变成了推拉结合的模式。</p>
+<p>前面提到的 RxJava 库是 JVM 上反应式编程的先驱，也是反应式流规范的基础。RxJava 2 在 RxJava 的基础上做了很多的更新。不过 RxJava 库也有其不足的地方。RxJava 产生于反应式流规范之前，虽然可以和反应式流的接口进行转换，但是由于底层实现的原因，使用起来并不是很直观。RxJava 2 在设计和实现时考虑到了与规范的整合，不过为了保持与 RxJava 的兼容性，很多地方在使用时也并不直观。Reactor 则是完全基于反应式流规范设计和实现的库，没有 RxJava 那样的历史包袱，在使用上更加的直观易懂。Reactor 也是 Spring 5 中反应式编程的基础。学习和掌握 Reactor 可以更好地理解 Spring 5 中的相关概念。</p>
+<p>在 Java 程序中使用 Reactor 库非常的简单，只需要通过 Maven 或 Gradle 来添加对 io.projectreactor:reactor-core 的依赖即可，目前的版本是 3.0.5.RELEASE。</p>
+<h3 id="2-Flux-和-Mono"><a href="#2-Flux-和-Mono" class="headerlink" title="2. Flux 和 Mono"></a>2. Flux 和 Mono</h3><p>Flux 和 Mono 是 Reactor 中的两个基本概念z。Flux 表示的是包含 0 到 N 个元素的异步序列。在该序列中可以包含三种不同类型的消息通知：正常的包含元素的消息、序列结束的消息和序列出错的消息。当消息通知产生时，订阅者中对应的方法 onNext(), onComplete()和 onError()会被调用。Mono 表示的是包含 0 或者 1 个元素的异步序列。该序列中同样可以包含与 Flux 相同的三种类型的消息通知。Flux 和 Mono 之间可以进行转换。对一个 Flux 序列进行计数操作，得到的结果是一个 Mono对象。把两个 Mono 序列合并在一起，得到的是一个 Flux 对象。</p>
+<h4 id="2-1-Mono创建"><a href="#2-1-Mono创建" class="headerlink" title="2.1 Mono创建"></a>2.1 Mono创建</h4><h5 id="2-1-1-静态创建方法"><a href="#2-1-1-静态创建方法" class="headerlink" title="2.1.1 静态创建方法"></a>2.1.1 静态创建方法</h5><ul>
+<li>empty()：创建一个不包含任何元素，只发布结束消息的序列。</li>
+<li>just()：可以指定序列中包含的全部元素。创建出来的 Mono序列在发布这些元素之后会自动结束。</li>
+<li>justOrEmpty()：从一个 Optional 对象或可能为 null 的对象中创建 Mono。只有 Optional 对象中包含值或对象不为 null 时，Mono 序列才产生对应的元素。</li>
+<li>error(Throwable error)：创建一个只包含错误消息的序列。</li>
+<li>never()：创建一个不包含任何消息通知的序列。</li>
+<li>fromCallable()、fromCompletionStage()、fromFuture()、fromRunnable()和 fromSupplier()：分别从 Callable、CompletionStage、CompletableFuture、Runnable 和 Supplier 中创建 Mono。</li>
+<li>delay(Duration duration)和 delayMillis(long duration)：创建一个 Mono 序列，在指定的延迟时间之后，产生数字 0 作为唯一值。</li>
+</ul>
+<h5 id="2-1-2-动态创建方法"><a href="#2-1-2-动态创建方法" class="headerlink" title="2.1.2 动态创建方法"></a>2.1.2 动态创建方法</h5><p>通过 create()方法来使用 MonoSink 来创建 Mono。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">monoCreateTest_1</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Mono.create(sink -&gt; &#123;</span><br><span class="line">        SimpleRequest msg = <span class="keyword">new</span> SimpleRequest();</span><br><span class="line">        msg.setRequestMessage(<span class="string">"hello zzk"</span>);</span><br><span class="line">        String requestMessage = msg.getRequestMessage();</span><br><span class="line">        SimpleResponse response =</span><br><span class="line">                SimpleResponse.newBuilder().setResponseMessage(requestMessage).build();</span><br><span class="line">        sink.success(response);</span><br><span class="line">    &#125;)</span><br><span class="line">    .subscribe(System.out::println);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">monoCreateTest_2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    CityService cityService = <span class="keyword">new</span> CityService();</span><br><span class="line">    Mono.create(cityMonoSink -&gt; &#123;</span><br><span class="line">        <span class="keyword">int</span> id = <span class="number">1</span>;</span><br><span class="line">        cityMonoSink.success(cityService.findCityById(id));  <span class="comment">// 此处可做增删改查</span></span><br><span class="line">    &#125;).subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-操作符"><a href="#3-操作符" class="headerlink" title="3. 操作符"></a>3. 操作符</h3><p>Reactor可以在反应式流上通过 声明 的方式添加多种不同的操作符。</p>
+<h4 id="3-1-buffer-和-bufferTimeout"><a href="#3-1-buffer-和-bufferTimeout" class="headerlink" title="3.1 buffer 和 bufferTimeout"></a>3.1 buffer 和 bufferTimeout</h4><p>作用：将当前流中的元素收集到集合中，并将集合对象作为流中的新元素</p>
+<p>在进行收集时可以指定不同的条件：</p>
+<ul>
+<li>所包含的元素的最大数量；</li>
+<li>收集的时间间隔。（事件间隔使用Duration对象表示）</li>
+</ul>
+<p>方法buffer()仅使用一个条件，而bufferTimeout可以使用两个条件</p>
+<p>除了元素数量和时间间隔之外，还可以通过bufferUntil和bufferWhile操作符来进行收集。这两个操作符的参数是表示每个集合中的元素所要满足的条件的predicate对象。</p>
+<p>bufferUtils会一只手机知道predicate返回为true，使得predicate返回true的那个元素可以选择添加到当前集合或者下一个集合中</p>
+<p>bufferWhile则至于当Predicate返回为true时才会收集，一旦返回false，会立即开始下一次收集。</p>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bufferTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">10</span>).bufferWhile(i-&gt;i&gt;<span class="number">5</span>).subscribe(System.out::println);</span><br><span class="line"></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">10</span>).bufferUntil(integer -&gt; integer % <span class="number">2</span> ==<span class="number">0</span>).subscribe(System.out::println);</span><br><span class="line"></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">10</span>).buffer().subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>理解：按一定的条件，将流中元素分类，聚合成新的集合元素</p>
+<h4 id="3-2-filter"><a href="#3-2-filter" class="headerlink" title="3.2 filter"></a>3.2 filter</h4><p>作用：对流中包含的元素进行过滤，只满足Predicate指定条件的元素。</p>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">filterTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">10</span>).filter(integer -&gt; integer%<span class="number">2</span>==<span class="number">0</span>).subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-3-window"><a href="#3-3-window" class="headerlink" title="3.3  window"></a>3.3  window</h4><p>作用：类似于buffer，不同的是window操作符吧当前流中的元素收集到另外的Flux序列中，因此返回值是</p>
+<p>Flux<flux>。</flux></p>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">windowTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">100</span>).window(<span class="number">20</span>).subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在代码中，输出结果分别是 5 个和 2 个 UnicastProcessor 字符。这是因为 window 操作符所产生的流中包含的是 UnicastProcessor 类的对象，而 UnicastProcessor 类的 toString 方法输出的就是 UnicastProcessor 字符。</p>
+<h4 id="3-4-zipWith"><a href="#3-4-zipWith" class="headerlink" title="3.4 zipWith"></a>3.4 zipWith</h4><p>作用：把当前流中的元素与另一个流中的元素按照一对一的方式进行合并。</p>
+<ul>
+<li><p>在合并时，可以不作任何处理，由此得到的是一个元素类型为Tuple2的流</p>
+</li>
+<li><p>也可以通过一个BiFuction函数对合并的元素进行处理，的到的流元素为该函数的返回值</p>
+</li>
+</ul>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">zipWithTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.just(<span class="string">"a"</span>,<span class="string">"b"</span>).zipWith(Flux.just(<span class="string">"c"</span>,<span class="string">"d"</span>)).subscribe(System.out::println);</span><br><span class="line">    Flux.just(<span class="string">"a"</span>,<span class="string">"b"</span>).zipWith(Flux.just(<span class="string">"c"</span>,<span class="string">"d"</span>),(s1,s2)-&gt;s1+s2).subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-5-take"><a href="#3-5-take" class="headerlink" title="3.5 take"></a>3.5 take</h4><p>作用：用于从当提前流中提取元素，提取方式有多种：</p>
+<ul>
+<li>take(long n)，take(Duration timespan)：按照指定的数量或时间间隔来提取。</li>
+<li>takeLast(long n)：提取流中的最后 N 个元素。</li>
+<li>takeUntil(Predicate&lt;? super T&gt; predicate)：提取元素直到 Predicate 返回 true。</li>
+<li>takeWhile(Predicate&lt;? super T&gt; continuePredicate)： 当 Predicate 返回 true 时才进行提取。</li>
+<li>takeUntilOther(Publisher&lt;?&gt; other)：提取元素直到另外一个流开始产生元素。</li>
+</ul>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">takeTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 获取前10个元素</span></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">1000</span>).take(<span class="number">10</span>).subscribe(System.out::println);</span><br><span class="line">    <span class="comment">// 获取后10个元素</span></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">1000</span>).takeLast(<span class="number">10</span>).subscribe(System.out::println);</span><br><span class="line">    <span class="comment">// 提取元素直到Predicate返回true</span></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">1000</span>).takeUntil(integer -&gt; integer==<span class="number">100</span>).subscribe(System.out::println);</span><br><span class="line">    <span class="comment">//当Predicate返回true时，提取元素</span></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">100</span>).takeWhile(integer -&gt; integer&lt;<span class="number">10</span>).subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-6-reduce-和-reduceWith"><a href="#3-6-reduce-和-reduceWith" class="headerlink" title="3.6 reduce 和 reduceWith"></a>3.6 reduce 和 reduceWith</h4><p>作用：对流中包含的所有元素进行累积操作，得到一份包含计算结果的Mono序列。累积操作是通过一份BiFunction来表示的</p>
+<p>在操作的时候可以指定一个初始值，如果没有初始值，序列中的第一个元素作为初始值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reduceTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 累加 返回5050</span></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">100</span>).reduce((x,y)-&gt;x+y).subscribe(System.out::println);</span><br><span class="line">    <span class="comment">// 在50的基础上累加 返回5100</span></span><br><span class="line">    Flux.range(<span class="number">1</span>,<span class="number">100</span>).reduceWith(()-&gt;<span class="number">50</span>,(x,y)-&gt;x+y).subscribe(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-7-merge-和-mergeSequential"><a href="#3-7-merge-和-mergeSequential" class="headerlink" title="3.7 merge 和 mergeSequential"></a>3.7 merge 和 mergeSequential</h4><p>作用：用于把多个流合并成一个Flux序列。</p>
+<ul>
+<li><p>merge 按照所有流中元素的实际生产顺序进行合并</p>
+</li>
+<li><p>mergeSequential 按照所有流被订阅的顺序，以流为单位进行合并</p>
+</li>
+</ul>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.merge(Flux.interval(Duration.of(<span class="number">1</span>, ChronoUnit.SECONDS)).take(<span class="number">10</span>),</span><br><span class="line">            Flux.interval(Duration.of(<span class="number">2</span>,ChronoUnit.SECONDS)).take(<span class="number">10</span>))</span><br><span class="line">    .toStream().forEach(System.out::println);</span><br><span class="line"></span><br><span class="line">    Flux.mergeSequential(Flux.interval(Duration.of(<span class="number">1</span>, ChronoUnit.SECONDS)).take(<span class="number">10</span>),</span><br><span class="line">            Flux.interval(Duration.of(<span class="number">2</span>,ChronoUnit.SECONDS)).take(<span class="number">10</span>))</span><br><span class="line">            .toStream().forEach(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一句：两个序列交叉输出</p>
+<p>第二句：先输出第一个序列，第二个序列虽然没输出但是已经发射的元素存在内存中了，序列一输出完成立即输出以发射的序列二元素，再继续按照序列二的节奏输出。</p>
+<h4 id="3-8-flatMap-和-flatMapSequential"><a href="#3-8-flatMap-和-flatMapSequential" class="headerlink" title="3.8 flatMap 和 flatMapSequential"></a>3.8 flatMap 和 flatMapSequential</h4><p>作用：把流中的每个元素转换成一个流，再把所有流中的元素进行合并。</p>
+<p>flatMap 与flatMapSequential的区别，和上文介绍的merge操作符一致</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">flatMapTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.just(<span class="number">3</span>,<span class="number">5</span>).flatMap(x-&gt;Flux.interval(Duration.of(x,ChronoUnit.SECONDS)).take(x)).toStream()</span><br><span class="line">    .forEach(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-9-concatMap"><a href="#3-9-concatMap" class="headerlink" title="3.9 concatMap"></a>3.9 concatMap</h4><p>作用：也是把流中的每个元素转换成一个流，再把所有流进行合并。</p>
+<p>与 flatMap 不同的是，concatMap 会根据原始流中的元素顺序依次把转换之后的流进行合并；</p>
+<p>与 flatMapSequential 不同的是，concatMap 对转换之后的流的订阅是动态进行的，而 flatMapSequential 在合并之前就已经订阅了所有的流。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">concatMapTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.just(<span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line">            .concatMap(x -&gt; Flux.interval(Duration.of(x,ChronoUnit.SECONDS)).take(x))</span><br><span class="line">            .toStream()</span><br><span class="line">            .forEach(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-10-combineLatest"><a href="#3-10-combineLatest" class="headerlink" title="3.10  combineLatest"></a>3.10  combineLatest</h4><p>作用：把所有流中的最新产生的元素合并成一个新的元素，作为返回结果流中的元素。只要其中任何一个流中产生了新的元素，合并操作就会被执行一次，结果流中就会产生新的元素。</p>
+<p>在下面代码，流中最新产生的元素会被收集到一个数组中，通过 Arrays.toString 方法来把数组转换成 String。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">combineLatestTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Flux.combineLatest(</span><br><span class="line">            Arrays::toString,</span><br><span class="line">            Flux.interval(Duration.of(<span class="number">4</span>,ChronoUnit.SECONDS)).take(<span class="number">5</span>),</span><br><span class="line">            Flux.interval(Duration.of(<span class="number">8</span>,ChronoUnit.SECONDS)).take(<span class="number">5</span>)</span><br><span class="line">    ).toStream().forEach(System.out::println);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-11-defer"><a href="#3-11-defer" class="headerlink" title="3.11 defer"></a>3.11 defer</h4><p>mono defer方法创建数据源属于懒汉型，与Mono.just等创建数据源则是恶汉型，下面看一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">defer</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//声明阶段创建DeferClass对象</span></span><br><span class="line">		Mono&lt;Date&gt; m1 = Mono.just(<span class="keyword">new</span> Date());</span><br><span class="line">		Mono&lt;Date&gt; m2 = Mono.defer(()-&gt;Mono.just(<span class="keyword">new</span> Date()));</span><br><span class="line">		m1.subscribe(System.out::println);</span><br><span class="line">		m2.subscribe(System.out::println);</span><br><span class="line">        <span class="comment">//延迟5秒钟</span></span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">		m1.subscribe(System.out::println);</span><br><span class="line">		m2.subscribe(System.out::println);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果</p>
+<p>Fri Feb 07 10:22:51 GMT+08:00 2020<br>Fri Feb 07 10:22:51 GMT+08:00 2020<br>Fri Feb 07 10:22:51 GMT+08:00 2020<br>Fri Feb 07 10:22:56 GMT+08:00 2020</p>
+<p>我们可以看到，创建了两个数据源，一个使用Mono.just创建，一个用Mono.defer创建，然后分别通过lambda表达式订阅这两个publisher，可以看到两个输出的时间都是10:22：51，延迟5秒钟后重新订阅，Mono.just创建的数据源时间没变，但是Mono.defer创建的数据源时间相应的延迟了5秒钟，原因在于Mono.just会在声明阶段构造Date对象，只创建一次，但是Mono.defer却是在subscribe阶段才会创建对应的Date对象，每次调用subscribe方法都会创建Date对象，在webflux中</p>
+<h3 id="4-消息处理"><a href="#4-消息处理" class="headerlink" title="4. 消息处理"></a>4. 消息处理</h3><p>当需要处理Flux和Mono中的消息时，可以通过subscribe方法来添加相应的订阅逻辑。在调用subscribe方法时可以指定需要处理的消息类型。可以只处理其中包含的正常消息，也可以同时处理错误消息和完成消息。</p>
+<ul>
+<li>通过subscribe()方法处理正常和错误消息</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Flux.just(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        .concatWith(Mono.error(<span class="keyword">new</span> IllegalStateException()))</span><br><span class="line">        .subscribe(System.out::println, System.err::println);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">java.lang.IllegalStateException</span><br></pre></td></tr></table></figure>
+<ul>
+<li>出现错误是返回默认值</li>
+</ul>
+<p>正常的消息处理相对简单。当出现错误时，有多种不同的处理策略。第一种策略是通过 onErrorReturn()方法返回一个默认值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Flux.just(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        .concatWith(Mono.error(<span class="keyword">new</span> IllegalStateException()))</span><br><span class="line">        .onErrorReturn(-<span class="number">1</span>)</span><br><span class="line">        .subscribe(System.out::println);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">-1</span><br></pre></td></tr></table></figure>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/zzkenyon.github.io/2020/08/10/Nacos(1)部署及使用/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Nacos(一)部署及使用
+                
+            </div>
+        </a>
+    
+    
+        <a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">SpringBoot-事务源码分析</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2021 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/zzkenyon.github.io/js/main.js"></script>
+
+    </div>
+</body>
+</html>
