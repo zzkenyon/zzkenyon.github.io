@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>jvm(3)运行时数据区和内存模型 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="jvm">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="我现在已经了解了类的装载机制，当需要装载一个class时，会经历以下步骤：  通过全类名获取字节码文件的字节流 将字节流所代表的静态存储结构转换为方法区的运行时数据结构 在java堆中声称代表这个类的Class对象实例作为对方法去中这些数据访问的入口  在2.3两步中看到了方法区、堆等名词，这些都是jvm进程运行过程需要直接使用的运行时数据区域。 1. 运行时数据区1、方法区  方法区是所有线程共">
+<meta name="keywords" content="jvm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm(3)运行时数据区和内存模型">
+<meta property="og:url" content="https://zzkenyon.github.io/2018/05/17/jvm(3)运行时数据区和内存模型/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="我现在已经了解了类的装载机制，当需要装载一个class时，会经历以下步骤：  通过全类名获取字节码文件的字节流 将字节流所代表的静态存储结构转换为方法区的运行时数据结构 在java堆中声称代表这个类的Class对象实例作为对方法去中这些数据访问的入口  在2.3两步中看到了方法区、堆等名词，这些都是jvm进程运行过程需要直接使用的运行时数据区域。 1. 运行时数据区1、方法区  方法区是所有线程共">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/jvm/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.PNG">
+<meta property="og:updated_time" content="2021-01-15T05:04:17.281Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jvm(3)运行时数据区和内存模型">
+<meta name="twitter:description" content="我现在已经了解了类的装载机制，当需要装载一个class时，会经历以下步骤：  通过全类名获取字节码文件的字节流 将字节流所代表的静态存储结构转换为方法区的运行时数据结构 在java堆中声称代表这个类的Class对象实例作为对方法去中这些数据访问的入口  在2.3两步中看到了方法区、堆等名词，这些都是jvm进程运行过程需要直接使用的运行时数据区域。 1. 运行时数据区1、方法区  方法区是所有线程共">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/jvm/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.PNG">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/avatar.png">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/avatar.png">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                158
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                38
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/2020/08/20/Nacos(4)集群的数据一致性/">Nacos(四)数据一致性</a></li>  <li class="file"><a href="/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            不知如何分类
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/05/12/jvm(1)解构字节码文件/">jvm(1)解构字节码文件</a></li>  <li class="file"><a href="/2018/05/15/jvm(2)类加载过程/">jvm(2)类加载过程</a></li>  <li class="file active"><a href="/2018/05/17/jvm(3)运行时数据区和内存模型/">jvm(3)运行时数据区和内存模型</a></li>  <li class="file"><a href="/2018/05/20/jvm(4)类加载机制以及类加载器/">jvm(4)类加载机制以及类加载器</a></li>  <li class="file"><a href="/2018/05/25/jvm(5)垃圾回收/">jvm(5)垃圾回收</a></li>  <li class="file"><a href="/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/2017/03/13/设计模式-七大设计原则/">设计模式-七大设计原则</a></li>  <li class="file"><a href="/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/2017/05/15/设计模式-委派模式/">设计模式-委派模式</a></li>  <li class="file"><a href="/2017/05/16/设计模式-享元模式/">设计模式-享元模式</a></li>  <li class="file"><a href="/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            随便写写
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-jvm(3)运行时数据区和内存模型" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/深入理解java虚拟机/">深入理解java虚拟机</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/jvm/">jvm</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2018/05/17/jvm(3)运行时数据区和内存模型/">
+            <time datetime="2018-05-16T16:00:00.000Z" itemprop="datePublished">2018-05-17</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            jvm(3)运行时数据区和内存模型
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p>我现在已经了解了类的装载机制，当需要装载一个class时，会经历以下步骤：</p>
+<ol>
+<li>通过全类名获取字节码文件的字节流</li>
+<li>将字节流所代表的静态存储结构转换为方法区的运行时数据结构</li>
+<li>在java堆中声称代表这个类的Class对象实例作为对方法去中这些数据访问的入口</li>
+</ol>
+<p>在2.3两步中看到了方法区、堆等名词，这些都是jvm进程运行过程需要直接使用的运行时数据区域。</p>
+<h4 id="1-运行时数据区"><a href="#1-运行时数据区" class="headerlink" title="1. 运行时数据区"></a>1. 运行时数据区</h4><p>1、方法区</p>
+<ul>
+<li>方法区是所有线程共享的内存区域，在jvm进程启动时创建</li>
+<li>用于存储被虚拟机加载的类信息、常量、静态变量、即使编译器编译后的代码等数据</li>
+<li>java虚拟机规范将方法区描述为堆的一个逻辑部分，但是又有一个别名叫“非堆”，目的是与堆区分开来</li>
+<li>当方法区无法满足内存分配要求，将抛<code>OutOfMemory</code>异常</li>
+</ul>
+<p>2、堆</p>
+<ul>
+<li>堆是虚拟机管理内存最大的一块，jvm启动时创建，所有线程共享</li>
+<li>java对象实例以及数组都是在堆上创建</li>
+</ul>
+<p>3、虚拟机栈</p>
+<ul>
+<li>虚拟机栈是一个线程执行的区域，保存着线程中方法的调用状态，线程私有，随着线程的创建而创建</li>
+<li>每个被线程执行的方法在虚拟机栈中对应一个栈桢</li>
+<li>调用一次方法向栈中压栈一次，调用返回出栈</li>
+</ul>
+<p>4、本地方法栈</p>
+<p>执行Native方法的栈，与虚拟机栈类似</p>
+<p>5、程序计数器</p>
+<ul>
+<li>PC就是一个线程私有的指针，记录线程执行位置，确保线程调度之后重新获取cpu时能知道程序运行位置</li>
+<li>如果线程正在执行java方法，PC记录的是正在执行的虚拟机字节码指令地址</li>
+<li>如果线程正在执行native方法，PC值为空</li>
+</ul>
+<p>了解了jvm的运行时数据区之后，来分析一下jvm的内存模型</p>
+<h4 id="2-内存模型"><a href="#2-内存模型" class="headerlink" title="2. 内存模型"></a>2. 内存模型</h4><p>jvm内存用来存储数据的主要是堆和非堆两大块，这两块都是线程共享区域，因此内存的设计也着重错那个这两块展开。</p>
+<p>堆分为两大块，一个是Old区，Young区</p>
+<p>Young区又分为两块，一块是Eden区，一块是Survivor区</p>
+<p>Survivor区有分为相同大小的s1 和 s2 ，也可以叫 from 和 to</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/jvm/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.PNG" alt></p>
+<p>1、新对象创建所在区域：</p>
+<p>新对象创建时一般会放在Eden区，一些特殊的大对象会直接分配到Old区</p>
+<p>比如有对象A，B，C等创建在Eden区，但是Eden区的内存空间肯定有限，比如有100M，假如已经使用了100M或者达到一个设定的临界值，这时候就需要对Eden内存空间进行清理，即垃圾收集(Garbage Collect)，这样的GC我们称之为Minor GC，Minor GC指得是Young区的GC。经过GC之后，有些对象就会被清理掉，有些对象可能还存活着，对于存活着的对象需要将其复制到Survivor区，然后再清空Eden区中的这些对象。</p>
+<p>2、Survivor区详解：</p>
+<p>由图解可以看出，Survivor区分为两块S0和S1，也可以叫做From和To。在同一个时间点上，S0和S1只能有一个区有数据，另外一个是空的。</p>
+<p>接着上面的GC来说，比如一开始只有Eden区和From中有对象，To中是空的。</p>
+<p>此时进行一次GC操作，From区中对象的年龄就会+1，我们知道Eden区中所有存活的对象会被复制到To区，From区中还能存活的对象会有两个去处。若对象年龄达到之前设置好的年龄阈值，此时对象会被移动到Old区，没有达到阈值的对象会被复制到To区。</p>
+<p>此时Eden区和From区已经被清空(被GC的对象肯定没了，没有被GC的对象都有了各自的去处)。这时候From和To交换角色，之前的From变成了To，之前的To变成了From。也就是说无论如何都要保证名为To的Survivor区域是空的。Minor GC会一直重复这样的过程，直到To区被填满，然后会将所有对象复制到老年代中。</p>
+<p>3、 Old区</p>
+<p>从上面的分析可以看出，一般Old区都是年龄比较大的对象，或者相对超过了某个阈值的对象。在Old区也会有GC的操作，Old区的GC我们称作为Major GC。</p>
+<p>4、一个对象的自述</p>
+<p>我是一个普通的Java对象，我出生在Eden区，在Eden区我还看到很和我长的很像的小兄弟，我们在Eden区中玩了 挺长时间。有一天Eden区中的人实在是太多了，我就被迫去了Survivor区的“From”区，自从去了Survivor 区，我就开始漂了，有时候在Survivor的“From”区，有时候在Survivor的“To”区，居无定所。直到我18岁的 时候，爸爸说我成人了，该去社会上闯闯了。 </p>
+<p>于是我就去了Old区，Old区里面都是一些年龄都挺大的人，还有一些与我不太一样的巨人。我在这里也认识了很多人。在Old区里，我生活了20年(每次GC加一岁)，然后被回收。 </p>
+<p>5、 常见问题</p>
+<ul>
+<li><p>如何理解Minor/Major/Full GC</p>
+<p>Minor GC:新生代 </p>
+<p>Major GC:老年代 </p>
+<p>Full GC:新生代+老年代 </p>
+</li>
+<li><p>为什么需要Survivor区?只有Eden不行吗？</p>
+<p>如果没有Survivor,Eden区每进行一次Minor GC,并且没有年龄限制的条件下，存活的对象就会被送到老年 代。这样一来，老年代很快被填满,触发Major GC(因为Major GC一般伴随着Minor GC,也可以看做触发了 Full GC)。 老年代的内存空间远大于新生代,进行一次Full GC消耗的时间比Minor GC长得多。 执行时间长有什么坏处?频发的Full GC消耗的时间很长,会影响大型程序的执行和响应速度。 可能你会说，那就对老年代的空间进行增加或者较少咯。 假如增加老年代空间，更多存活对象才能填满老年代。虽然降低Full GC频率，但是随着老年代空间加大,一 旦发生Full GC,执行所需要的时间更长。 假如减少老年代空间，虽然Full GC所需时间减少，但是老年代很快被存活对象填满,Full GC频率增加。 所以Survivor的存在意义,就是减少被送到老年代的对象,进而减少Full GC的发生,Survivor的预筛选保 证,只有经历16次Minor GC还能在新生代中存活的对象,才会被送到老年代。 </p>
+</li>
+<li><p>为什么需要两个Survivor区？</p>
+<p>最大的好处就是解决了碎片化。也就是说为什么一个Survivor区不行?第一部分中,我们知道了必须设置 Survivor区。假设现在只有一个Survivor区,我们来模拟一下流程: 刚刚新建的对象在Eden中,一旦Eden满了,触发一次Minor GC,Eden中的存活对象就会被移动到Survivor 区。这样继续循环下去,下一次Eden满了的时候,问题来了,此时进行Minor GC,Eden和Survivor各有一些 存活对象,如果此时把Eden区的存活对象硬放到Survivor区,很明显这两部分对象所占有的内存是不连续的, 也就导致了内存碎片化。 永远有一个Survivor space是空的,另一个非空的Survivor space无碎片。 </p>
+</li>
+<li><p>新生代中Eden:S1:S2为什么是8:1:1？ </p>
+<p>新生代中的可用内存：复制算法用来担保的内存为9：1 </p>
+<p>可用内存中Eden：S1区为8：1 </p>
+<p>即新生代中Eden:S1:S2 = 8：1：1</p>
+</li>
+</ul>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/2018/05/17/并发编程-并发工具类/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    并发编程-并发工具类
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2018/05/15/jvm(2)类加载过程/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">jvm(2)类加载过程</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2021 
+<!--             <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

@@ -13,7 +13,7 @@
 <meta name="keywords" content="redis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis-类型底层实现原理">
-<meta property="og:url" content="http://yoursite.com/child/2019/10/02/redis-类型底层实现原理/index.html">
+<meta property="og:url" content="https://zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="1、String存储类型： 可以用来存储int、float、string 存储实现原理： redis是KV数据库，最外层是通过Hashtable实现的，我们称为外层的哈希 外层hash的实现：dick.h 47line 12345678910typedef struct dictEntry &amp;#123;    void *key; // key 关键字定义    union &amp;#123;">
 <meta property="og:locale" content="zh-CN">
@@ -22,7 +22,12 @@
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-ds-embstr%26raw.PNG">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-ds-ziplist.PNG">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-ds-hashtable.PNG">
-<meta property="og:updated_time" content="2020-11-27T01:17:54.848Z">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/quicklist.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-1.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-2.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-3.png">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-4.png">
+<meta property="og:updated_time" content="2021-01-26T15:00:01.666Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis-类型底层实现原理">
 <meta name="twitter:description" content="1、String存储类型： 可以用来存储int、float、string 存储实现原理： redis是KV数据库，最外层是通过Hashtable实现的，我们称为外层的哈希 外层hash的实现：dick.h 47line 12345678910typedef struct dictEntry &amp;#123;    void *key; // key 关键字定义    union &amp;#123;">
@@ -34,22 +39,22 @@
     
 
     
-        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+        <link rel="icon" href="/favicon.ico">
     
 
-    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
-    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
 
-    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
-    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
     
     
-        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
     
     
-        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
     
     
     
@@ -66,21 +71,21 @@
         <header id="header">
     <div id="header-main" class="header-inner">
         <div class="outer">
-            <a href="/zzkenyon.github.io/" id="logo">
+            <a href="/" id="logo">
                 <i class="logo"></i>
                 <span class="site-title">黑风雅过吟</span>
             </a>
             <nav id="main-nav">
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                    <a class="main-nav-link" href="/">首页</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                    <a class="main-nav-link" href="/archives">归档</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                    <a class="main-nav-link" href="/categories">分类</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                    <a class="main-nav-link" href="/tags">标签</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                    <a class="main-nav-link" href="/about">关于</a>
                 
             </nav>
             
@@ -88,7 +93,7 @@
                 <nav id="sub-nav">
                     <div class="profile" id="profile-nav">
                         <a id="profile-anchor" href="javascript:;">
-                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <img class="avatar" src="/css/images/avatar.png">
                             <i class="fa fa-caret-down"></i>
                         </a>
                     </div>
@@ -122,13 +127,13 @@
             TAGS: '标签',
             UNTITLED: '(未命名)',
         },
-        ROOT_URL: '/zzkenyon.github.io/',
-        CONTENT_URL: '/zzkenyon.github.io/content.json',
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
     };
     window.INSIGHT_CONFIG = INSIGHT_CONFIG;
 })(window);
 </script>
-<script src="/zzkenyon.github.io/js/insight.js"></script>
+<script src="/js/insight.js"></script>
 
 </div>
         </div>
@@ -137,15 +142,15 @@
         <table class="menu outer">
             <tr>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                    <td><a class="main-nav-link" href="/">首页</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
                 
                 <td>
                     
@@ -166,7 +171,7 @@
 <aside id="profile">
     <div class="inner profile-inner">
         <div class="base-info profile-block">
-            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <img id="avatar" src="/css/images/avatar.png">
             <h2 id="name">zhao zhengkang</h2>
             <h3 id="title">Programmer</h3>
             <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
@@ -174,7 +179,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                154
+                158
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -189,7 +194,7 @@
                     
                     
                     <td>
-                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                        <a href="https://github.com/zzkenyon" target="_blank" title="github" class="tooltip">
                             <i class="fa fa-github"></i>
                         </a>
                     </td>
@@ -207,7 +212,7 @@
                     </td>
                     
                     <td>
-                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                        <a href="/atom.xml" target="_blank" title="rss" class="tooltip">
                             <i class="fa fa-rss"></i>
                         </a>
                     </td>
@@ -229,56 +234,56 @@
             <span>分类</span>
             &nbsp;
             <a id="allExpand" href="#">
-                <i class="fa fa-angle-double-down fa-2x"></i>
+                <i class="fa fa-angle-double-up fa-2x"></i>
             </a>
         </h3>
         
         
         
-         <ul class="unstyled" id="tree"> 
+         <ul class="unstyled" id="tree" style="display: block;"> 
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/20/Nacos(4)集群选举与数据同步/">Nacos(四)集群选举与数据同步</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/2020/08/20/Nacos(4)集群的数据一致性/">Nacos(四)数据一致性</a></li>  <li class="file"><a href="/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory open">
@@ -287,117 +292,126 @@
                             &nbsp;
                             noSql
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file active"><a href="/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             tools
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             不知如何分类
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             业务
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             其他
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             分布式架构技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             容器化技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             并发编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             并发编程的艺术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             数据库技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             深入理解java虚拟机
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/05/12/jvm(1)解构字节码文件/">jvm(1)解构字节码文件</a></li>  <li class="file"><a href="/2018/05/15/jvm(2)类加载过程/">jvm(2)类加载过程</a></li>  <li class="file"><a href="/2018/05/17/jvm(3)运行时数据区和内存模型/">jvm(3)运行时数据区和内存模型</a></li>  <li class="file"><a href="/2018/05/20/jvm(4)类加载机制以及类加载器/">jvm(4)类加载机制以及类加载器</a></li>  <li class="file"><a href="/2018/05/25/jvm(5)垃圾回收/">jvm(5)垃圾回收</a></li>  <li class="file"><a href="/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             源码中的设计模式
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/2017/03/13/设计模式-七大设计原则/">设计模式-七大设计原则</a></li>  <li class="file"><a href="/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/2017/05/15/设计模式-委派模式/">设计模式-委派模式</a></li>  <li class="file"><a href="/2017/05/16/设计模式-享元模式/">设计模式-享元模式</a></li>  <li class="file"><a href="/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
                     </li> 
-                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            随便写写
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
     </div>
     <script>
         $(document).ready(function() {
@@ -478,19 +492,19 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/noSql/">noSql</a>
+        <a class="article-category-link" href="/categories/noSql/">noSql</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/redis/">redis</a>
+        <a class="tag-link" href="/tags/redis/">redis</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">
+        <a href="/2019/10/02/redis-类型底层实现原理/">
             <time datetime="2019-10-01T16:00:00.000Z" itemprop="datePublished">2019-10-02</time>
         </a>
     </div>
@@ -533,53 +547,53 @@
 <p>实际上五中常用的数据类型都是一样的，value通过redisObject存储，最终RedisObject通过一个指针指向实际的数据结构</p>
 <p>redisObject定义：server.h 622</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;<span class="comment">/*对象类型*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>; <span class="comment">/*具体的数据结构*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:LRU_BITS; <span class="comment">/*24位，对象最后一次被命令访问的事件，与内存回收有关*/</span></span><br><span class="line">    <span class="keyword">int</span> refcount;<span class="comment">/*引用计数，为0表示可以回收了*/</span></span><br><span class="line">    <span class="keyword">void</span> *ptr; <span class="comment">/*指向对象实际的数据*/</span></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
-<p>用type key命令看到的就是type的内容</p>
+<p>用<code>type key</code>命令看到的就是type的内容</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redsi-ds-sds.png" style="zoom:70%;"></p>
 <p>一个对象有对外展示的类型type，也有对内的编码encoding标明数据的存储结构</p>
-<p>内部编码使用命令 object encoding key 就可查看</p>
+<p>内部编码使用命令 <code>object encoding key</code> 就可查看</p>
 <p>同样都是string类型，对内有三种编码方式：</p>
 <ol>
 <li>int 存储8字节长整型（2^63-1）</li>
 <li>embstr 代表embstr格式的SDS，用于存储小于44字节的字符串</li>
 <li>raw，存储大于44字节的字符串</li>
 </ol>
-<p>问题1、SDS是什么？</p>
+<p><strong>问题1</strong>、SDS是什么？</p>
 <p>Redis中字符串的实现，全称Simple Dynamic String简单动态字符串</p>
 <p>源码：sds.h 47</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* 长度 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* 总共分配的内存大小 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 当前字符数组的属性，标志是sdshdr8还是sdshdr16等 */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];<span class="comment">/* 字符串真正的值 */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>本质上还是数组</p>
 <p>sds有多种结构：sdshdr5、sdshdr8、sdshdr16、sdshdr32、sdshdr64，用于存储不同长度的字符串。分表表示2^5=32byte，2^8=256byte ……</p>
-<p>问题2、为什么redis要使用SDS实现字符串</p>
-<p>C语言本生没有字符串类型，只能用字符数组char[]实现</p>
+<p><strong>问题2</strong>、为什么redis要使用SDS实现字符串</p>
+<p>因为C语言本生没有字符串类型，只能用字符数组char[]实现</p>
 <ol>
 <li>使用字符数组要提前分配足够空间，否则可能溢出</li>
 <li>如果要获取字符串长度，要遍历数组，事件为O(n)</li>
 <li>C字串长度变化需要重新内存分配，不能动态扩容</li>
 <li>通过从字串开始到结尾碰到第一个‘\0’来标记字串结束，因此不能保证图片、音频等二进制文件保存的内容，二进制不安全</li>
 </ol>
-<p>SDS特点：</p>
+<p>SDS解决了以上的问题，它具有以下特点：</p>
 <ul>
 <li>不担心溢出，能动态扩容</li>
 <li>获取长度时间为O(1)</li>
 <li>通过“空间预分配”和“惰性空间释放”防止多次重分配内存</li>
 <li>判断是否结束的标志是len属性，可以包含‘\0’，（可以继续使用c语言库函数）</li>
 </ul>
-<p>问题3、embstr和raw编码的区别？为什么要为不同长度设计不同的编码</p>
+<p><strong>问题3</strong>、embstr和raw编码的区别？为什么要为不同长度设计不同的编码</p>
 <p>embstr的使用只分配一次内存空间（因为RedisObject和SDS是连续的内存）</p>
 <p>raw需要两次分配内存，分为RedisObject空间和SDS空间</p>
-<p>所以与raw相比，embstr好处在于穿件是少分配一次空间，删除时少释放一次空间，以及对象所有数据是在连续空间的</p>
+<p>所以与raw相比，embstr好处在创建时少分配一次空间，删除时少释放一次空间，以及对象所有数据是在连续空间的</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-ds-embstr%26raw.PNG" style="zoom:75%;"></p>
 <p>而embstr的缺点也很明显，如果字串长度增加需要重新分配内存时，整个redisObject和SDS都需要重新分配空间，因此Redis中的embstr实现为只读（这里的只读是对内存对象而言，对用户来说还是可以写的）</p>
-<p>问题4、int和embstr什么时候转化为raw？</p>
+<p><strong>问题4</strong>、int和embstr什么时候转化为raw？</p>
 <p>1、int 数据不再是整数—raw</p>
 <p>2、int大小超出了long的范围—embstr</p>
 <p>3、embstr长度超出了44字节—raw</p>
-<p>问题5、没有超过44，怎么变成raw了</p>
+<p><strong>问题5</strong>、没有超过44，怎么变成raw了</p>
 <p>我们前面说过，对于embstr，由于它的实现是只读的，因此在对embstr对象进行修改时，都会先转化为raw在进行修改</p>
 <p>因此，只要是修改过的string类型数据，都是raw编码的</p>
-<p>问题5、当长度改变小于44时会还原吗</p>
-<p>不可逆，编码转化只能由小到大</p>
-<p>问题6、为什么要对对曾的数据结构使用RedisObject进行一层包装</p>
+<p><strong>问题6</strong>、当长度改变小于44时会还原吗</p>
+<p>编码的升级是不可逆的，编码转化只能由小到大</p>
+<p><strong>问题7</strong>、为什么要对对曾的数据结构使用RedisObject进行一层包装</p>
 <p>总结一下：其实无论是设计RedisObject，还是对存储字串设计这么多的SDS，都是为了根据存储不同选择不同的方式进行存储，这样可以尽量节省内存空间和提升查询速度的目的</p>
 <p>应用场景：</p>
 <p>1、缓存</p>
@@ -587,8 +601,7 @@
 <p>3、分布式锁</p>
 <p>4、全局id—利用INCRBY，利用原子性</p>
 <p>5、计数器 – 秒杀场景</p>
-<h3 id="2、Hash"><a href="#2、Hash" class="headerlink" title="2、Hash"></a>2、Hash</h3><p>存储类型</p>
-<p>用于存储多个无序的键值对，最大存储数量2^32-1(40亿左右)</p>
+<h3 id="2、Hash"><a href="#2、Hash" class="headerlink" title="2、Hash"></a>2、Hash</h3><h4 id="2-1-存储类型"><a href="#2-1-存储类型" class="headerlink" title="2.1 存储类型"></a>2.1 存储类型</h4><p>用于存储多个无序的键值对，最大存储数量2^32-1(40亿左右)</p>
 <p>hash的value只能是字符串，不能嵌套其他类型，比如hash或者list</p>
 <p>同样是存储字符串，Hash与String的区别在哪？</p>
 <ol>
@@ -599,27 +612,40 @@
 <p>Hash不适合的场景</p>
 <ol>
 <li>Field 不能单独设置过期时间</li>
-<li>需要考虑数量分布的问题（field非常多的时候，无法分不到多个节点）</li>
+<li>需要考虑数量分布的问题（field非常多的时候，无法分布到多个节点）</li>
 </ol>
-<p>存储实现原理</p>
-<p>Redis的Hash本身也是一个KV结构，是不是跟外层的哈希一样使用dicEntry实现呢？</p>
+<h4 id="2-2-存储实现原理"><a href="#2-2-存储实现原理" class="headerlink" title="2.2 存储实现原理"></a>2.2 存储实现原理</h4><p>Redis的Hash本身也是一个KV结构，是不是跟外层的哈希一样使用dicEntry实现呢？</p>
 <p>内层hash底层可以使用两种数据结构实现：</p>
 <p>ziplist：OBJ_ENCODING_ZIPLIST   压缩列表</p>
 <p>hashtable：OBJ_ENCODING_HT 哈希表</p>
-<p>同样使用命令 object encoding key 查看</p>
-<p>ziplist压缩列表</p>
-<p>它是一个经过特殊编码 的，有连续内存块组成的双向链表。</p>
+<p>同样使用命令 <code>object encoding key</code> 查看</p>
+<h5 id="2-2-1-ziplist压缩列表"><a href="#2-2-1-ziplist压缩列表" class="headerlink" title="2.2.1 ziplist压缩列表"></a>2.2.1 ziplist压缩列表</h5><p>它是一个经过特殊编码的，有连续内存块组成的双向链表。</p>
 <p>它不存储指向上一个链表节点和指向下一个链表节点的指针，而是存储上一个节点的长度和当前节点的长度。这样读写访问可能会慢一些，因为要去计算长度，但是可以节省内存，是时间换空间的思想。</p>
 <p>源码ziplist.c 16行的注释</p>
 <p><zlbytes> <zltail> <zllen> <entry> <entry> … <entry> <zlend></zlend></entry></entry></entry></zllen></zltail></zlbytes></p>
-<p>我们最关心的Entry内容 : ziplist.c 271</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zlentry</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> prevrawlensize; <span class="comment">/* 存储上一个链表节点的长度数值需要的字节数*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> prevrawlen;     <span class="comment">/* 上一个链表节点占用的长度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> lensize;        <span class="comment">/* 存储当前链表节点长度数值所需要的字节数*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;            <span class="comment">/* 当前链表节点占用长度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> headersize;     <span class="comment">/* 当前链表节点的头部大小 prevrawlensize + lensize. */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> encoding;      <span class="comment">/* 编码方式 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *p;            <span class="comment">/*压缩链表以字符串的形式保存，该指针指向当前节点起始位置 */</span></span><br><span class="line">&#125; zlentry;</span><br></pre></td></tr></table></figure>
-<p>展开看：</p>
-<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-ds-ziplist.PNG" style="zoom:75%;"></p>
+<p>zlbytes：压缩列表的字节长度，占4字节，因此压缩列表最长是2^32-1</p>
+<p>zltail：压缩列表尾元素相对于压缩列表起始地址的偏移量，占4字节</p>
+<p>zllen：压缩列表的元素数目，占2字节，当元素数量超出2字节表示时，通过zllen无法获得压缩列表的元素数量，必须遍历整个压缩列表</p>
+<p>entry：压缩列表存储的若干个元素，可以为字节数组或者整数</p>
+<p>zlend：压缩列表的结尾符，恒为0XFF</p>
+<p><strong>ziplist元素的编码结构</strong></p>
 <p>编码有哪些？</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_STR_06B (0 &lt;&lt; 6)  <span class="comment">// 长度小于等于63字节</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_STR_14B (1 &lt;&lt; 6)	<span class="comment">//长度小于等于16383字节</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_STR_32B (2 &lt;&lt; 6)  <span class="comment">//长度小于等于429496295字节</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_INT_16B (0xc0 | 0&lt;&lt;4) </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_INT_32B (0xc0 | 1&lt;&lt;4)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_INT_64B (0xc0 | 2&lt;&lt;4)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_INT_24B (0xc0 | 3&lt;&lt;4)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_INT_8B 0xfe</span></span><br></pre></td></tr></table></figure>
-<p>ziplist详情请见<a href="https://blog.csdn.net/zgaoq/article/details/89710600" target="_blank" rel="noopener">https://blog.csdn.net/zgaoq/article/details/89710600</a></p>
-<p>问题：什么时候用ziplist存储</p>
+<p>ziplist详情请见</p>
+<p><a href="https://blog.csdn.net/zgaoq/article/details/89710600" target="_blank" rel="noopener">https://blog.csdn.net/zgaoq/article/details/89710600</a></p>
+<p><a href="https://segmentfault.com/a/1190000017328042" target="_blank" rel="noopener">https://segmentfault.com/a/1190000017328042</a></p>
+<p>我们最关心的Entry内容 : ziplist.c 271</p>
+<p>zlentry是根据一个ziplist元素解析计算出来的结构体，记录了该节点的一些重要信息</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zlentry</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> prevrawlensize; <span class="comment">/* 存储上一个链表节点的长度数值需要的字节数*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> prevrawlen;     <span class="comment">/* 上一个链表节点占用的长度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> lensize;        <span class="comment">/* 存储当前链表节点长度数值所需要的字节数*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;            <span class="comment">/* 当前链表节点实际数据占用字节长度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> headersize;     <span class="comment">/* 当前链表节点的头部大小 prevrawlensize + lensize. */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> encoding;      <span class="comment">/* 编码方式 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *p;            <span class="comment">/*压缩链表以字符串的形式保存，该指针指向当前节点起始位置 */</span></span><br><span class="line">&#125; zlentry;</span><br></pre></td></tr></table></figure>
+<p>根据以上的结构体信息，我们能够得到，节点数据的起始位置为 p + headersize，长度是len</p>
+<p>p-prevrawlen 为上一个节点元素的起始位置</p>
+<p>基于这种结构，ziplist从后向前遍历会比较合适</p>
+<p><strong>hash类型如何使用ziplist</strong></p>
+<p>那么，hash类型的数据是怎么使用ziplist存储的呢，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">将同一键值对的两个节点紧挨着保存，保存键的节点在前，保存</span><br><span class="line">值的节点在后，新加入的键值对，放在压缩列表表尾</span><br></pre></td></tr></table></figure>
+<p>展开看：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/redis-ds-ziplist.PNG" style="zoom:75%;"></p>
+<p><strong>问题</strong>：什么时候用ziplist存储</p>
 <p>当hash对象同时满足以下两个条件时：</p>
 <ul>
 <li>hash对象保存的键值对数量小于512个</li>
@@ -628,10 +654,9 @@
 <p>通过查看redis配置文件：redis.conf</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hash-max-ziplist-value 64</span><br><span class="line">hash-max-ziplist-entries 521</span><br></pre></td></tr></table></figure>
 <p>超过这两个阈值的任何一个，存储结构就会转换成hashtable</p>
-<p>hashtable（dict）</p>
-<p>在Redis中，hashtabe被称为字典</p>
+<h5 id="2-2-2-hashtable（dict）"><a href="#2-2-2-hashtable（dict）" class="headerlink" title="2.2.2 hashtable（dict）"></a>2.2.2 hashtable（dict）</h5><p>在Redis中，hashtabe被称为字典</p>
 <p>前面我们了解到redis的kv结构是通过一个dictEntry实现的</p>
-<p>在hashtable中，又对hashtable进行了多层的封装</p>
+<p>在hashtable中，又对dictEntry进行了多层的封装</p>
 <p>源码位置：dict.h 47 </p>
 <p>首先有一个dictEntry：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *key; <span class="comment">// key 关键字定义</span></span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="keyword">void</span> *val; <span class="comment">// value 定义</span></span><br><span class="line">        <span class="keyword">uint64_t</span> u64;</span><br><span class="line">        <span class="keyword">int64_t</span> s64;</span><br><span class="line">        <span class="keyword">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span> <span class="comment">//指向下一个键值对节点</span></span><br><span class="line">&#125; dictEntry;</span><br></pre></td></tr></table></figure>
@@ -666,20 +691,30 @@
 <p>使用 object encoding key 来查看</p>
 <p>quicklist</p>
 <p>先看总体结构</p>
-<p><img src alt="redis-db-quicklist"></p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/quicklist.png" alt="redis-db-quicklist"></p>
 <p>源码位置：quicklist.h 105行</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">quicklist</span> &#123;</span></span><br><span class="line">    quicklistNode *head;</span><br><span class="line">    quicklistNode *tail;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> count;        <span class="comment">/* total count of all entries in all ziplists */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> len;          <span class="comment">/* number of quicklistNodes */</span></span><br><span class="line">    <span class="keyword">int</span> fill : QL_FILL_BITS;              <span class="comment">/* fill factor for individual nodes */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> compress : QL_COMP_BITS; <span class="comment">/* depth of end nodes not to compress;0=off */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> bookmark_count: QL_BM_BITS;</span><br><span class="line">    quicklistBookmark bookmarks[];</span><br><span class="line">&#125; quicklist;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">quicklist</span> &#123;</span></span><br><span class="line">    quicklistNode *head;</span><br><span class="line">    quicklistNode *tail;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> count;        <span class="comment">/* 所有的ziplist一共存了多少元素 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> len;          <span class="comment">/* 双向链表的长度 */</span></span><br><span class="line">    <span class="keyword">int</span> fill : QL_FILL_BITS;              <span class="comment">/* ziplist最大大小 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> compress : QL_COMP_BITS; <span class="comment">/* 压缩深度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> bookmark_count: QL_BM_BITS;<span class="comment">/* 4位，bookmark数组大小 */</span></span><br><span class="line">    quicklistBookmark bookmarks[];<span class="comment">/* bookmark是一个可选字段，quicklist重新分配内存空间时使用，不使用不占空间 */</span></span><br><span class="line">&#125; quicklist;</span><br></pre></td></tr></table></figure>
+<p>redis.config相关参数：</p>
+<p>list-max-ziplist-size：整数表示单个ziplist最多包含的entry个数，负数代表单个ziplist的大小，默认8k，-1 4K,-2 8k,-3 16k …</p>
+<p>list-compress-depth：默认是0，1表示首位的ziplist不压缩；2表示收尾第一第二个ziplist不压缩，以此类推。</p>
 <p>节点quicklistNode源码在quicklist.h 46行</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">quicklistNode</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">quicklistNode</span> *<span class="title">prev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">quicklistNode</span> *<span class="title">next</span>;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *zl;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> sz;             <span class="comment">/* ziplist size in bytes */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count : <span class="number">16</span>;     <span class="comment">/* count of items in ziplist */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> encoding : <span class="number">2</span>;   <span class="comment">/* RAW==1 or LZF==2 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> container : <span class="number">2</span>;  <span class="comment">/* NONE==1 or ZIPLIST==2 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> recompress : <span class="number">1</span>; <span class="comment">/* was this node previous compressed? */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> attempted_compress : <span class="number">1</span>; <span class="comment">/* node can't compress; too small */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> extra : <span class="number">10</span>; <span class="comment">/* more bits to steal for future usage */</span></span><br><span class="line">&#125; quicklistNode;</span><br></pre></td></tr></table></figure>
 <p>总结一下：quicklist就是一个数组+链表的结构</p>
-<p>应用场景：主要用于存储有序内容的场景</p>
-<p>例如：</p>
-<p>用户的消息列表</p>
-<p>网站的公告列表</p>
-<p>活动列表</p>
-<p>博客的文章列表</p>
-<p>评论列表等</p>
-<p>还可以当做分布式环境的队列或者栈使用</p>
+<p><strong>应用场景</strong>：主要用于存储有序内容的场景</p>
+<ul>
+<li><p>用户的消息列表</p>
+</li>
+<li><p>网站的公告列表</p>
+</li>
+<li><p>活动列表</p>
+</li>
+<li><p>博客的文章列表</p>
+</li>
+<li><p>评论列表等</p>
+</li>
+<li><p>还可以当做分布式环境的队列或者栈使用</p>
+</li>
+</ul>
 <h3 id="4、Set"><a href="#4、Set" class="headerlink" title="4、Set"></a>4、Set</h3><p>存储类型：无序集合</p>
 <p>存储原理</p>
 <p>redis 用intset或hashtable存储set。如果元素都是整型，就用inset</p>
@@ -687,7 +722,49 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> encoding;</span><br><span class="line">    <span class="keyword">uint32_t</span> length;</span><br><span class="line">    <span class="keyword">int8_t</span> contents[];</span><br><span class="line">&#125; intset;</span><br></pre></td></tr></table></figure>
 <p>如果不是整数类型，就用hashtable（数组+链表）</p>
 <p>如果元素个数超过了512个，也会用hashtable，这与一个配置有关</p>
-<h3 id="5、Zset"><a href="#5、Zset" class="headerlink" title="5、Zset"></a>5、Zset</h3><h4 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h4><p>这里介绍一下在网上看到的源码阅读方法（摘自<a href="https://link.zhihu.com/?target=http%3A//redissrc.readthedocs.io/en/latest/%23id3" target="_blank" rel="noopener">redis源码解析</a>）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set-max-intset-entries 512</span><br></pre></td></tr></table></figure>
+<p><strong>问题：</strong>set的key没有value，怎么用hashtable存储？</p>
+<p>value存null</p>
+<p><strong>应用场景：</strong></p>
+<ul>
+<li>抽奖</li>
+<li>点赞、签到、打卡</li>
+<li>商品标签</li>
+<li>商品筛选</li>
+<li>用户关注（共同好友），推荐</li>
+</ul>
+<h3 id="5、Zset"><a href="#5、Zset" class="headerlink" title="5、Zset"></a>5、Zset</h3><p><strong>存储类型</strong></p>
+<p>Sorted set存储有序的元素，每个元素有个score，按照score从小到大排名</p>
+<p>score相同，按照key的ACSII码排序</p>
+<p><strong>存储原理</strong></p>
+<p>默认使用ziplist编码</p>
+<p>在ziplist内部，按照Score排序递增来存储，插入的时候要移动之后的数据。</p>
+<p>如果元素数量大于等于128个，或者任一member长度大于64字节，使用skiplist+dict存储</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zset-max-ziplist-entries 128</span><br><span class="line">zset-max-ziplist-value 64</span><br></pre></td></tr></table></figure>
+<p><strong>什么是skiplist</strong></p>
+<p>先来看一下有序链表：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-1.png" alt></p>
+<p>这样的链表中要查询数据需要从前往后遍历比较，时间复杂度为O(n)，插入亦然。</p>
+<p>加入我们没相邻两个节点增加一个执政，让指针指向下一个节点（或者理解为有三个元素进入了第二层）</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-2.png" alt></p>
+<p>这样所有新增的指针连成了一个新链表</p>
+<p><strong>问：</strong>哪些元素会进入到第二层？</p>
+<p>见源码t_zset.c 122行</p>
+<p>现在查数据时，可以先沿着新链表查找，碰到比待查数大的节点，进入下一层</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-3.png" alt></p>
+<p>在这个查找过程中，由于新增的指针，我们不需要逐个节点去比较，需要比较的节点数大概只有原来的一半。</p>
+<p>为什么不用AVL树或者红黑树？因为skiplist更加简洁</p>
+<p>且level是随机的，得到的skiplist可能是这样的：</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/redis/skiplist-4.png" alt></p>
+<p><strong>应用场景</strong></p>
+<p>顺序会动态变化的列表</p>
+<ul>
+<li>排行榜</li>
+</ul>
+<h3 id="6、Hyperloglogs"><a href="#6、Hyperloglogs" class="headerlink" title="6、Hyperloglogs"></a>6、Hyperloglogs</h3><p>提供了一种不太精确的基数统计方法，用来统计一个集中不重复的元素个数，比如统计网站的UV，或者应用的日活，越活，存在一定误差</p>
+<p>在redis实现的HyperLogLog，只需要12k内存就能统计2^64个数据。</p>
+<h3 id="7、GEO"><a href="#7、GEO" class="headerlink" title="7、GEO"></a>7、GEO</h3><h3 id="8、Streams"><a href="#8、Streams" class="headerlink" title="8、Streams"></a>8、Streams</h3><p>5.0版本推出的数据类型，支持多波的可持久化的消息队列，用于实现发布订阅功能，借鉴了kafka的设计。</p>
+<h4 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h4><p>这里介绍一下在网上看到的源码阅读方法（摘自<a href="https://link.zhihu.com/?target=http%3A//redissrc.readthedocs.io/en/latest/%23id3" target="_blank" rel="noopener">redis源码解析</a>）。</p>
 <ul>
 <li>自底向上：从耦合关系最小的模块开始读，然后逐渐过度到关系紧密的模块。就好像写程序的测试一样，先从单元测试开始，然后才到功能测试。</li>
 <li>从功能入手：通过文件名（模块名）和函数名，快速定位到一个功能的具体实现，然后追踪整个实现的运作流程，从而了解该功能的实现方式。</li>
@@ -792,7 +869,7 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/2019/10/19/分布式-序列化之protobuf/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
@@ -802,7 +879,7 @@
         </a>
     
     
-        <a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/2019/09/02/redis-缓存数据库双写一致性/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
             <div class="article-nav-title">redis-缓存数据库双写一致性方案解析</div>
         </a>
@@ -829,7 +906,7 @@
     <div class="outer">
         <div id="footer-info" class="inner">
             Zhao Zhengkang &copy; 2021 
-            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+<!--             <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
             <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
             
                 <br>
@@ -844,18 +921,18 @@
         
 
     
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
     
     
-        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
     
     
         <script type="text/x-mathjax-config">
@@ -883,7 +960,7 @@
 
 
 <!-- Custom Scripts -->
-<script src="/zzkenyon.github.io/js/main.js"></script>
+<script src="/js/main.js"></script>
 
     </div>
 </body>

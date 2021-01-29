@@ -13,13 +13,13 @@
 <meta name="keywords" content="SpringCloud">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SpringCloud-配置中心源码分析">
-<meta property="og:url" content="http://yoursite.com/child/2019/07/27/SpringCloud-config配置中心源码分析/index.html">
+<meta property="og:url" content="https://zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/index.html">
 <meta property="og:site_name" content="黑风雅过吟">
 <meta property="og:description" content="为什么需要配置中心？ 分布式微服务架构，当一个服务存在多个实例分布在不同的服务器上，需要对该服务进行配置变更时，需要逐个服务器进行配置，并需要重启服务。配置中心就是为了解决这个问题，让配置一处变更，处处生效。 开源的配置中心：  Diamond(super)  Apoll 携程  spring cloud config  nacos(alibaba) (服务注册、 配置中心)   zookeepe">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/cloud/listeners.png">
 <meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/cloud/%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E5%AF%B9%E8%B1%A1.png">
-<meta property="og:updated_time" content="2020-08-10T10:03:19.050Z">
+<meta property="og:updated_time" content="2021-01-21T09:16:55.403Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SpringCloud-配置中心源码分析">
 <meta name="twitter:description" content="为什么需要配置中心？ 分布式微服务架构，当一个服务存在多个实例分布在不同的服务器上，需要对该服务进行配置变更时，需要逐个服务器进行配置，并需要重启服务。配置中心就是为了解决这个问题，让配置一处变更，处处生效。 开源的配置中心：  Diamond(super)  Apoll 携程  spring cloud config  nacos(alibaba) (服务注册、 配置中心)   zookeepe">
@@ -31,22 +31,22 @@
     
 
     
-        <link rel="icon" href="/zzkenyon.github.io/favicon.ico">
+        <link rel="icon" href="/favicon.ico">
     
 
-    <link rel="stylesheet" href="/zzkenyon.github.io/libs/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/zzkenyon.github.io/libs/open-sans/styles.css">
-    <link rel="stylesheet" href="/zzkenyon.github.io/libs/source-code-pro/styles.css">
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
 
-    <link rel="stylesheet" href="/zzkenyon.github.io/css/style.css">
-    <script src="/zzkenyon.github.io/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="/zzkenyon.github.io/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
     
     
-        <link rel="stylesheet" href="/zzkenyon.github.io/libs/lightgallery/css/lightgallery.min.css">
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
     
     
-        <link rel="stylesheet" href="/zzkenyon.github.io/libs/justified-gallery/justifiedGallery.min.css">
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
     
     
     
@@ -63,21 +63,21 @@
         <header id="header">
     <div id="header-main" class="header-inner">
         <div class="outer">
-            <a href="/zzkenyon.github.io/" id="logo">
+            <a href="/" id="logo">
                 <i class="logo"></i>
                 <span class="site-title">黑风雅过吟</span>
             </a>
             <nav id="main-nav">
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/">首页</a>
+                    <a class="main-nav-link" href="/">首页</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a>
+                    <a class="main-nav-link" href="/archives">归档</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a>
+                    <a class="main-nav-link" href="/categories">分类</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a>
+                    <a class="main-nav-link" href="/tags">标签</a>
                 
-                    <a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a>
+                    <a class="main-nav-link" href="/about">关于</a>
                 
             </nav>
             
@@ -85,7 +85,7 @@
                 <nav id="sub-nav">
                     <div class="profile" id="profile-nav">
                         <a id="profile-anchor" href="javascript:;">
-                            <img class="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac">
+                            <img class="avatar" src="/css/images/avatar.png">
                             <i class="fa fa-caret-down"></i>
                         </a>
                     </div>
@@ -119,13 +119,13 @@
             TAGS: '标签',
             UNTITLED: '(未命名)',
         },
-        ROOT_URL: '/zzkenyon.github.io/',
-        CONTENT_URL: '/zzkenyon.github.io/content.json',
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
     };
     window.INSIGHT_CONFIG = INSIGHT_CONFIG;
 })(window);
 </script>
-<script src="/zzkenyon.github.io/js/insight.js"></script>
+<script src="/js/insight.js"></script>
 
 </div>
         </div>
@@ -134,15 +134,15 @@
         <table class="menu outer">
             <tr>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/">首页</a></td>
+                    <td><a class="main-nav-link" href="/">首页</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/archives">归档</a></td>
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/categories">分类</a></td>
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/tags">标签</a></td>
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
                 
-                    <td><a class="main-nav-link" href="/zzkenyon.github.io/about">关于</a></td>
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
                 
                 <td>
                     
@@ -163,7 +163,7 @@
 <aside id="profile">
     <div class="inner profile-inner">
         <div class="base-info profile-block">
-            <img id="avatar" src="https://www.gravatar.com/avatar/0192cac5afdfd32969f50ca9205b28ac?s=128">
+            <img id="avatar" src="/css/images/avatar.png">
             <h2 id="name">zhao zhengkang</h2>
             <h3 id="title">Programmer</h3>
             <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
@@ -171,7 +171,7 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                154
+                158
                 <span>文章</span>
             </div>
             <div class="article-info-block">
@@ -186,7 +186,7 @@
                     
                     
                     <td>
-                        <a href="https://github.com/zzkenyon/zthxxx.github.io" target="_blank" title="github" class="tooltip">
+                        <a href="https://github.com/zzkenyon" target="_blank" title="github" class="tooltip">
                             <i class="fa fa-github"></i>
                         </a>
                     </td>
@@ -204,7 +204,7 @@
                     </td>
                     
                     <td>
-                        <a href="/zzkenyon.github.io/atom.xml" target="_blank" title="rss" class="tooltip">
+                        <a href="/atom.xml" target="_blank" title="rss" class="tooltip">
                             <i class="fa fa-rss"></i>
                         </a>
                     </td>
@@ -226,47 +226,47 @@
             <span>分类</span>
             &nbsp;
             <a id="allExpand" href="#">
-                <i class="fa fa-angle-double-down fa-2x"></i>
+                <i class="fa fa-angle-double-up fa-2x"></i>
             </a>
         </h3>
         
         
         
-         <ul class="unstyled" id="tree"> 
+         <ul class="unstyled" id="tree" style="display: block;"> 
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             I/O和网络编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             ORM框架
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             RPC框架Dubbo
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             SpringBoot
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory open">
@@ -275,126 +275,135 @@
                             &nbsp;
                             SpringCloud
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file active"><a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/20/Nacos(4)集群选举与数据同步/">Nacos(四)集群选举与数据同步</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file active"><a href="/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file"><a href="/2020/08/20/Nacos(4)集群的数据一致性/">Nacos(四)数据一致性</a></li>  <li class="file"><a href="/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             noSql
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             tools
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             不知如何分类
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             业务
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             其他
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             分布式架构技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             容器化技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             并发编程
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             并发编程的艺术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             数据库技术
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/zzkenyon.github.io/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             消息中间件
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/zzkenyon.github.io/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             深入理解java虚拟机
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2018/10/27/jvm-类加载过程/">jvm-类加载过程</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/28/jvm-类加载器/">jvm-类加载器</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/01/jvm-运行时数据区和内存模型/">jvm-运行时数据区和内存模型</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/05/jvm-垃圾回收/">jvm-垃圾回收</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/05/12/jvm(1)解构字节码文件/">jvm(1)解构字节码文件</a></li>  <li class="file"><a href="/2018/05/15/jvm(2)类加载过程/">jvm(2)类加载过程</a></li>  <li class="file"><a href="/2018/05/17/jvm(3)运行时数据区和内存模型/">jvm(3)运行时数据区和内存模型</a></li>  <li class="file"><a href="/2018/05/20/jvm(4)类加载机制以及类加载器/">jvm(4)类加载机制以及类加载器</a></li>  <li class="file"><a href="/2018/05/25/jvm(5)垃圾回收/">jvm(5)垃圾回收</a></li>  <li class="file"><a href="/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
                     </li> 
                     
                     <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             源码中的设计模式
                         </a>
-                         <ul class="unstyled" id="tree">  <li class="file"><a href="/zzkenyon.github.io/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/2017/03/13/设计模式-七大设计原则/">设计模式-七大设计原则</a></li>  <li class="file"><a href="/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/2017/05/15/设计模式-委派模式/">设计模式-委派模式</a></li>  <li class="file"><a href="/2017/05/16/设计模式-享元模式/">设计模式-享元模式</a></li>  <li class="file"><a href="/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
                     </li> 
-                     <li class="file"><a href="/zzkenyon.github.io/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/zzkenyon.github.io/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/zzkenyon.github.io/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            随便写写
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
     </div>
     <script>
         $(document).ready(function() {
@@ -475,19 +484,19 @@
                         
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/zzkenyon.github.io/categories/SpringCloud/">SpringCloud</a>
+        <a class="article-category-link" href="/categories/SpringCloud/">SpringCloud</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/zzkenyon.github.io/tags/SpringCloud/">SpringCloud</a>
+        <a class="tag-link" href="/tags/SpringCloud/">SpringCloud</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/zzkenyon.github.io/2019/07/27/SpringCloud-config配置中心源码分析/">
+        <a href="/2019/07/27/SpringCloud-config配置中心源码分析/">
             <time datetime="2019-07-26T16:00:00.000Z" itemprop="datePublished">2019-07-27</time>
         </a>
     </div>
@@ -548,17 +557,25 @@
 <li>我在持久化层存储的配置，config server可以通过一系列的接口直接访问，那么server拿到配置后是通过什么方式给到client？</li>
 <li>client拿到server 给的配置后，又是怎样塞给Environment对象的，为什么不用重启服务配置就能生效？</li>
 </ol>
-<h4 id="bootstrap-yml的加载"><a href="#bootstrap-yml的加载" class="headerlink" title="bootstrap.yml的加载"></a>bootstrap.yml的加载</h4><p>在对springboot的启动过程有过一定了解之后，我已经了解到对项目进行的配置最终都会加载到Environment对象中，该对象中包含了很对配置来源：系统属性、系统环境变量、Servlet配置能、命令行配置属性源、配置文件属性源等等。</p>
-<p>而springcloud引用在启动过程中Environment对象创建完成之后，已经确定了5个属性源，其中没有配置文件以及配置中心，创建完会广播一个事件<code>ApplicationEnvironmentPreparedEvent</code>，这时候监听事件的监听器如下图：</p>
+<h3 id="1-bootstrap-yml的加载"><a href="#1-bootstrap-yml的加载" class="headerlink" title="1. bootstrap.yml的加载"></a>1. bootstrap.yml的加载</h3><p>在对springboot的启动过程有过一定了解之后，我已经了解到对项目进行的配置最终都会加载到Environment对象中，该对象中包含了很对配置来源：</p>
+<ul>
+<li>系统属性</li>
+<li>系统环境变量</li>
+<li>Servlet配置能</li>
+<li>命令行配置属性源</li>
+<li>配置文件属性源</li>
+</ul>
+<p>而springboot应用在启动过程中<code>Environment</code>对象创建完成之后，已经确定了5个属性源，其中没有配置文件以及配置中心</p>
+<p><code>Environment</code>创建完会广播一个事件<code>ApplicationEnvironmentPreparedEvent</code>，这时候监听事件的监听器如下图：</p>
 <p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/springboot/cloud/listeners.png" alt="监听器们"></p>
 <h5 id="BootstrapApplicationListener"><a href="#BootstrapApplicationListener" class="headerlink" title="BootstrapApplicationListener"></a>BootstrapApplicationListener</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BootstrapApplicationListener</span></span></span><br><span class="line"><span class="class">      <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ApplicationEnvironmentPreparedEvent</span>&gt;, <span class="title">Ordered</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
-<p>从类声明就能看出该监听器将响应<code>Appli次奥tionEnvironmentPreparedEvent</code>事件，找到时间响应处理逻辑：</p>
+<p>从类声明就能看出该监听器将响应<code>ApplicationEnvironmentPreparedEvent</code>事件，找到事件处理逻辑：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ApplicationEnvironmentPreparedEvent event)</span> </span>&#123;</span><br><span class="line">   ConfigurableEnvironment environment = event.getEnvironment();</span><br><span class="line">   <span class="keyword">if</span> (!environment.getProperty(<span class="string">"spring.cloud.bootstrap.enabled"</span>, Boolean.class,</span><br><span class="line">         <span class="keyword">true</span>)) &#123;  <span class="comment">//spring.cloud.bootstrap.enabled是Bootstrap配置开关，为false表示不允许使用Bootstrap配置文件进行配置</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// don't listen to events in a bootstrap context</span></span><br><span class="line">   <span class="keyword">if</span> (environment.getPropertySources().contains(BOOTSTRAP_PROPERTY_SOURCE_NAME)) &#123;</span><br><span class="line">      <span class="keyword">return</span>;  <span class="comment">// </span></span><br><span class="line">   &#125;</span><br><span class="line">   ConfigurableApplicationContext context = <span class="keyword">null</span>;</span><br><span class="line">   String configName = environment  <span class="comment">//spring.cloud.bootstrap.name:bootstrap  冒号后面是默认值</span></span><br><span class="line">         .resolvePlaceholders(<span class="string">"$&#123;spring.cloud.bootstrap.name:bootstrap&#125;"</span>); </span><br><span class="line">   <span class="keyword">for</span> (ApplicationContextInitializer&lt;?&gt; initializer : event.getSpringApplication()</span><br><span class="line">         .getInitializers()) &#123;</span><br><span class="line">      <span class="keyword">if</span> (initializer <span class="keyword">instanceof</span> ParentContextApplicationContextInitializer) &#123;</span><br><span class="line">         context = findBootstrapContext(</span><br><span class="line">               (ParentContextApplicationContextInitializer) initializer,</span><br><span class="line">               configName);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (context == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="comment">//启动会到这里，父context为null 这里会先创建一个父context</span></span><br><span class="line">      context = bootstrapServiceContext(environment, event.getSpringApplication(),</span><br><span class="line">            configName);</span><br><span class="line">      event.getSpringApplication()</span><br><span class="line">            .addListeners(<span class="keyword">new</span> CloseContextOnFailureApplicationListener(context));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   apply(context, event.getSpringApplication(), environment);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>重点是创建父context。<code>bootstrapServiceContext</code>方法源码较长但不复杂，简单分析一下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> ConfigurableApplicationContext <span class="title">bootstrapServiceContext</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      ConfigurableEnvironment environment, <span class="keyword">final</span> SpringApplication application,</span></span></span><br><span class="line"><span class="function"><span class="params">      String configName)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 创建一个Environment对象</span></span><br><span class="line">   StandardEnvironment bootstrapEnvironment = <span class="keyword">new</span> StandardEnvironment(); </span><br><span class="line">  <span class="comment">// 拿到Environment对象中的初始属性源集合</span></span><br><span class="line">   MutablePropertySources bootstrapProperties = bootstrapEnvironment</span><br><span class="line">         .getPropertySources();</span><br><span class="line">  <span class="comment">//清空操作，完成之后bootstrapProperties没有元素</span></span><br><span class="line">   <span class="keyword">for</span> (PropertySource&lt;?&gt; source : bootstrapProperties) &#123;</span><br><span class="line">      bootstrapProperties.remove(source.getName());</span><br><span class="line">   &#125;</span><br><span class="line">   String configLocation = environment  <span class="comment">//默认为null</span></span><br><span class="line">         .resolvePlaceholders(<span class="string">"$&#123;spring.cloud.bootstrap.location:&#125;"</span>);</span><br><span class="line">   String configAdditionalLocation = environment <span class="comment">//默认为null</span></span><br><span class="line">         .resolvePlaceholders(<span class="string">"$&#123;spring.cloud.bootstrap.additional-location:&#125;"</span>);</span><br><span class="line">   Map&lt;String, Object&gt; bootstrapMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">   bootstrapMap.put(<span class="string">"spring.config.name"</span>, configName); <span class="comment">// configName = bootstrap</span></span><br><span class="line">   <span class="comment">// 如果spring.main.web-application-type=reactive, bootstrap会失败</span></span><br><span class="line">   bootstrapMap.put(<span class="string">"spring.main.web-application-type"</span>, <span class="string">"none"</span>);</span><br><span class="line">   <span class="keyword">if</span> (StringUtils.hasText(configLocation)) &#123;</span><br><span class="line">      bootstrapMap.put(<span class="string">"spring.config.location"</span>, configLocation);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (StringUtils.hasText(configAdditionalLocation)) &#123;</span><br><span class="line">      bootstrapMap.put(<span class="string">"spring.config.additional-location"</span>,</span><br><span class="line">            configAdditionalLocation);</span><br><span class="line">   &#125;</span><br><span class="line">   bootstrapProperties.addFirst(</span><br><span class="line">         <span class="keyword">new</span> MapPropertySource(BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapMap));</span><br><span class="line">   <span class="keyword">for</span> (PropertySource&lt;?&gt; source : environment.getPropertySources()) &#123;</span><br><span class="line">      <span class="keyword">if</span> (source <span class="keyword">instanceof</span> StubPropertySource) &#123;</span><br><span class="line">         <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      bootstrapProperties.addLast(source);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 配置SpringApplicationBuilder，将通过这个对象创建SpringApplication</span></span><br><span class="line">   SpringApplicationBuilder builder = <span class="keyword">new</span> SpringApplicationBuilder()</span><br><span class="line">         .profiles(environment.getActiveProfiles()).bannerMode(Mode.OFF)</span><br><span class="line">         .environment(bootstrapEnvironment)</span><br><span class="line">         <span class="comment">// Don't use the default properties in this builder</span></span><br><span class="line">         .registerShutdownHook(<span class="keyword">false</span>).logStartupInfo(<span class="keyword">false</span>)</span><br><span class="line">         .web(WebApplicationType.NONE);</span><br><span class="line">  <span class="comment">// 拿到创建好的SpringApplication对象</span></span><br><span class="line">   <span class="keyword">final</span> SpringApplication builderApplication = builder.application();</span><br><span class="line">   <span class="keyword">if</span> (builderApplication.getMainApplicationClass() == <span class="keyword">null</span>) &#123;</span><br><span class="line">      builder.main(application.getMainApplicationClass());</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (environment.getPropertySources().contains(<span class="string">"refreshArgs"</span>)) &#123;</span><br><span class="line">      builderApplication</span><br><span class="line">            .setListeners(filterListeners(builderApplication.getListeners()));</span><br><span class="line">   &#125;</span><br><span class="line">   builder.sources(BootstrapImportSelectorConfiguration.class);</span><br><span class="line">   <span class="keyword">final</span> ConfigurableApplicationContext context = builder.run();</span><br><span class="line">   <span class="comment">// gh-214 using spring.application.name=bootstrap to set the context id via</span></span><br><span class="line">   <span class="comment">// `ContextIdApplicationContextInitializer` prevents apps from getting the actual</span></span><br><span class="line">   <span class="comment">// spring.application.name</span></span><br><span class="line">   <span class="comment">// during the bootstrap phase.</span></span><br><span class="line">   context.setId(<span class="string">"bootstrap"</span>);</span><br><span class="line">   <span class="comment">// Make the bootstrap context a parent of the app context</span></span><br><span class="line">   addAncestorInitializer(application, context);</span><br><span class="line">   <span class="comment">// It only has properties in it now that we don't want in the parent so remove</span></span><br><span class="line">   <span class="comment">// it (and it will be added back later)</span></span><br><span class="line">   bootstrapProperties.remove(BOOTSTRAP_PROPERTY_SOURCE_NAME);</span><br><span class="line">   mergeDefaultProperties(environment.getPropertySources(), bootstrapProperties);</span><br><span class="line">   <span class="keyword">return</span> context;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所以，我们启动应用的时候，run函数创建完第一的Environment对象之后，广播<code>ApplitionEnvironmentPreparedEvent</code>事件，<code>BootstrapApplicationListener</code>响应该事件时会创建一个父context对象，父级别context创建方式也是使用<code>SpringApplication.run()</code>的方式，只是SpringApplication对象的配置创建完全由程序控制，创建出父context之后，会将其引用交给一个叫<code>AncestorInitializer</code>的初始化类，该类在之后的逻辑中会将应用级别的context的父亲设置为当前创建的context。</p>
+<p>所以，我们启动应用的时候，run函数创建完第一的Environment对象之后，广播<code>ApplitionEnvironmentPreparedEvent</code>事件，<code>BootstrapApplicationListener</code>响应该事件时会创建一个父context对象，父级别context创建方式也是使用<code>SpringApplication.run()</code>的方式，只是SpringApplication对象的配置创建完全由程序控制，创建出父context之后，会将其引用交给一个叫<code>AncestorInitializer</code>的初始化类，该类在之后的逻辑中会将应用级别的context的父亲引用设置为当前创建的context。</p>
 <p>因此第一次创建context的过程只会读取bootstrap.yml配置文件，并且因为父context中并没有加载相关的bean，配置中心中配置的加载也没有执行。</p>
-<p>在Spring Cloud Config中，我们通过@Value注解注入了一个属性，但是这个属性不存在于本地配置 中，那么Config是如何将远程配置信息加载到Environment中的呢?这里我们需要思考几个问题</p>
+<h3 id="2-Config处理流程"><a href="#2-Config处理流程" class="headerlink" title="2. Config处理流程"></a>2. Config处理流程</h3><p>在Spring Cloud Config中，我们通过@Value注解注入了一个属性，但是这个属性不存在于本地配置 中，那么Config是如何将远程配置信息加载到Environment中的呢?这里我们需要思考几个问题</p>
 <ul>
 <li><p>如何将配置加载到 Environment</p>
 </li>
@@ -574,8 +591,8 @@
 </li>
 <li>ContextRefresher:抽象出这个 Class，是让用户自己按需来刷新上下文(比如当有配置刷新时， 希望可以刷新上下文，将最新的配置更新到 Environment，重新创建 Bean 时，就可以从 Environment 中注入最新的配置)。</li>
 </ul>
-<h4 id="服务启动时"><a href="#服务启动时" class="headerlink" title="服务启动时"></a>服务启动时</h4><p>Environment是如何在启动过程中从远程服务器上加载配置的呢?</p>
-<p>从前面的代码分析过程中我们知道，Environment中所有外部化配置，针对不同类型的配置都会有与之 对应的PropertySource，比如(SystemEnvironmentPropertySource、 CommandLinePropertySource)。以及PropertySourcesPropertyResolver来进行解析。</p>
+<h4 id="2-1-服务启动时"><a href="#2-1-服务启动时" class="headerlink" title="2.1 服务启动时"></a>2.1 服务启动时</h4><p>Environment是如何在启动过程中从远程服务器上加载配置的呢?</p>
+<p>从前面的代码分析过程中我们知道，Environment中所有外部化配置，针对不同类型的配置都会有与之 对应的PropertySource，比如(<code>SystemEnvironmentPropertySource</code>、 CommandLinePropertySource)。以及PropertySourcesPropertyResolver来进行解析。</p>
 <p>那Config Client在启动的时候，必然也会需要从远程服务器上获取配置加载到Environment中，这样才 能使得应用程序通过@value进行属性的注入，而且我们一定可以猜测到的是，这块的工作一定又和 spring中某个机制有关系。</p>
 <h5 id="PropertySourceBootstrapConfiguration"><a href="#PropertySourceBootstrapConfiguration" class="headerlink" title="PropertySourceBootstrapConfiguration"></a>PropertySourceBootstrapConfiguration</h5><p>这个类已经处于spring-config包中，该类是用于在启动过程中加载一些外部配置，配置中心的配置加载就是在此处调用完成的。</p>
 <p>它实现了 ApplicationContextInitializer 接口，其目的就是在应 用程序上下文初始化的时候做一些额外的操作.</p>
@@ -614,7 +631,7 @@
 <p>重点看locate方法：它会通过RestTemplate调用一个远程地址获得配置信息， getRemoteEnvironment 。然后把这个配置PropertySources，然后将这个信息包装成一个<code>OriginTrackedMapPropertySource</code>，设置到 Composite 中。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Retryable</span>(interceptor = <span class="string">"configServerRetryInterceptor"</span>)</span><br><span class="line"><span class="keyword">public</span> org.springframework.core.env.PropertySource&lt;?&gt; locate(</span><br><span class="line">      org.springframework.core.env.Environment environment) &#123;</span><br><span class="line">   ConfigClientProperties properties = <span class="keyword">this</span>.defaultProperties.override(environment);</span><br><span class="line">   CompositePropertySource composite = <span class="keyword">new</span> OriginTrackedCompositePropertySource(</span><br><span class="line">         <span class="string">"configService"</span>);</span><br><span class="line">  <span class="comment">// 使用restTemplate发起远程调用</span></span><br><span class="line">   RestTemplate restTemplate = <span class="keyword">this</span>.restTemplate == <span class="keyword">null</span></span><br><span class="line">         ? getSecureRestTemplate(properties) : <span class="keyword">this</span>.restTemplate;</span><br><span class="line">   Exception error = <span class="keyword">null</span>;</span><br><span class="line">   String errorBody = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      String[] labels = <span class="keyword">new</span> String[] &#123; <span class="string">""</span> &#125;;</span><br><span class="line">      ...</span><br><span class="line">      <span class="keyword">for</span> (String label : labels) &#123;</span><br><span class="line">        <span class="comment">//获取远程Environment对象，重点 &gt;&gt;</span></span><br><span class="line">         Environment result = getRemoteEnvironment(restTemplate, properties,</span><br><span class="line">               label.trim(), state);</span><br><span class="line">         <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">            log(result);</span><br><span class="line">            <span class="comment">// result.getPropertySources() can be null if using xml</span></span><br><span class="line">            <span class="keyword">if</span> (result.getPropertySources() != <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">for</span> (PropertySource source : result.getPropertySources()) &#123;</span><br><span class="line">                  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">                  Map&lt;String, Object&gt; map = translateOrigins(source.getName(),</span><br><span class="line">                        (Map&lt;String, Object&gt;) source.getSource());</span><br><span class="line">                  composite.addPropertySource(</span><br><span class="line">                        <span class="keyword">new</span> OriginTrackedMapPropertySource(source.getName(),</span><br><span class="line">                              map));</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (StringUtils.hasText(result.getState())</span><br><span class="line">                  || StringUtils.hasText(result.getVersion())) &#123;</span><br><span class="line">               HashMap&lt;String, Object&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">               putValue(map, <span class="string">"config.client.state"</span>, result.getState());</span><br><span class="line">               putValue(map, <span class="string">"config.client.version"</span>, result.getVersion());</span><br><span class="line">               composite.addFirstPropertySource(</span><br><span class="line">                     <span class="keyword">new</span> MapPropertySource(<span class="string">"configClient"</span>, map));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> composite;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      errorBody = String.format(<span class="string">"None of labels %s found"</span>, Arrays.toString(labels));</span><br><span class="line">   &#125;</span><br><span class="line">   ...</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>OriginTrackedMapPropertySource</code> 表示可追踪源的属性源</p>
-<h4 id="服务运行中"><a href="#服务运行中" class="headerlink" title="服务运行中"></a>服务运行中</h4><p>配置中心需要解决的另一个问题是，服务运行中如何将配置中心配置变更在不重启服务的前提下同步到服务端。</p>
+<h4 id="2-2-服务运行中"><a href="#2-2-服务运行中" class="headerlink" title="2.2. 服务运行中"></a>2.2. 服务运行中</h4><p>配置中心需要解决的另一个问题是，服务运行中如何将配置中心配置变更在不重启服务的前提下同步到服务端。</p>
 <p>解决方案是利用回调actuator接口+消息总线广播的方式。</p>
 <p>它提供了一个刷新机制，但是需要我们主动触发。那就是 @RefreshScope 注解并结合 actuator ，注意要引入 spring-boot-starter-actuator 包。</p>
 <p>1、在 config client 端配置中增加 actuator 配置，上面大家可能就注意到了。</p>
@@ -655,7 +672,7 @@
     
 <nav id="article-nav">
     
-        <a href="/zzkenyon.github.io/2019/07/30/SpringCloud-Gateway过滤器源码分析/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="/2019/07/30/SpringCloud-Gateway过滤器源码分析/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">上一篇</strong>
             <div class="article-nav-title">
                 
@@ -665,7 +682,7 @@
         </a>
     
     
-        <a href="/zzkenyon.github.io/2019/07/20/SpringCloud-Gateway网关/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/2019/07/20/SpringCloud-Gateway网关/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
             <div class="article-nav-title">SpringCloud-Gateway网关</div>
         </a>
@@ -692,7 +709,7 @@
     <div class="outer">
         <div id="footer-info" class="inner">
             Zhao Zhengkang &copy; 2021 
-            <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png"></a>
+<!--             <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
             <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
             
                 <br>
@@ -707,18 +724,18 @@
         
 
     
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lightgallery.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-thumbnail.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-pager.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-autoplay.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-fullscreen.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-zoom.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-hash.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-share.min.js"></script>
-        <script src="/zzkenyon.github.io/libs/lightgallery/js/lg-video.min.js"></script>
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
     
     
-        <script src="/zzkenyon.github.io/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
     
     
         <script type="text/x-mathjax-config">
@@ -746,7 +763,7 @@
 
 
 <!-- Custom Scripts -->
-<script src="/zzkenyon.github.io/js/main.js"></script>
+<script src="/js/main.js"></script>
 
     </div>
 </body>

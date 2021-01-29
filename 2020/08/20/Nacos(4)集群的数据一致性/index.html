@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>Nacos(四)数据一致性 | 黑风雅过吟</title>
+    
+    
+        <meta name="keywords" content="SpringCloud">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="两种一致性策略如何在nacos中共存 或许会有疑问，为什么早先的cp模式的Zookeeper或者AP模式的Eureka，都只有支持CAP理论下大家常用的AP实现或者CP实现，而nacos却能够两个都实现呢？ 其实CAP理论，仅仅是针对分布式下数据的一致性而言，如果你对于数据的一致性要求不高，可忍受最终一致性，那么AP模式的Eureka就可以满足你了，如果说你对数据的一致性要求很高，那么就使用CP">
+<meta name="keywords" content="SpringCloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nacos(四)数据一致性">
+<meta property="og:url" content="https://zzkenyon.github.io/2020/08/20/Nacos(4)集群的数据一致性/index.html">
+<meta property="og:site_name" content="黑风雅过吟">
+<meta property="og:description" content="两种一致性策略如何在nacos中共存 或许会有疑问，为什么早先的cp模式的Zookeeper或者AP模式的Eureka，都只有支持CAP理论下大家常用的AP实现或者CP实现，而nacos却能够两个都实现呢？ 其实CAP理论，仅仅是针对分布式下数据的一致性而言，如果你对于数据的一致性要求不高，可忍受最终一致性，那么AP模式的Eureka就可以满足你了，如果说你对数据的一致性要求很高，那么就使用CP">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7.png">
+<meta property="og:updated_time" content="2021-01-14T15:17:11.291Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nacos(四)数据一致性">
+<meta name="twitter:description" content="两种一致性策略如何在nacos中共存 或许会有疑问，为什么早先的cp模式的Zookeeper或者AP模式的Eureka，都只有支持CAP理论下大家常用的AP实现或者CP实现，而nacos却能够两个都实现呢？ 其实CAP理论，仅仅是针对分布式下数据的一致性而言，如果你对于数据的一致性要求不高，可忍受最终一致性，那么AP模式的Eureka就可以满足你了，如果说你对数据的一致性要求很高，那么就使用CP">
+<meta name="twitter:image" content="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="黑风雅过吟" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+</head>
+</html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">黑风雅过吟</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/avatar.png">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/avatar.png">
+            <h2 id="name">zhao zhengkang</h2>
+            <h3 id="title">Programmer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hangzhou, China</span>
+            <a id="follow" target="_blank" href="https://github.com/zzkenyon/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                158
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                38
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/zzkenyon" target="_blank" title="github" class="tooltip">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/7277090/zthxxx?tab=profile" target="_blank" title="stack-overflow" class="tooltip">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://codepen.io/zthxxx/" target="_blank" title="codepen" class="tooltip">
+                            <i class="fa fa-codepen"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class="tooltip">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            I/O和网络编程
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/05/20/nio-linux的io模型/">linux的i/o模型</a></li>  <li class="file"><a href="/2019/05/26/nio-jdk中nio编程的三大件/">JDK中nio编程的三大件</a></li>  <li class="file"><a href="/2019/10/19/nio-说说零拷贝/">说说零拷贝</a></li>  <li class="file"><a href="/2019/10/26/nio-epoll高效运行原理/">epoll高效运行的原理</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之定时任务的优化/">netty源码分析之定时任务的的优化</a></li>  <li class="file"><a href="/2019/11/01/nio-netty源码分析之线程模型/">netty源码分析之线程模型</a></li>  <li class="file"><a href="/2019/11/08/nio-netty源码分析之异步编程/">netty源码分析之异步编程</a></li>  <li class="file"><a href="/2019/11/15/nio-netty源码分析之服务端启动/">netty源码分析之服务端启动</a></li>  <li class="file"><a href="/2019/11/18/nio-netty源码分析之新连接接入/">netty源码分析之新连接接入</a></li>  <li class="file"><a href="/2019/11/21/nio-netty源码分析之PipeLine/">netty源码分析之PipeLine</a></li>  <li class="file"><a href="/2020/09/08/nio-netty源码分析之executionMask/">netty源码分析之executionMask</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            ORM框架
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/12/数据库技术-Mybatis-MyBatisGenerator的使用/">Mybatis-MyBatisGenerator的使用</a></li>  <li class="file"><a href="/2018/03/15/数据库技术-Mybatis-TypeHandlerT的使用/">Mybatis-TypeHandler<t>的使用</t></a></li>  <li class="file"><a href="/2018/03/21/数据库技术-Mybatis-批量操作数据库/">Mybatis-批量操作</a></li>  <li class="file"><a href="/2018/09/20/数据库技术-Mybatis-动态sql/">Mybatis-动态sql</a></li>  <li class="file"><a href="/2019/03/05/数据库技术-Mybatis-ORM框架发展历史/">ORM框架-发展历史</a></li>  <li class="file"><a href="/2019/03/12/数据库技术-Mybatis-源码分析之配置解析/">Mybatis-源码分析之配置解析</a></li>  <li class="file"><a href="/2019/03/13/数据库技术-Mybatis-源码分析之插件原理/">Mybatis-插件源码分析</a></li>  <li class="file"><a href="/2019/03/14/数据库技术-Mybatis-源码分析之sql执行/">Mybatis-源码分析之sql执行</a></li>  <li class="file"><a href="/2019/03/15/数据库技术-Mybatis-源码分析之与spring整合/">Mybatis-与spring整合</a></li>  <li class="file"><a href="/2020/04/24/数据库技术-MyBatis-源码分析之从源码构建/">MyBatis-给源码加中文注释(转)</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            RPC框架Dubbo
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/04/17/dubbo-基本使用和高级特性/">dubbo-基本使用和高级特性</a></li>  <li class="file"><a href="/2019/04/21/dubbo-JDK的SPI原理及源码分析/">dubbo-JDK的SPI原理及源码分析</a></li>  <li class="file"><a href="/2019/04/21/dubbo-基于SPI的自适应扩展机制/">dubbo-基于SPI的自适应扩展机制</a></li>  <li class="file"><a href="/2019/04/21/dubbo-服务发布和注册过程/">dubbo-服务发布和注册过程</a></li>  <li class="file"><a href="/2019/04/23/dubbo-配置中心/">dubbo-配置中心</a></li>  <li class="file"><a href="/2019/04/30/dubbo-服务消费者启动过程/">dubbo-服务消费者启动过程</a></li>  <li class="file"><a href="/2019/05/01/dubbo-消费者服务订阅流程分析/">dubbo-消费者服务订阅流程分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringBoot
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2017/05/12/SpringBoot-入门注解介绍/">SpringBoot-入门注解介绍</a></li>  <li class="file"><a href="/2017/06/02/SpringBoot-单元测试/">SpringBoot-单元测试</a></li>  <li class="file"><a href="/2018/02/28/SpringBoot-自定义starter/">SpringBoot-自定义starter</a></li>  <li class="file"><a href="/2018/03/21/SpringBoot-跟踪启动过程/">SpringBoot-跟踪启动过程</a></li>  <li class="file"><a href="/2018/04/02/SpringBoot-数据校验/">SpringBoot-数据校验</a></li>  <li class="file"><a href="/2018/07/12/SpringBoot-事务没有生效/">SpringBoot-事务没有生效</a></li>  <li class="file"><a href="/2018/10/24/SpringBoot-注解@ConfigurationProperties的正确使用姿势/">SpringBoot-注解@ConfigurationProperties的正确使用姿势</a></li>  <li class="file"><a href="/2019/02/28/SpringBoot启动之事件机制/">SpringBoot启动之事件机制</a></li>  <li class="file"><a href="/2019/03/01/SpringBoot启动之环境准备阶段/">SpringBoot启动之环境准备阶段</a></li>  <li class="file"><a href="/2019/03/05/SpringBoot启动之上下文刷新(一)/">SpringBoot启动之上下文刷新(一)</a></li>  <li class="file"><a href="/2019/03/06/SpringBoot启动之上下文刷新(二)/">SpringBoot启动之上下文刷新(二)</a></li>  <li class="file"><a href="/2020/06/21/SpringBoot-事务源码分析/">SpringBoot-事务源码分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            SpringCloud
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/11/01/SpringCloud-服务注册、调用以及负载均衡/">SpringCloud-微服务使用入门</a></li>  <li class="file"><a href="/2019/01/03/SpringCloud-网关过滤器zuul/">SpringCloud-服务网关zuul</a></li>  <li class="file"><a href="/2019/01/07/SpringCloud-Hystrix使用及原理/">SpringCloud-服务降级组件Hystrix</a></li>  <li class="file"><a href="/2019/05/20/SpringCloud-分布式事务Seate-TCC/">SpringCloud-分布式事务Seate-TCC</a></li>  <li class="file"><a href="/2019/07/01/SpringCloud-Ribbon实现源码分析/">SpringCloud-Ribbon实现源码分析</a></li>  <li class="file"><a href="/2019/07/04/SpringCloud-Feign底层源码分析/">SpringCloud-Feign底层源码分析</a></li>  <li class="file"><a href="/2019/07/07/SpringCloud-Eureka自我保护机制/">SpringCloud-Eureka自我保护机制</a></li>  <li class="file"><a href="/2019/07/10/SpringCloud-Eureka底层源码分析/">SpringCloud-Eureka底层源码分析</a></li>  <li class="file"><a href="/2019/07/17/SpringCloud-Hystrix源码分析/">SpringCloud-Hystrix源码分析</a></li>  <li class="file"><a href="/2019/07/20/SpringCloud-Gateway网关/">SpringCloud-Gateway网关</a></li>  <li class="file"><a href="/2019/07/27/SpringCloud-config配置中心源码分析/">SpringCloud-配置中心源码分析</a></li>  <li class="file"><a href="/2019/07/30/SpringCloud-Gateway过滤器源码分析/">SpringCloud-Gateway过滤器源码分析</a></li>  <li class="file"><a href="/2019/07/31/SpringCloud-sleuth&zipkin实现链路监控/">SpringCloud-sleuth&zipkin实现链路监控</a></li>  <li class="file"><a href="/2020/05/17/SpringCloud-分布式事务Seate-AT/">SpringCloud-分布式事务Seate-AT</a></li>  <li class="file"><a href="/2020/08/10/Nacos(1)部署及使用/">Nacos(一)部署及使用</a></li>  <li class="file"><a href="/2020/08/17/Nacos(2)注册中心核心源码分析/">Nacos(二)注册中心核心源码分析</a></li>  <li class="file active"><a href="/2020/08/20/Nacos(4)集群的数据一致性/">Nacos(四)数据一致性</a></li>  <li class="file"><a href="/2020/08/22/Nacos(3)心跳与服务更新/">Nacos(三)心跳与服务更新</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            noSql
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/01/redis-数据持久化配置/">redis-数据持久化配置</a></li>  <li class="file"><a href="/2019/08/02/redis-键空间通知/">redis-键空间通知</a></li>  <li class="file"><a href="/2019/09/02/redis-缓存数据库双写一致性/">redis-缓存数据库双写一致性方案解析</a></li>  <li class="file"><a href="/2019/09/02/reids-总结精讲/">redis-总结精讲</a></li>  <li class="file"><a href="/2019/10/02/redis-类型底层实现原理/">redis-类型底层实现原理</a></li>  <li class="file"><a href="/2019/12/31/redis-CentOS7安装单实例和集群/">redis-CentOS7安装单实例和集群</a></li>  <li class="file"><a href="/2019/12/31/redis-集群搭建/">reids-5.0版本的高可用集群搭建</a></li>  <li class="file"><a href="/2020/01/02/redis-热点key问题/">redis-热key问题</a></li>  <li class="file"><a href="/2020/06/02/redis-高可用架构解析/">redis-高可用架构集解析</a></li>  <li class="file"><a href="/2020/12/04/redis-客户端redisson的使用/">redis-客户端redisson的使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            tools
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/07/17/tools-对象映射工具MapStruct/">tools-对象映射工具MapStruct</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            不知如何分类
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/12/23/java-移位操作符/">java-移位操作符</a></li>  <li class="file"><a href="/2017/12/21/java-SimpleDateFormat的用法以及线程安全/">java-SimpleDateFormat的用法以及线程安全</a></li>  <li class="file"><a href="/2018/07/21/java-会用HashMap/">java-会用HashMap</a></li>  <li class="file"><a href="/2020/07/21/java-reactor编程入门/">java-Reactor编程入门</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            业务
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/06/02/shiro-zuul鉴权网关设计/">鉴权模块-登录鉴权设计</a></li>  <li class="file"><a href="/2018/06/03/shiro-密码的散列存储/">鉴权模块-密码的散列存储</a></li>  <li class="file"><a href="/2018/06/10/shiro-过滤器原理分析/">鉴权模块-shiro过滤器与案例分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/01/21/其他-正则表达式/">正则表达式基础</a></li>  <li class="file"><a href="/2018/02/12/其他-NAT原理概述/">NAT原理概述</a></li>  <li class="file"><a href="/2019/10/23/其他-git规范的Commit Message/">git规范的commit message（转）</a></li>  <li class="file"><a href="/2019/11/23/其他-彻底理解cookie，session，token/">彻底理解cookie/session/token</a></li>  <li class="file"><a href="/2020/04/14/其他-CSRF攻击与防御/">CSRF攻击与防御（转）</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            分布式架构技术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/31/分布式-http和https/">协议-http和https</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrant&virtualBox使用说明/">虚拟机-vagrant&virtualBox使用说明</a></li>  <li class="file"><a href="/2019/01/22/分布式-vagrantfile简析/">虚拟机-vagrantfile简析</a></li>  <li class="file"><a href="/2019/05/18/分布式-zookeeper是什么以及能干什么/">zookeeper是什么以及能干什么</a></li>  <li class="file"><a href="/2019/05/19/分布式-zookeeper-配置和基本操纵/">zookeeper配置和基本操纵</a></li>  <li class="file"><a href="/2019/05/21/分布式-zookeeper分布式锁/">zookeeper分布式锁</a></li>  <li class="file"><a href="/2019/10/19/分布式-序列化之protobuf/">分布式-序列化之protobuf</a></li>  <li class="file"><a href="/2020/03/13/分布式-全局ID/">分布式-全局一致性id</a></li>  <li class="file"><a href="/2020/04/07/分布式-ELK统一日志管理/">ELK统一日志管理</a></li>  <li class="file"><a href="/2020/04/09/分布式-logstash配置文件编写/">分布式-logstash配置文件编写</a></li>  <li class="file"><a href="/2020/04/19/分布式-手写RPC调用/">RPC-手写RPC调用过程</a></li>  <li class="file"><a href="/2020/10/07/分布式-任务调度quartz/">任务调度-使用quartz</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            容器化技术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2019/08/08/docker-引擎安装与基本使用/">docker-引擎安装与基本使用</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            并发编程
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/03/15/并发编程-基础/">并发编程-并发的基础知识</a></li>  <li class="file"><a href="/2018/03/16/并发编程-ThreadLocal原理/">并发编程-ThreadLocal原理</a></li>  <li class="file"><a href="/2018/03/18/并发编程-线程中断/">并发编程-线程中断</a></li>  <li class="file"><a href="/2018/03/20/并发编程-锁/">并发编程-锁</a></li>  <li class="file"><a href="/2018/03/23/并发编程-独占式AQS源码详解/">并发编程-独占式AQS源码详解</a></li>  <li class="file"><a href="/2018/03/25/并发编程-线程池源码详解/">并发编程-线程池源码详解</a></li>  <li class="file"><a href="/2018/03/27/并发编程-容器ConcurrentHashMap源码分析/">并发编程-容器ConcurrentHashMap源码分析</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器之CopyOnWrite/">并发编程-容器之CopyOnWrite</a></li>  <li class="file"><a href="/2018/03/29/并发编程-容器阻塞队列BlockingQueue/">并发编程-容器阻塞队列BlockingQueue</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            并发编程的艺术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/04/25/并发编程-共享式AQS源码详解/">并发编程-共享式AQS源码详解</a></li>  <li class="file"><a href="/2018/05/17/并发编程-并发工具类/">并发编程-并发工具类</a></li>  <li class="file"><a href="/2018/05/30/并发编程-执行异步任务/">并发编程-执行异步任务</a></li>  <li class="file"><a href="/2019/08/21/并发编程-常见问题/">并发编程-常见问题</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            数据库技术
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/05/10/数据库技术-mysql-5-7-windows下安装/">mysql-5.7 windows下安装</a></li>  <li class="file"><a href="/2017/03/21/数据库技术-postgreSQL-让主键自增/">postgreSQL让主键自增</a></li>  <li class="file"><a href="/2019/04/07/数据库技术-sharding jdbc/">分库分表-sharding jdbc</a></li>  <li class="file"><a href="/2019/07/31/数据库技术-mysql-centos安装配置MySql8.0/">mysql-centos安装配置MySql8.0</a></li>  <li class="file"><a href="/2019/11/20/数据库技术-mysql-innodb的索引/">mysql-innodb的索引</a></li>  <li class="file"><a href="/2019/11/23/数据库技术-mysql-innodb的事务管理与锁/">mysql-innodb的事务管理与锁</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-innoDB架构分析/">mysql-innoDB架构分析</a></li>  <li class="file"><a href="/2020/01/02/数据库技术-mysql-redo log写流程分析/">mysql-redo log写流程分析(转)</a></li>  <li class="file"><a href="/2020/05/10/数据库技术-Mycat-为什么要分库分表/">分库分表-为什么要分库分表</a></li>  <li class="file"><a href="/2020/05/11/数据库技术-Mycat-mycat基础/">分库分表-mycat基础</a></li>  <li class="file"><a href="/2020/05/12/数据库技术-Mycat-mycat进阶/">分库分表-mycat进阶</a></li>  <li class="file"><a href="/2020/05/14/数据库技术-Mycat-mycat升华/">分库分表-mycat升华</a></li>  <li class="file"><a href="/2020/12/01/数据库技术-liquibase使用和原理 /">数据库技术-liquibase使用和原理</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            消息中间件
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/12/20/MQ-为什么用和什么时候用/">为什么用和什么时候用Mq（转）</a></li>  <li class="file"><a href="/2019/06/21/MQ-kafka-架构介绍/">kafka-架构及运行流程</a></li>  <li class="file"><a href="/2019/06/22/MQ-kafka-集群搭建/">kafka-搭建Kafka集群</a></li>  <li class="file"><a href="/2019/06/26/MQ-kafka-分区分配策略及分配流程/">kafka-分区分配策略及分配流程</a></li>  <li class="file"><a href="/2019/06/28/MQ-kafka-副本机制/">kafka-副本机制</a></li>  <li class="file"><a href="/2019/07/02/MQ-kafka-提交offset存储/">kafka-提交offset存储</a></li>  <li class="file"><a href="/2019/07/05/MQ-kafka-消息的存储/">kafka-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit centos7部署/">rabbitmq-消息的存储</a></li>  <li class="file"><a href="/2019/07/10/MQ-rabbit消息的可靠性投递/">rabbitmq-消息的可靠性投递</a></li>  <li class="file"><a href="/2019/07/11/MQ-rabbit消息收发流程/">rabbitmq-消息收发流程</a></li>  <li class="file"><a href="/2019/08/10/MQ-rocketmq基本原理分析/">rocketmq-基本原理分析</a></li>  <li class="file"><a href="/2019/08/12/MQ-rocketmq消息的存储和发送/">rocketmq-消息的存储和发送</a></li>  <li class="file"><a href="/2019/08/14/MQ-rocketmq分布式事务解决方案/">rocketmq-分布式事务解决方案</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            深入理解java虚拟机
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/05/12/jvm(1)解构字节码文件/">jvm(1)解构字节码文件</a></li>  <li class="file"><a href="/2018/05/15/jvm(2)类加载过程/">jvm(2)类加载过程</a></li>  <li class="file"><a href="/2018/05/17/jvm(3)运行时数据区和内存模型/">jvm(3)运行时数据区和内存模型</a></li>  <li class="file"><a href="/2018/05/20/jvm(4)类加载机制以及类加载器/">jvm(4)类加载机制以及类加载器</a></li>  <li class="file"><a href="/2018/05/25/jvm(5)垃圾回收/">jvm(5)垃圾回收</a></li>  <li class="file"><a href="/2018/10/31/jvm-对象的内存布局/">jvm-对象的内存布局</a></li>  <li class="file"><a href="/2018/11/06/jvm-元空间/">jvm-元空间</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            源码中的设计模式
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2016/08/01/设计模式之工厂模式/">设计模式之工厂模式</a></li>  <li class="file"><a href="/2016/08/02/设计模式之建造者模式/">设计模式之建造者模式</a></li>  <li class="file"><a href="/2016/08/04/设计模式之单例模式/">设计模式之单例模式</a></li>  <li class="file"><a href="/2016/08/19/设计模式之代理模式/">设计模式之代理模式</a></li>  <li class="file"><a href="/2017/03/13/设计模式-七大设计原则/">设计模式-七大设计原则</a></li>  <li class="file"><a href="/2017/05/14/设计模式之策略模式/">设计模式之策略模式</a></li>  <li class="file"><a href="/2017/05/15/设计模式-委派模式/">设计模式-委派模式</a></li>  <li class="file"><a href="/2017/05/16/设计模式-享元模式/">设计模式-享元模式</a></li>  <li class="file"><a href="/2018/08/03/设计模式之装饰器模式/">设计模式之装饰器模式</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            随便写写
+                        </a>
+                         <ul class="unstyled" id="tree" style="display: block;">  <li class="file"><a href="/2018/08/02/业务-微信支付异步回调通知/">微信支付-异步回调通知</a></li>  <li class="file"><a href="/2020/04/06/业务-系统审计日志需求分析以及方案/">系统审计日志需求分析及方案</a></li>  <li class="file"><a href="/2020/12/02/业务-接口鉴权设计与实现/">业务-接口鉴权设计与实现</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/2016/07/22/日志框架-Java中的日志框架/">Java中的日志框架</a></li>  <li class="file"><a href="/2016/07/23/日志框架-Log4j 配置文件/">Log4j配置文件详解</a></li>  <li class="file"><a href="/2016/08/04/日志框架-logback配置详解/">logback配置详解</a></li>  <li class="file"><a href="/2017/04/23/linux命令-nohup/">linux命令-nohup</a></li>  <li class="file"><a href="/2017/04/23/linux命令-tail/">linux命令-tail</a></li>  <li class="file"><a href="/2018/04/23/nginx入门/">nginx入门</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-Nacos(4)集群的数据一致性" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/SpringCloud/">SpringCloud</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2020/08/20/Nacos(4)集群的数据一致性/">
+            <time datetime="2020-08-19T16:00:00.000Z" itemprop="datePublished">2020-08-20</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Nacos(四)数据一致性
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+        
+        
+            <p> 两种一致性策略如何在nacos中共存</p>
+<p>或许会有疑问，为什么早先的<code>cp</code>模式的<code>Zookeeper</code>或者<code>AP</code>模式的<code>Eureka</code>，都只有支持<code>CAP</code>理论下大家常用的<code>AP</code>实现或者<code>CP</code>实现，而nacos却能够两个都实现呢？</p>
+<p>其实<code>CAP</code>理论，仅仅是针对分布式下数据的一致性而言，如果你对于数据的一致性要求不高，可忍受最终一致性，那么<code>AP</code>模式的<code>Eureka</code>就可以满足你了，如果说你对数据的一致性要求很高，那么就使用<code>CP</code>模式的<code>Zookeeper</code>，而追其根本，并不是说<code>Eureka</code>是<code>AP</code>的，或者说<code>Zookeeper</code>是<code>CP</code>的，而是他们存储的数据的一致性，满足<code>AP</code>或者<code>CP</code>，因此也就不难实现在一个组件中实现<code>AP</code>模式与<code>CP</code>模式共存</p>
+<p><code>DelegateConsistencyServiceImpl</code>是一个一致性策略选择的类，根据不同的策略触发条件(在nacos中，<code>CP</code>与<code>AP</code>切换的条件是注册的服务实例是否是临时实例)，选择<code>PersistentConsistencyService</code>策略或者<code>EphemeralConsistencyService</code>策略，而<code>EphemeralConsistencyService</code>对应的是<code>DistroConsistencyServiceImpl</code>，采用的协议是阿里自研的<code>Distro</code>，我个人觉得就像<code>gossip</code>协议；<code>PersistentConsistencyService</code>对应的是<code>RaftConsistencyServiceImpl</code>，其底层采用的是<code>Raft</code>协议；这两种一致性策略下的数据存储互不影响，所以<code>nacos</code>实现了<code>AP</code>模式与<code>CP</code>模式在一个组件中同时存在</p>
+<p>分析流程之前，插上网图一张，此图逻辑清晰，有助于理解</p>
+<p><img src="https://zzk-markdown.oss-cn-hangzhou.aliyuncs.com/nacos/nacos%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7.png" alt></p>
+<h3 id="1-AP实现"><a href="#1-AP实现" class="headerlink" title="1. AP实现"></a>1. AP实现</h3><h4 id="1-1-Eureka的一致性策略"><a href="#1-1-Eureka的一致性策略" class="headerlink" title="1.1 Eureka的一致性策略"></a>1.1 Eureka的一致性策略</h4><p>Eureka是一个AP模式的服务发现框架，在Eureka集群模式下，Eureka采取的是Server之间互相广播各自的数据进行数据复制、更新操作；并且Eureka在客户端与注册中心出现网络故障时，依然能够获取服务注册信息——Eureka实现了客户端对于服务注册信息的缓存</p>
+<p>正因为Eureka为了能够在Eureka集群无法工作时不影响消费者调用服务提供者而设置的客户端缓存，因此Eureka无法保证服务注册信息的强一致性（CP模式），只能满足数据的最终一致性（AP模式）</p>
+<h4 id="1-2-Nacos-AP的一致性策略Distro"><a href="#1-2-Nacos-AP的一致性策略Distro" class="headerlink" title="1.2 Nacos-AP的一致性策略Distro"></a>1.2 Nacos-AP的一致性策略Distro</h4><p>Nacos在AP模式下的一致性策略就类似于Eureka，采用<code>Server</code>之间互相的数据同步来实现数据在集群中的同步、复制操作。</p>
+<h5 id="1-2-1-触发数据广播"><a href="#1-2-1-触发数据广播" class="headerlink" title="1.2.1 触发数据广播"></a>1.2.1 触发数据广播</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DistroConsistencyServiceImpl.java</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(String key, Record value)</span> <span class="keyword">throws</span> NacosException </span>&#123;</span><br><span class="line">  	onPut(key, value); <span class="comment">// 写入本地DistroStore，并通知ServiceManager</span></span><br><span class="line">  	<span class="comment">//同步给其他兄弟</span></span><br><span class="line">  	distroProtocol.sync(<span class="keyword">new</span> DistroKey(key, KeyBuilder.INSTANCE_LIST_KEY_PREFIX), </span><br><span class="line">                        DataOperation.CHANGE,globalConfig.getTaskDispatchPeriod() / <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当调用<code>ConsistencyService</code>接口定义的<code>put</code>、<code>remove</code>方法时，涉及到了<code>Server</code>端数据的变更，此时会创建一个任务，将数据的<code>key</code>传入<code>taskDispatcher.addTask</code>方法中，用于后面数据变更时数据查找操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//TaskDispatcher.java</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addTask</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">    taskSchedulerList.get(UtilsAndCommons.shakeUp(key, cpuCoreCount)).addTask(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有一个方法需要注意——<code>shakeUp</code>，查看官方代码注解可知这是将<code>key</code>（<code>key</code>可以看作是一次数据变更事件）这里应该是将任务均匀的路由到不同的<code>TaskScheduler</code>对象，确保每个<code>TaskScheduler</code>所承担的任务都差不多。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">public class TaskScheduler implements Runnable &#123;</span><br><span class="line">    private int dataSize = 0;  </span><br><span class="line">    private long lastDispatchTime = 0L;</span><br><span class="line">    private BlockingQueue&lt;String&gt; queue = new LinkedBlockingQueue&lt;&gt;(128 * 1024);</span><br><span class="line">  	...</span><br><span class="line">    public void addTask(String key) &#123;</span><br><span class="line">        queue.offer(key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        List&lt;String&gt; keys = new ArrayList&lt;&gt;();</span><br><span class="line">        while (true) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                String key = queue.poll(partitionConfig.getTaskDispatchPeriod(),TimeUnit.MILLISECONDS);</span><br><span class="line">                if (Loggers.EPHEMERAL.isDebugEnabled() &amp;&amp; StringUtils.isNotBlank(key)) &#123;</span><br><span class="line">                    Loggers.EPHEMERAL.debug(&quot;got key: &#123;&#125;&quot;, key);</span><br><span class="line">                &#125;</span><br><span class="line">                if (dataSyncer.getServers() == null || dataSyncer.getServers().isEmpty()) &#123;</span><br><span class="line">                    continue;</span><br><span class="line">                &#125;</span><br><span class="line">                if (StringUtils.isBlank(key)) &#123;</span><br><span class="line">                    continue;</span><br><span class="line">                &#125;</span><br><span class="line">                if (dataSize == 0) &#123;</span><br><span class="line">                    keys = new ArrayList&lt;&gt;();</span><br><span class="line">                &#125;</span><br><span class="line">                keys.add(key);</span><br><span class="line">                dataSize++;</span><br><span class="line">                if (dataSize == partitionConfig.getBatchSyncKeyCount() ||</span><br><span class="line">                        (System.currentTimeMillis() - lastDispatchTime) &gt; partitionConfig.getTaskDispatchPeriod()) &#123;</span><br><span class="line">                    for (Server member : dataSyncer.getServers()) &#123;</span><br><span class="line">                        // 自己不需要进行数据广播操作</span><br><span class="line">                        if (NetUtils.localServer().equals(member.getKey())) &#123;</span><br><span class="line">                            continue;</span><br><span class="line">                        &#125;</span><br><span class="line">                        SyncTask syncTask = new SyncTask();</span><br><span class="line">                        syncTask.setKeys(keys);</span><br><span class="line">                        syncTask.setTargetServer(member.getKey());</span><br><span class="line">                        if (Loggers.EPHEMERAL.isDebugEnabled() &amp;&amp; StringUtils.isNotBlank(key)) &#123;</span><br><span class="line">                            Loggers.EPHEMERAL.debug(&quot;add sync task: &#123;&#125;&quot;, JSON.toJSONString(syncTask));</span><br><span class="line">                        &#125;</span><br><span class="line">                        dataSyncer.submit(syncTask, 0);</span><br><span class="line">                    &#125;</span><br><span class="line">                    lastDispatchTime = System.currentTimeMillis();</span><br><span class="line">                    dataSize = 0;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line">                Loggers.EPHEMERAL.error(&quot;dispatch sync task failed.&quot;, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心方法就是<code>for (Server member : dataSyncer.getServers()) {..}</code>循环体内的代码，此处就是将数据在<code>Nacos Server</code>中进行广播操作；具体步骤如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 创建`SyncTask`，并设置事件集合（就是`key`集合）</span><br><span class="line">- 将目标`Server`信息设置到`SyncTask`中——`syncTask.setTargetServer(member.getKey())`</span><br><span class="line">- 将数据广播任务提交到`DataSyncer`中</span><br></pre></td></tr></table></figure>
+<h5 id="执行数据广播——DataSyncer"><a href="#执行数据广播——DataSyncer" class="headerlink" title="执行数据广播——DataSyncer"></a>执行数据广播——DataSyncer</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">public void submit(SyncTask task, long delay) &#123;</span><br><span class="line">    // If it&apos;s a new task:</span><br><span class="line">    if (task.getRetryCount() == 0) &#123;</span><br><span class="line">        Iterator&lt;String&gt; iterator = task.getKeys().iterator();</span><br><span class="line">        while (iterator.hasNext()) &#123;</span><br><span class="line">            String key = iterator.next();</span><br><span class="line">            if (StringUtils.isNotBlank(taskMap.putIfAbsent(buildKey(key, task.getTargetServer()), key))) &#123;</span><br><span class="line">                // associated key already exist:</span><br><span class="line">                if (Loggers.EPHEMERAL.isDebugEnabled()) &#123;</span><br><span class="line">                    Loggers.EPHEMERAL.debug(&quot;sync already in process, key: &#123;&#125;&quot;, key);</span><br><span class="line">                &#125;</span><br><span class="line">                iterator.remove();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (task.getKeys().isEmpty()) &#123;</span><br><span class="line">        // all keys are removed:</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    GlobalExecutor.submitDataSync(new Runnable() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                if (servers == null || servers.isEmpty()) &#123;</span><br><span class="line">                    Loggers.SRV_LOG.warn(&quot;try to sync data but server list is empty.&quot;);</span><br><span class="line">                     return;</span><br><span class="line">                &#125;</span><br><span class="line">                List&lt;String&gt; keys = task.getKeys();</span><br><span class="line">                if (Loggers.EPHEMERAL.isDebugEnabled()) &#123;</span><br><span class="line">                    Loggers.EPHEMERAL.debug(&quot;sync keys: &#123;&#125;&quot;, keys);</span><br><span class="line">                &#125;</span><br><span class="line">                Map&lt;String, Datum&gt; datumMap = dataStore.batchGet(keys);</span><br><span class="line">                if (datumMap == null || datumMap.isEmpty()) &#123;</span><br><span class="line">                    // clear all flags of this task:</span><br><span class="line">                    for (String key : task.getKeys()) &#123;</span><br><span class="line">                        taskMap.remove(buildKey(key, task.getTargetServer()));</span><br><span class="line">                    &#125;</span><br><span class="line">                    return;</span><br><span class="line">                &#125;</span><br><span class="line">                byte[] data = serializer.serialize(datumMap);</span><br><span class="line">                long timestamp = System.currentTimeMillis();</span><br><span class="line">                boolean success = NamingProxy.syncData(data, task.getTargetServer());</span><br><span class="line">                if (!success) &#123;</span><br><span class="line">                    SyncTask syncTask = new SyncTask();</span><br><span class="line">                    syncTask.setKeys(task.getKeys());</span><br><span class="line">                    syncTask.setRetryCount(task.getRetryCount() + 1);</span><br><span class="line">                    syncTask.setLastExecuteTime(timestamp);</span><br><span class="line">                    syncTask.setTargetServer(task.getTargetServer());</span><br><span class="line">                    retrySync(syncTask);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    // clear all flags of this task:</span><br><span class="line">                    for (String key : task.getKeys()) &#123;</span><br><span class="line">                        taskMap.remove(buildKey(key, task.getTargetServer()));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line">                Loggers.EPHEMERAL.error(&quot;sync data failed.&quot;, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, delay);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>GlobalExecutor.submitDataSync(Runnable runnable)</code>提交一个数据广播任务；首先通过<code>SyncTask</code>中的<code>key</code>集合去<code>DataStore</code>中去查询<code>key</code>所对应的数据集合，然后对数据进行序列化操作，转为<code>byte[]</code>数组后，执行<code>Http</code>请求操作——<code>NamingProxy.syncData(data, task.getTargetServer())</code>；如果数据广播失败，则将任务重新打包再次压入<code>GlobalExecutor</code>中</p>
+<p>（这里有一个疑问，SyncTask记录了任务重试的次数，但是却没有根据该次数做一些判断，比如超过多少次server未响应可能是server挂掉了，这里仅仅是记录了重试的次数）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">public static boolean syncData(byte[] data, String curServer) throws Exception &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        Map&lt;String, String&gt; headers = new HashMap&lt;&gt;(128);</span><br><span class="line">        headers.put(&quot;Client-Version&quot;, UtilsAndCommons.SERVER_VERSION);</span><br><span class="line">        headers.put(&quot;User-Agent&quot;, UtilsAndCommons.SERVER_VERSION);</span><br><span class="line">        headers.put(&quot;Accept-Encoding&quot;, &quot;gzip,deflate,sdch&quot;);</span><br><span class="line">        headers.put(&quot;Connection&quot;, &quot;Keep-Alive&quot;);</span><br><span class="line">        headers.put(&quot;Content-Encoding&quot;, &quot;gzip&quot;);</span><br><span class="line"></span><br><span class="line">        HttpClient.HttpResult result = HttpClient.httpPutLarge(&quot;http://&quot; + curServer + RunningConfig.getContextPath()</span><br><span class="line">                + UtilsAndCommons.NACOS_NAMING_CONTEXT + DATA_ON_SYNC_URL, headers, data);</span><br><span class="line"></span><br><span class="line">        if (HttpURLConnection.HTTP_OK == result.code) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        if (HttpURLConnection.HTTP_NOT_MODIFIED == result.code) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        throw new IOException(&quot;failed to req API:&quot; + &quot;http://&quot; + curServer</span><br><span class="line">                + RunningConfig.getContextPath()</span><br><span class="line">                + UtilsAndCommons.NACOS_NAMING_CONTEXT + DATA_ON_SYNC_URL + &quot;. code:&quot;</span><br><span class="line">                + result.code + &quot; msg: &quot; + result.content);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        Loggers.SRV_LOG.warn(&quot;NamingProxy&quot;, e);</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里将数据提交到了URL为<code>PUT http://ip:port/nacos/v1/ns//distro/datum</code>中，而该URL对应的处理器为<code>DistroController</code>中的<code>public String onSyncDatum(HttpServletRequest request, HttpServletResponse response)</code>方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public String onSyncDatum(HttpServletRequest request, HttpServletResponse response) throws Exception &#123;</span><br><span class="line"></span><br><span class="line">    String entity = IOUtils.toString(request.getInputStream(), &quot;UTF-8&quot;);</span><br><span class="line"></span><br><span class="line">    if (StringUtils.isBlank(entity)) &#123;</span><br><span class="line">        Loggers.EPHEMERAL.error(&quot;[onSync] receive empty entity!&quot;);</span><br><span class="line">        throw new NacosException(NacosException.INVALID_PARAM, &quot;receive empty entity!&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Map&lt;String, Datum&lt;Instances&gt;&gt; dataMap = serializer.deserializeMap(entity.getBytes(), Instances.class);</span><br><span class="line">    for (Map.Entry&lt;String, Datum&lt;Instances&gt;&gt; entry : dataMap.entrySet()) &#123;</span><br><span class="line">        if (KeyBuilder.matchEphemeralInstanceListKey(entry.getKey())) &#123;</span><br><span class="line">            String namespaceId = KeyBuilder.getNamespace(entry.getKey());</span><br><span class="line">            String serviceName = KeyBuilder.getServiceName(entry.getKey());</span><br><span class="line">            if (!serviceManager.containService(namespaceId, serviceName) &amp;&amp; switchDomain.isDefaultInstanceEphemeral()) &#123;</span><br><span class="line">                serviceManager.createEmptyService(namespaceId, serviceName, true);</span><br><span class="line">            &#125;</span><br><span class="line">            consistencyService.onPut(entry.getKey(), entry.getValue().value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return &quot;ok&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里会调用<code>consistencyService.onPut(entry.getKey(), entry.getValue().value)</code>方法进行数据的更新，注意，<code>onPut</code>方法并不会涉及<code>taskDispatcher.addTask(key);</code>操作，而是将数据更新压入了<code>Notifier</code>的<code>Task</code>列表中（<code>Notifier</code>的作用看<a href="https://www.liaochuntao.cn/2019/04/29/java-web-31/" target="_blank" rel="noopener">Nacos Server端注册一个服务实例流程</a>）；至此完成了<code>Nacos Server</code>在AP模式下的数据的最终一致性操作。</p>
+<h3 id="1-集群选举"><a href="#1-集群选举" class="headerlink" title="1. 集群选举"></a>1. 集群选举</h3><p>Nacos支持集群模式，很显然。</p>
+<p>而一旦涉及到集群，就涉及到主从，那么nacos是一种什么样的机制来实现的集群呢?</p>
+<p>nacos的集群类似于zookeeper， 它分为leader角色和follower角色， 那么从这个角色的名字可以看出 来，这个集群存在选举的机制。 因为如果自己不具备选举功能，角色的命名可能就是master/slave了， 当然这只是我基于这么多组件的命名的一个猜测</p>
+<h4 id="1-1-选举算法"><a href="#1-1-选举算法" class="headerlink" title="1.1 选举算法"></a>1.1 选举算法</h4><p>Nacos集群采用raft算法来实现，它是相对zookeeper的选举算法较为简单的一种。</p>
+<p>选举算法的核心在RaftCore 中，包括数据的处理和数据同步</p>
+<p> <a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener">raft算法演示地址</a></p>
+<p>在Raft中，节点有三种角色:</p>
+<p>Leader:负责接收客户端的请求</p>
+<p>Candidate:用于选举Leader的一种角色 </p>
+<p>Follower:负责响应来自Leader或者Candidate的请求</p>
+<p>选举分为两个节点</p>
+<ul>
+<li>服务启动的时候</li>
+<li>leader挂了的时候</li>
+</ul>
+<p>所有节点启动的时候，都是follower状态。 如果在一段时间内如果没有收到leader的心跳(可能是没有 leader，也可能是leader挂了)，那么follower会变成Candidate。然后发起选举，选举之前，会增加 term，这个term和zookeeper中的epoch的道理是一样的。</p>
+<ul>
+<li>follower会投自己一票，并且给其他节点发送票据vote，等到其他节点回复 </li>
+<li>在这个过程中，可能出现几种情况<ul>
+<li>收到过半的票数通过，则成为leader </li>
+<li>被告知其他节点已经成为leader，则自己切换为follower </li>
+<li>一段时间内没有收到过半的投票，则重新发起选举</li>
+</ul>
+</li>
+<li>约束条件：在任一term中，单个节点最多只能投一票</li>
+</ul>
+<p>选举的几种情况</p>
+<ul>
+<li>第一种情况，赢得选举之后，leader会给所有节点发送消息，避免其他节点触发新的选举 </li>
+<li><p>第二种情况，比如有三个节点A B C。A B同时发起选举，而A的选举消息先到达C，C给A投了一票，当B的消息到达C时，已经不能满足上面提到的第一个约束，即C不会给B投票，而A和B显然都不会给对方投票。A胜出之后，会给B,C发心跳消息，节点B发现节点A的term不低于自己的term， 知道有已经有Leader了，于是转换成follower</p>
+</li>
+<li><p>第三种情况， 没有任何节点获得majority投票，可能是平票的情况。加入总共有四个节点 (A/B/C/D)，Node C、Node D同时成为了candidate，但Node A投了NodeD一票，NodeB投 了Node C一票，这就出现了平票 split vote的情况。这个时候大家都在等啊等，直到超时后重新发 起选举。如果出现平票的情况，那么就延长了系统不可用的时间,因此raft引入了randomized election timeouts来尽量避免平票情况</p>
+</li>
+</ul>
+<h5 id="nacos是如何实现CP-raft-的"><a href="#nacos是如何实现CP-raft-的" class="headerlink" title="nacos是如何实现CP(raft)的"></a>nacos是如何实现CP(raft)的</h5><blockquote>
+<p>RaftController</p>
+</blockquote>
+<p><code>RaftController</code>控制器是<code>raft</code>集群内部节点间通信使用的，具体的信息如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">POST HTTP://&#123;ip:port&#125;/v1/ns/raft/vote : 进行投票请求</span><br><span class="line"></span><br><span class="line">POST HTTP://&#123;ip:port&#125;/v1/ns/raft/beat : Leader向Follower发送心跳信息</span><br><span class="line"></span><br><span class="line">GET HTTP://&#123;ip:port&#125;/v1/ns/raft/peer : 获取该节点的RaftPeer信息</span><br><span class="line"></span><br><span class="line">PUT HTTP://&#123;ip:port&#125;/v1/ns/raft/datum/reload : 重新加载某日志信息</span><br><span class="line"></span><br><span class="line">POST HTTP://&#123;ip:port&#125;/v1/ns/raft/datum : Leader接收传来的数据并存入</span><br><span class="line"></span><br><span class="line">DELETE HTTP://&#123;ip:port&#125;/v1/ns/raft/datum : Leader接收传来的数据删除操作</span><br><span class="line"></span><br><span class="line">GET HTTP://&#123;ip:port&#125;/v1/ns/raft/datum : 获取该节点存储的数据信息</span><br><span class="line"></span><br><span class="line">GET HTTP://&#123;ip:port&#125;/v1/ns/raft/state : 获取该节点的状态信息&#123;UP or DOWN&#125;</span><br><span class="line"></span><br><span class="line">POST HTTP://&#123;ip:port&#125;/v1/ns/raft/datum/commit : Follower节点接收Leader传来得到数据存入操作</span><br><span class="line"></span><br><span class="line">DELETE HTTP://&#123;ip:port&#125;/v1/ns/raft/datum : Follower节点接收Leader传来的数据删除操作</span><br><span class="line"></span><br><span class="line">GET HTTP://&#123;ip:port&#125;/v1/ns/raft/leader : 获取当前集群的Leader节点信息</span><br><span class="line"></span><br><span class="line">GET HTTP://&#123;ip:port&#125;/v1/ns/raft/listeners : 获取当前Raft集群的所有事件监听者</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>RaftPeerSet</p>
+</blockquote>
+<p>这个对象存储的是所有<code>raft</code>协议下的节点信息，存储的元素如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// 集群节点地址管理</span><br><span class="line">private ServerListManager serverListManager;</span><br><span class="line"></span><br><span class="line">// 周期数</span><br><span class="line">private AtomicLong localTerm = new AtomicLong(0L);</span><br><span class="line"></span><br><span class="line">// 当前周期内的Leader</span><br><span class="line">private RaftPeer leader = null;</span><br><span class="line"></span><br><span class="line">// 所有的节点信息</span><br><span class="line">private Map&lt;String, RaftPeer&gt; peers = new HashMap&lt;String, RaftPeer&gt;();</span><br><span class="line"></span><br><span class="line">// 暂时不清楚用途</span><br><span class="line">private Set&lt;String&gt; sites = new HashSet&lt;&gt;();</span><br><span class="line"></span><br><span class="line">// 本节点是否已准备完毕</span><br><span class="line">private boolean ready = false;</span><br></pre></td></tr></table></figure>
+<p>同时还具备了<code>raft</code>协议下必要的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">// 当前IP对应的节点是否是Leader</span><br><span class="line">public boolean isLeader(String ip) &#123;</span><br><span class="line">    if (STANDALONE_MODE) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (leader == null) &#123;</span><br><span class="line">        Loggers.RAFT.warn(&quot;[IS LEADER] no leader is available now!&quot;);</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    return StringUtils.equals(leader.ip, ip);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 决定Leader节点，根据投票结果以及是否满足majorityCount机制</span><br><span class="line">public RaftPeer decideLeader(RaftPeer candidate) &#123;</span><br><span class="line">    peers.put(candidate.ip, candidate);</span><br><span class="line">    SortedBag ips = new TreeBag();</span><br><span class="line">    int maxApproveCount = 0;</span><br><span class="line">    String maxApprovePeer = null;</span><br><span class="line">    for (RaftPeer peer : peers.values()) &#123;</span><br><span class="line">        if (StringUtils.isEmpty(peer.voteFor)) &#123;</span><br><span class="line">            continue;</span><br><span class="line">        &#125;</span><br><span class="line">      	// 选票计数</span><br><span class="line">        ips.add(peer.voteFor);</span><br><span class="line">      	// 如果某节点的得票数大于当前的最大得票数，则更新候选Leader信息</span><br><span class="line">        if (ips.getCount(peer.voteFor) &gt; maxApproveCount) &#123;</span><br><span class="line">            maxApproveCount = ips.getCount(peer.voteFor);</span><br><span class="line">            maxApprovePeer = peer.voteFor;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  	// 是否满足majorityCount数量的限制</span><br><span class="line">    if (maxApproveCount &gt;= majorityCount()) &#123;</span><br><span class="line">      	// 若满足则设置Leader节点信息</span><br><span class="line">        RaftPeer peer = peers.get(maxApprovePeer);</span><br><span class="line">        peer.state = RaftPeer.State.LEADER;</span><br><span class="line"></span><br><span class="line">        if (!Objects.equals(leader, peer)) &#123;</span><br><span class="line">            leader = peer;</span><br><span class="line">            Loggers.RAFT.info(&quot;&#123;&#125; has become the LEADER&quot;, leader.ip);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return leader;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public RaftPeer makeLeader(RaftPeer candidate) &#123;</span><br><span class="line">  	// 如果当前Leader与Candidate节点不一样，则进行Leader信息更改</span><br><span class="line">    if (!Objects.equals(leader, candidate)) &#123;</span><br><span class="line">        leader = candidate;</span><br><span class="line">        Loggers.RAFT.info(&quot;&#123;&#125; has become the LEADER, local: &#123;&#125;, leader: &#123;&#125;&quot;,</span><br><span class="line">        leader.ip, JSON.toJSONString(local()), JSON.toJSONString(leader));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    for (final RaftPeer peer : peers.values()) &#123;</span><br><span class="line">        Map&lt;String, String&gt; params = new HashMap&lt;String, String&gt;(1);</span><br><span class="line">      	// 如果当前节点与远程Leader节点不等且是Follower节点</span><br><span class="line">        if (!Objects.equals(peer, candidate) &amp;&amp; peer.state == RaftPeer.State.LEADER) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">              	// 获取每个节点的RaftPeer节点信息对象数据</span><br><span class="line">                String url = RaftCore.buildURL(peer.ip, RaftCore.API_GET_PEER);</span><br><span class="line">                HttpClient.asyncHttpGet(url, null, params, new AsyncCompletionHandler&lt;Integer&gt;() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    public Integer onCompleted(Response response) throws Exception &#123;</span><br><span class="line">                        if (response.getStatusCode() != HttpURLConnection.HTTP_OK) &#123;</span><br><span class="line">                            Loggers.RAFT.error(&quot;[NACOS-RAFT] get peer failed: &#123;&#125;, peer: &#123;&#125;&quot;, response.getResponseBody(), peer.ip);</span><br><span class="line">                            peer.state = RaftPeer.State.FOLLOWER;</span><br><span class="line">                            return 1;</span><br><span class="line">                        &#125;</span><br><span class="line">                        update(JSON.parseObject(response.getResponseBody(), RaftPeer.class));</span><br><span class="line">                        return 0;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line">                peer.state = RaftPeer.State.FOLLOWER;</span><br><span class="line">                Loggers.RAFT.error(&quot;[NACOS-RAFT] error while getting peer from peer: &#123;&#125;&quot;, peer.ip);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return update(candidate);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>RaftCore</p>
+</blockquote>
+<p>该对象是<code>nacos</code>中<code>raft</code>协议的主要实现，在启动之初，会进行一系列初始化的操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">@PostConstruct</span><br><span class="line">public void init() throws Exception &#123;</span><br><span class="line">	Loggers.RAFT.info(&quot;initializing Raft sub-system&quot;);</span><br><span class="line">	executor.submit(notifier);</span><br><span class="line">	long start = System.currentTimeMillis();</span><br><span class="line">  // 进行日志文件的加载到内存数据对象Datums的操作</span><br><span class="line">	datums = raftStore.loadDatums(notifier);</span><br><span class="line">  // 设置当前的周期数</span><br><span class="line">	setTerm(NumberUtils.toLong(raftStore.loadMeta().getProperty(&quot;term&quot;), 0L));</span><br><span class="line">	Loggers.RAFT.info(&quot;cache loaded, datum count: &#123;&#125;, current term: &#123;&#125;&quot;, datums.size(), peers.getTerm());</span><br><span class="line">	while (true) &#123;</span><br><span class="line">    // 等待上一步的数据加载任务全部完成</span><br><span class="line">		if (notifier.tasks.size() &lt;= 0) &#123;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">		Thread.sleep(1000L);</span><br><span class="line">	&#125;</span><br><span class="line">  // 初始化标识更改</span><br><span class="line">	initialized = true;</span><br><span class="line">	Loggers.RAFT.info(&quot;finish to load data from disk, cost: &#123;&#125; ms.&quot;, (System.currentTimeMillis() - start));</span><br><span class="line">  // 开启定时的Leader选举任务</span><br><span class="line">	GlobalExecutor.registerMasterElection(new MasterElection());</span><br><span class="line">  // 开启定时的Leader心跳服务</span><br><span class="line">	GlobalExecutor.registerHeartbeat(new HeartBeat());</span><br><span class="line"></span><br><span class="line">	Loggers.RAFT.info(&quot;timer started: leader timeout ms: &#123;&#125;, heart-beat timeout ms: &#123;&#125;&quot;,</span><br><span class="line">	GlobalExecutor.LEADER_TIMEOUT_MS, GlobalExecutor.HEARTBEAT_INTERVAL_MS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>初始化的一系列操作完成后，此时集群还无法对外提供服务，因为此时<code>Leader</code>还未选举出来，需要在<code>MasterElection</code>选举<code>Leader</code>成功后才可以对外提供服务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">// Leader 选举任务</span><br><span class="line">public class MasterElection implements Runnable &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void run() &#123;</span><br><span class="line">		try &#123;</span><br><span class="line">      // 当前节点是否已准备完毕</span><br><span class="line">			if (!peers.isReady()) &#123;</span><br><span class="line">				return;</span><br><span class="line">			&#125;</span><br><span class="line">      // 获取自身节点信息</span><br><span class="line">			RaftPeer local = peers.local();</span><br><span class="line">      // 本地存储的Leader任期时间</span><br><span class="line">			local.leaderDueMs -= GlobalExecutor.TICK_PERIOD_MS;</span><br><span class="line">      // 如果Leader任期时间还在允许范围内，则不进行Leader选举</span><br><span class="line">			if (local.leaderDueMs &gt; 0) &#123;</span><br><span class="line">				return;</span><br><span class="line">			&#125;</span><br><span class="line">			// reset timeout</span><br><span class="line">			local.resetLeaderDue();</span><br><span class="line">			local.resetHeartbeatDue();</span><br><span class="line">      // 向其他节点发起投票请求</span><br><span class="line">			sendVote();</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			Loggers.RAFT.warn(&quot;[RAFT] error while master election &#123;&#125;&quot;, e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">  public void sendVote() &#123;</span><br><span class="line">		RaftPeer local = peers.get(NetUtils.localServer());</span><br><span class="line">		Loggers.RAFT.info(&quot;leader timeout, start voting,leader: &#123;&#125;, term: &#123;&#125;&quot;,</span><br><span class="line">		JSON.toJSONString(getLeader()), local.term);</span><br><span class="line"></span><br><span class="line">		// Raft node cluster rest</span><br><span class="line">		peers.reset();</span><br><span class="line">		local.term.incrementAndGet();</span><br><span class="line">		// 设置给自己投票</span><br><span class="line">		local.voteFor = local.ip;</span><br><span class="line">		// update node status to CANDIDATE</span><br><span class="line">		local.state = RaftPeer.State.CANDIDATE;</span><br><span class="line">		Map&lt;String, String&gt; params = new HashMap&lt;String, String&gt;(1);</span><br><span class="line">		params.put(&quot;vote&quot;, JSON.toJSONString(local));</span><br><span class="line">    // 遍历所有的节点信息(除了自己之外)</span><br><span class="line">		for (final String server : peers.allServersWithoutMySelf()) &#123;</span><br><span class="line">			final String url = buildURL(server, API_VOTE);</span><br><span class="line">			try &#123;</span><br><span class="line">				HttpClient.asyncHttpPost(url, null, params, new AsyncCompletionHandler&lt;Integer&gt;() &#123;</span><br><span class="line">					@Override</span><br><span class="line">					public Integer onCompleted(Response response) throws Exception &#123;</span><br><span class="line">						if (response.getStatusCode() != HttpURLConnection.HTTP_OK) &#123;</span><br><span class="line">							Loggers.RAFT.error(&quot;NACOS-RAFT vote failed: &#123;&#125;, url: &#123;&#125;&quot;, response.getResponseBody(), url);</span><br><span class="line">							return 1;</span><br><span class="line">						&#125;</span><br><span class="line">            // 获取投票结果，并进行Leader的选举工作</span><br><span class="line">						RaftPeer peer = JSON.parseObject(response.getResponseBody(), RaftPeer.class);</span><br><span class="line">						Loggers.RAFT.info(&quot;received approve from peer: &#123;&#125;&quot;, JSON.toJSONString(peer));</span><br><span class="line">						peers.decideLeader(peer);</span><br><span class="line">						return 0;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;);</span><br><span class="line">			&#125; catch (Exception e) &#123;</span><br><span class="line">				Loggers.RAFT.warn(&quot;error while sending vote to server: &#123;&#125;&quot;, server);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个节点启动时，都会认为自己可以作为<code>Leader</code>，因此都会以自去己作为被选举人，向其他节点发起投票请求，而其他节点在接收到投票请求后的工作流程如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// 其他节点接收到投票请求后的反应</span><br><span class="line">public RaftPeer receivedVote(RaftPeer remote) &#123;</span><br><span class="line">  // 被选举人是否在raft集群节点列表中</span><br><span class="line">	if (!peers.contains(remote)) &#123;</span><br><span class="line">		throw new IllegalStateException(&quot;can not find peer: &quot; + remote.ip);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"> 	// 获取自身节点信息</span><br><span class="line">	RaftPeer local = peers.get(NetUtils.localServer());</span><br><span class="line">  // 如果被选举节点的周期数小于本节点的周期数，则将自己的投票投给自己并告诉被选举者</span><br><span class="line">	if (remote.term.get() &lt;= local.term.get()) &#123;</span><br><span class="line">		String msg = &quot;received illegitimate vote&quot; + &quot;, voter-term:&quot; + remote.term + &quot;, votee-term:&quot; + local.term;</span><br><span class="line">		Loggers.RAFT.info(msg);</span><br><span class="line">		if (StringUtils.isEmpty(local.voteFor)) &#123;</span><br><span class="line">			local.voteFor = local.ip;</span><br><span class="line">		&#125;</span><br><span class="line">		return local;</span><br><span class="line">	&#125;</span><br><span class="line">  // 满足投票条件后，本节点确认将自己的票投给被选举者</span><br><span class="line">	local.resetLeaderDue();</span><br><span class="line">	local.state = RaftPeer.State.FOLLOWER;</span><br><span class="line">	local.voteFor = remote.ip;</span><br><span class="line">	local.term.set(remote.term.get());</span><br><span class="line">	Loggers.RAFT.info(&quot;vote &#123;&#125; as leader, term: &#123;&#125;&quot;, remote.ip, remote.term);</span><br><span class="line">	return local;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过以上步骤，最终选举出了<code>Leader</code>节点，接下来，就可以对外提供服务了</p>
+<p>因为是<code>CP</code>模式，所以操作都是通过<code>Leader</code>节点进行传达的，<code>Follower</code>节点本身不与<code>Client</code>进行联系，<code>Follower</code>只能接受来自<code>Leader</code>的操作请求，因此就存在请求转发的问题。因此在<code>RaftCore</code>中的<code>singlePublish</code>以及<code>singleDelete</code>中，存在着对<code>Leader</code>节点的判断以及请求转发的逻辑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">public void signalPublish(String key, Record value) throws Exception &#123;</span><br><span class="line">	if (!isLeader()) &#123;</span><br><span class="line">		JSONObject params = new JSONObject();</span><br><span class="line">		params.put(&quot;key&quot;, key);</span><br><span class="line">		params.put(&quot;value&quot;, value);</span><br><span class="line">		Map&lt;String, String&gt; parameters = new HashMap&lt;&gt;(1);</span><br><span class="line">		parameters.put(&quot;key&quot;, key);</span><br><span class="line">		// 请求转发</span><br><span class="line">		raftProxy.proxyPostLarge(getLeader().ip, API_PUB, params.toJSONString(), parameters);</span><br><span class="line">		return;</span><br><span class="line">	&#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void signalDelete(final String key) throws Exception &#123;</span><br><span class="line">	OPERATE_LOCK.lock();</span><br><span class="line">	try &#123;</span><br><span class="line">		if (!isLeader()) &#123;</span><br><span class="line">			Map&lt;String, String&gt; params = new HashMap&lt;&gt;(1);</span><br><span class="line">			params.put(&quot;key&quot;, URLEncoder.encode(key, &quot;UTF-8&quot;));</span><br><span class="line">			// 删除请求进行转发给 leader 进行处理</span><br><span class="line">			raftProxy.proxy(getLeader().ip, API_DEL, params, HttpMethod.DELETE);</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同时，还有一个重要的机制——心跳机制，<code>raft</code>通过心跳机制来维持<code>Leader</code>以及<code>Follower</code>的关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">// 心跳任务，如果成为Leader，需要对 follower 发送心跳信息</span><br><span class="line">public class HeartBeat implements Runnable &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void run() &#123;</span><br><span class="line">		try &#123;</span><br><span class="line">			// 程序是否已准备完毕</span><br><span class="line">			if (!peers.isReady()) &#123;</span><br><span class="line">				return;</span><br><span class="line">			&#125;</span><br><span class="line">			RaftPeer local = peers.local();</span><br><span class="line">			local.heartbeatDueMs -= GlobalExecutor.TICK_PERIOD_MS;</span><br><span class="line">      // 心跳周期判断</span><br><span class="line">			if (local.heartbeatDueMs &gt; 0) &#123;</span><br><span class="line">				return;</span><br><span class="line">			&#125;</span><br><span class="line">      // 重置心跳发送周期</span><br><span class="line">			local.resetHeartbeatDue();</span><br><span class="line">      // 发送心跳信息</span><br><span class="line">			sendBeat();</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			Loggers.RAFT.warn(&quot;[RAFT] error while sending beat &#123;&#125;&quot;, e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">  public void sendBeat() throws IOException, InterruptedException &#123;</span><br><span class="line">		RaftPeer local = peers.local();</span><br><span class="line">    // 如果自己不是Leader节点或者处于单机模式下，则直接返回</span><br><span class="line">		if (local.state != RaftPeer.State.LEADER &amp;&amp; !STANDALONE_MODE) &#123;</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line">		Loggers.RAFT.info(&quot;[RAFT] send beat with &#123;&#125; keys.&quot;, datums.size());</span><br><span class="line">    // 重置Leader任期时间</span><br><span class="line">		local.resetLeaderDue();</span><br><span class="line">		// build data</span><br><span class="line">		JSONObject packet = new JSONObject();</span><br><span class="line">		packet.put(&quot;peer&quot;, local);</span><br><span class="line">		JSONArray array = new JSONArray();</span><br><span class="line">		if (switchDomain.isSendBeatOnly()) &#123;</span><br><span class="line">			Loggers.RAFT.info(&quot;[SEND-BEAT-ONLY] &#123;&#125;&quot;, String.valueOf(switchDomain.isSendBeatOnly()));</span><br><span class="line">		&#125;</span><br><span class="line">		if (!switchDomain.isSendBeatOnly()) &#123;</span><br><span class="line">      // 如果开启了在心跳包中携带Leader存储的数据进行发送，则对数据进行打包操作</span><br><span class="line">			for (Datum datum : datums.values()) &#123;</span><br><span class="line">				JSONObject element = new JSONObject();</span><br><span class="line">				if (KeyBuilder.matchServiceMetaKey(datum.key)) &#123;</span><br><span class="line">					element.put(&quot;key&quot;, KeyBuilder.briefServiceMetaKey(datum.key));</span><br><span class="line">				&#125; else if (KeyBuilder.matchInstanceListKey(datum.key)) &#123;</span><br><span class="line">					element.put(&quot;key&quot;, KeyBuilder.briefInstanceListkey(datum.key));</span><br><span class="line">				&#125;</span><br><span class="line">				element.put(&quot;timestamp&quot;, datum.timestamp);</span><br><span class="line">				array.add(element);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			Loggers.RAFT.info(&quot;[RAFT] send beat only.&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">		packet.put(&quot;datums&quot;, array);</span><br><span class="line">		// broadcast</span><br><span class="line">		Map&lt;String, String&gt; params = new HashMap&lt;String, String&gt;(1);</span><br><span class="line">		params.put(&quot;beat&quot;, JSON.toJSONString(packet));</span><br><span class="line">    // 将参数信息进行 Gzip算法压缩，降低网络消耗</span><br><span class="line">		String content = JSON.toJSONString(params);</span><br><span class="line">		ByteArrayOutputStream out = new ByteArrayOutputStream();</span><br><span class="line">		GZIPOutputStream gzip = new GZIPOutputStream(out);</span><br><span class="line">		gzip.write(content.getBytes(&quot;UTF-8&quot;));</span><br><span class="line">		gzip.close();</span><br><span class="line"></span><br><span class="line">		byte[] compressedBytes = out.toByteArray();</span><br><span class="line">		String compressedContent = new String(compressedBytes, &quot;UTF-8&quot;);</span><br><span class="line">		Loggers.RAFT.info(&quot;raw beat data size: &#123;&#125;, size of compressed data: &#123;&#125;&quot;, content.length(), compressedContent.length());</span><br><span class="line">    // 遍历所有的Follower节点进行发送心跳数据包</span><br><span class="line">		for (final String server : peers.allServersWithoutMySelf()) &#123;</span><br><span class="line">			try &#123;</span><br><span class="line">				final String url = buildURL(server, API_BEAT);</span><br><span class="line">				Loggers.RAFT.info(&quot;send beat to server &quot; + server);</span><br><span class="line">        // 采用异步HTTP请求进行心跳数据发送</span><br><span class="line">				HttpClient.asyncHttpPostLarge(url, null, compressedBytes, new AsyncCompletionHandler&lt;Integer&gt;() &#123;</span><br><span class="line">					@Override</span><br><span class="line">					public Integer onCompleted(Response response) throws Exception &#123;</span><br><span class="line">						if (response.getStatusCode() != HttpURLConnection.HTTP_OK) &#123;</span><br><span class="line">							Loggers.RAFT.error(&quot;NACOS-RAFT beat failed: &#123;&#125;, peer: &#123;&#125;&quot;, response.getResponseBody(), server);</span><br><span class="line">            	MetricsMonitor.getLeaderSendBeatFailedException().increment();</span><br><span class="line">						&#125;</span><br><span class="line">            // 成功后接收Follower节点的心跳回复(Follower节点的当前信息)进行节点更新操作</span><br><span class="line">						peers.update(JSON.parseObject(response.getResponseBody(), RaftPeer.class));</span><br><span class="line">						Loggers.RAFT.info(&quot;receive beat response from: &#123;&#125;&quot;, url);</span><br><span class="line">						return 0;</span><br><span class="line">					&#125;</span><br><span class="line"></span><br><span class="line">					@Override</span><br><span class="line">					public void onThrowable(Throwable t) &#123;</span><br><span class="line">						Loggers.RAFT.error(&quot;NACOS-RAFT error while sending heart-beat to peer: &#123;&#125; &#123;&#125;&quot;, server, t);</span><br><span class="line">						MetricsMonitor.getLeaderSendBeatFailedException().increment();</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;);</span><br><span class="line">			&#125; catch (Exception e) &#123;</span><br><span class="line">				Loggers.RAFT.error(&quot;error while sending heart-beat to peer: &#123;&#125; &#123;&#125;&quot;, server, e);</span><br><span class="line">				MetricsMonitor.getLeaderSendBeatFailedException().increment();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至于心跳接收的回复操作基本就是<code>Follower</code>节点将自己当前的信息进行数据打包发送给<code>Leader</code>节点，同时也会重置当前<code>Leader</code>的任期时间信息，并且根据接收到心跳信息，进行拉取<code>Leader</code>节点的最新数据信息</p>
+<h4 id="为什么要同时实现CP和AP两套一致性策略模式？"><a href="#为什么要同时实现CP和AP两套一致性策略模式？" class="headerlink" title="为什么要同时实现CP和AP两套一致性策略模式？"></a>为什么要同时实现CP和AP两套一致性策略模式？</h4><p>或许有的人会问，为什么<code>Nacos</code>要同时实现<code>CP</code>以及<code>AP</code>两种数据的一致性策略。其实在一个组件中同时实现两种数据一致性策略，我觉得这样在做服务注册中心选型时，就不必操心<code>AP</code>选什么组件，<code>CP</code>选什么组件，直接采用<code>nacos</code>就好了，同时满足你<code>AP</code>以及<code>CP</code>的数据一致性需求；直接在一个组件中，享受<code>Zookeeper</code>以及<code>Eureka</code>组件的服务，避免了需要同时维护两种不同的组件的运维代价，只需要根据自己的实例需求，选择不同的注册模式即可。</p>
+<h4 id="1-2-源码分析"><a href="#1-2-源码分析" class="headerlink" title="1.2 源码分析"></a>1.2 源码分析</h4><h5 id="1-2-1-RaftCore初始化"><a href="#1-2-1-RaftCore初始化" class="headerlink" title="1.2.1 RaftCore初始化"></a>1.2.1 RaftCore初始化</h5><p>Raft选举算法，是在RaftCore这个类中实现的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostConstruct</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    Loggers.RAFT.info(<span class="string">"initializing Raft sub-system"</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">  <span class="comment">//遍历/nacos/data/naming/data/文件,也就是从磁盘中加载Datum到内存，用来做数据恢复。</span></span><br><span class="line">  <span class="comment">//数据同步采用2pc协议，leader收到请求会写写入到磁盘日志，然后再进行数据同步</span></span><br><span class="line">    raftStore.loadDatums(notifier, datums);</span><br><span class="line">  <span class="comment">//从/nacos_home/data/naming/meta.properties文件中读取term,term表示当前的时钟周期。</span></span><br><span class="line">    setTerm(NumberUtils.toLong(raftStore.loadMeta().getProperty(<span class="string">"term"</span>), <span class="number">0L</span>));</span><br><span class="line">    </span><br><span class="line">    Loggers.RAFT.info(<span class="string">"cache loaded, datum count: &#123;&#125;, current term: &#123;&#125;"</span>, datums.size(), peers.getTerm());</span><br><span class="line">    </span><br><span class="line">    initialized = <span class="keyword">true</span>;</span><br><span class="line">    </span><br><span class="line">    Loggers.RAFT.info(<span class="string">"finish to load data from disk, cost: &#123;&#125; ms."</span>, (System.currentTimeMillis() - start));</span><br><span class="line">    </span><br><span class="line">    masterTask = GlobalExecutor.registerMasterElection(<span class="keyword">new</span> MasterElection());</span><br><span class="line">    heartbeatTask = GlobalExecutor.registerHeartbeat(<span class="keyword">new</span> HeartBeat());</span><br><span class="line">    </span><br><span class="line">    versionJudgement.registerObserver(isAllNewVersion -&gt; &#123;</span><br><span class="line">        stopWork = isAllNewVersion;</span><br><span class="line">        <span class="keyword">if</span> (stopWork) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                shutdown();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (NacosException e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> NacosRuntimeException(NacosException.SERVER_ERROR, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">    </span><br><span class="line">    NotifyCenter.registerSubscriber(notifier);</span><br><span class="line">    </span><br><span class="line">    Loggers.RAFT.info(<span class="string">"timer started: leader timeout ms: &#123;&#125;, heart-beat timeout ms: &#123;&#125;"</span>,</span><br><span class="line">            GlobalExecutor.LEADER_TIMEOUT_MS, GlobalExecutor.HEARTBEAT_INTERVAL_MS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/2020/08/22/Nacos(3)心跳与服务更新/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Nacos(三)心跳与服务更新
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2020/08/17/Nacos(2)注册中心核心源码分析/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Nacos(二)注册中心核心源码分析</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Zhao Zhengkang &copy; 2021 
+<!--             <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
